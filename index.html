@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <!-- docxtemplater + dependencies -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://unpkg.com/pizzip@3.1.5/dist/pizzip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="https://unpkg.com/docxtemplater@3.47.4/build/docxtemplater.js"></script>
 
@@ -702,7 +702,7 @@ async function exportWord(ns){
     const arrayBuf = await res.arrayBuffer();
     showLoading('Đang điền dữ liệu vào văn bản...');
 
-    const zip = await JSZip.loadAsync(arrayBuf);
+    const zip = new PizZip(arrayBuf);
     const doc = new window.docxtemplater(zip, {
       paragraphLoop: true,
       linebreaks: true,
