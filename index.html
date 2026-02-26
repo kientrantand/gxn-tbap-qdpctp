@@ -782,7 +782,7 @@ function calcAnPhi(s){
 }
 function roundTo1000(n){ return Math.round(n/1000)*1000; }
 function minAP(n){ return Math.max(n,300000); }
-function fmtVND(n){ return Math.round(n).toLocaleString('vi-VN')+' đ'; }
+function fmtVND(n){ return Math.round(n).toLocaleString('vi-VN')+' đồng'; }
 
 let _ap = { tamung:0, moiphan:0, parts:1 };
 function calcAP(){
@@ -835,17 +835,31 @@ function soThanhChu(n){
 function buildPH(ns){
   const g = id => (document.getElementById(id)?.value||'').trim();
   const p = ns+'_', type = state[ns].type;
-  const nkk = [buildParty(p+'nkk'), ...multiParty[ns].nkk.map(buildEPString)]
-               .filter(s=>s&&s!=='(chưa nhập)').join('\n');
-  const nbk = [buildParty(p+'nbk'), ...multiParty[ns].nbk.map(buildEPString)]
-               .filter(s=>s&&s!=='(chưa nhập)').join('\n');
+
+  // Danh sách thông tin đầy đủ (có đánh số thứ tự nếu nhiều người)
+  const nkkList = [buildParty(p+'nkk'), ...multiParty[ns].nkk.map(buildEPString)]
+                  .filter(s=>s&&s!=='(chưa nhập)');
+  const nbkList = [buildParty(p+'nbk'), ...multiParty[ns].nbk.map(buildEPString)]
+                  .filter(s=>s&&s!=='(chưa nhập)');
+
+  // Nếu nhiều hơn 1 người: đánh số "1.", "2."...
+  function formatList(list){ if(list.length<=1) return list.join(''); return list.map((s,i)=>(i+1)+'. '+s).join('\n'); }
+
+  // Danh sách tên ngắn
+  const nkkNames = [buildPartyName(p+'nkk'), ...multiParty[ns].nkk.map(buildEPName)]
+                   .filter(Boolean);
+  const nbkNames = [buildPartyName(p+'nbk'), ...multiParty[ns].nbk.map(buildEPName)]
+                   .filter(Boolean);
+
   const ph = {
     SO:                    g(p+'so')||'',
     NGAY_LAM_DON:          fmtDate(g(p+'ngaylam')),
     NGAY_NHAN_DON:         fmtDate(g(p+'ngaynhan')),
     NGAY_NHAN_DON_QUY_DOI: fmtDateLong(g(p+'ngaynhan')),
-    THONG_TIN_KHOI_KIEN:   nkk,
-    THONG_TIN_BI_KIEN:     nbk,
+    THONG_TIN_KHOI_KIEN:   formatList(nkkList),
+    THONG_TIN_BI_KIEN:     formatList(nbkList),
+    TEN_KHOI_KIEN:         joinNames(nkkNames),
+    TEN_BI_KIEN:           joinNames(nbkNames),
   };
   if(type==='VDS') ph.QHPL_VDS = g(p+'quanhe');
   else             ph.QHPL_DS  = g(p+'quanhe');
@@ -1086,6 +1100,36 @@ function buildEPString(p){
     if(dd) parts.push('người đại diện theo pháp luật: '+dd);
     return parts.join('; ')+'.';
   }
+}
+
+// ── Lấy tên ngắn (xưng hô + tên) của party ──
+function buildPartyName(prefix){
+  const cn = document.getElementById(prefix+'_ca_nhan'); if(!cn) return '';
+  const isCN = cn.style.display!=='none';
+  const g = id=>(document.getElementById(id)?.value||'').trim();
+  if(isCN){
+    const ten=g(prefix+'_ten'); if(!ten) return '';
+    return getXungHo(g(prefix+'_gt'), g(prefix+'_namsinh'))+' '+ten;
+  } else {
+    return g(prefix+'_tentochuc');
+  }
+}
+function buildEPName(p){
+  const g = id=>(document.getElementById(id)?.value||'').trim();
+  if(p.ptype==='ca_nhan'){
+    const ten=g('ep_'+p.id+'_ten'); if(!ten) return '';
+    return getXungHo(g('ep_'+p.id+'_gt'), g('ep_'+p.id+'_ns'))+' '+ten;
+  } else {
+    return g('ep_'+p.id+'_tc');
+  }
+}
+
+// Ghép danh sách tên: "A, B và C"
+function joinNames(names){
+  const n = names.filter(Boolean);
+  if(n.length === 0) return '';
+  if(n.length === 1) return n[0];
+  return n.slice(0,-1).join(', ')+' và '+n[n.length-1];
 }
 
 // ══════════════════════════════════════════════
