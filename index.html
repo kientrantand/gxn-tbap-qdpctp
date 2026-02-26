@@ -121,6 +121,15 @@ input:focus,select:focus,textarea:focus{border-color:var(--navy);background:whit
 input[type=number]{-moz-appearance:textfield;}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 
+/* ══ EXTRA PARTY BLOCK ══ */
+.extra-party-block{border:1.5px solid var(--border);border-radius:10px;padding:16px 18px;margin-top:14px;background:var(--cream);position:relative;}
+.extra-party-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.extra-party-label{font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:0.06em;}
+.extra-party-remove{border:none;background:none;cursor:pointer;color:var(--red);font-size:18px;line-height:1;padding:2px 6px;border-radius:4px;transition:background 0.15s;}
+.extra-party-remove:hover{background:#fff0ee;}
+.btn-add-party{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:var(--cream-dark);border:1.5px dashed var(--border);border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;color:var(--text-light);cursor:pointer;transition:all 0.2s;margin-top:12px;}
+.btn-add-party:hover{border-color:var(--navy);color:var(--navy);background:white;}
+
 @media(max-width:700px){
   .party-grid{grid-template-columns:1fr;}
   header{padding:0 16px;}
@@ -316,7 +325,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <button class="type-btn" onclick="setType('ap','VDS',this)">📄 Lệ phí Việc Dân sự <small style="opacity:.6">→ TB_AP_VDS.docx</small></button>
       <button class="type-btn" onclick="setType('ap','MAP',this)">✅ Miễn Án phí <small style="opacity:.6">→ TB_MAP.docx</small></button>
     </div>
-    <div class="exempt-info show" id="ap_exemptInfo">✅ Sẽ sử dụng mẫu <strong>TB_MAP.docx</strong> — Thông báo miễn nộp tiền tạm ứng án phí</div>
+    <div class="exempt-info" id="ap_exemptInfo">✅ Sẽ sử dụng mẫu <strong>TB_MAP.docx</strong> — Thông báo miễn nộp tiền tạm ứng án phí</div>
   </div>
 
   <div class="card">
@@ -354,11 +363,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
           <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="ap_nkk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
         </div>
       </div>
-      <div style="margin-top:10px">
-        <button type="button" class="btn btn-outline"
-                onclick="addParty('ap','nkk')">+ Thêm</button>
-      </div>
-      <div id="ap_nkk_list" class="judge-list"></div>
+      <div id="ap_nkk_extras"></div>
+      <button type="button" class="btn-add-party" onclick="addParty('ap','nkk')">＋ Thêm người khởi kiện</button>
     </div>
 
     <div class="card">
@@ -385,11 +391,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
           <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="ap_nbk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
         </div>
       </div>
-      <div style="margin-top:10px">
-        <button type="button" class="btn btn-outline"
-                onclick="addParty('ap','nkk')">+ Thêm</button>
-      </div>
-      <div id="ap_nkk_list" class="judge-list"></div>
+      <div id="ap_nbk_extras"></div>
+      <button type="button" class="btn-add-party" onclick="addParty('ap','nbk')">＋ Thêm người bị kiện</button>
     </div>
   </div>
 
@@ -487,11 +490,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
           <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="qd_nkk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
         </div>
       </div>
-      <div style="margin-top:10px">
-        <button type="button" class="btn btn-outline"
-                onclick="addParty('ap','nkk')">+ Thêm</button>
-      </div>
-      <div id="ap_nkk_list" class="judge-list"></div>
+      <div id="qd_nkk_extras"></div>
+      <button type="button" class="btn-add-party" onclick="addParty('qd','nkk')">＋ Thêm người khởi kiện</button>
     </div>
 
     <div class="card">
@@ -518,11 +518,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
           <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="qd_nbk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
         </div>
       </div>
-      <div style="margin-top:10px">
-        <button type="button" class="btn btn-outline"
-                onclick="addParty('ap','nkk')">+ Thêm</button>
-      </div>
-      <div id="ap_nkk_list" class="judge-list"></div>
+      <div id="qd_nbk_extras"></div>
+      <button type="button" class="btn-add-party" onclick="addParty('qd','nbk')">＋ Thêm người bị kiện</button>
     </div>
   </div>
 
@@ -586,11 +583,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
           <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="gxn_nkk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
         </div>
       </div>
-      <div style="margin-top:10px">
-        <button type="button" class="btn btn-outline"
-                onclick="addParty('ap','nkk')">+ Thêm</button>
-      </div>
-      <div id="ap_nkk_list" class="judge-list"></div>
+      <div id="gxn_nkk_extras"></div>
+      <button type="button" class="btn-add-party" onclick="addParty('gxn','nkk')">＋ Thêm người khởi kiện</button>
     </div>
 
     <div class="card">
@@ -617,11 +611,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
           <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="gxn_nbk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
         </div>
       </div>
-      <div style="margin-top:10px">
-        <button type="button" class="btn btn-outline"
-                onclick="addParty('ap','nkk')">+ Thêm</button>
-      </div>
-      <div id="ap_nkk_list" class="judge-list"></div>
+      <div id="gxn_nbk_extras"></div>
+      <button type="button" class="btn-add-party" onclick="addParty('gxn','nbk')">＋ Thêm người bị kiện</button>
     </div>
   </div>
 
@@ -771,8 +762,8 @@ function buildPH(ns){
     NGAY_LAM_DON:        fmtDate(g(p+'ngaylam')),
     NGAY_NHAN_DON:       fmtDate(g(p+'ngaynhan')),
     NGAY_NHAN_DON_QUY_DOI: fmtDateLong(g(p+'ngaynhan')),
-    THONG_TIN_KHOI_KIEN: [buildParty(p+'nkk'), ...multiParty[ns].nkk].filter(Boolean).join('\n'),
-    THONG_TIN_BI_KIEN: [buildParty(p+'nbk'), ...multiParty[ns].nbk].filter(Boolean).join('\n'),
+    THONG_TIN_KHOI_KIEN: [buildParty(p+'nkk'), ...multiParty[ns].nkk.map(buildEPString)].filter(Boolean).join('\n'),
+    THONG_TIN_BI_KIEN: [buildParty(p+'nbk'), ...multiParty[ns].nbk.map(buildEPString)].filter(Boolean).join('\n'),
   };
 
   if(type==='VDS') ph.QHPL_VDS = g(p+'quanhe');
@@ -920,39 +911,114 @@ function resetPanel(ns){
     if(i.id==='ap_sophần') i.value='1'; else i.value='';
   });
   panel.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
+  // Clear extra parties
+  multiParty[ns].nkk = []; multiParty[ns].nbk = [];
+  renderParty(ns,'nkk'); renderParty(ns,'nbk');
   document.getElementById(ns+'_preview').classList.remove('show');
   if(ns==='ap') calcAP();
   showToast('🔄 Đã làm mới biểu mẫu','success');
 }
-// ===================== MULTI PARTY =====================
+// ===================== MULTI PARTY — inline form blocks =====================
 const multiParty = {
   ap:{nkk:[],nbk:[]},
   qd:{nkk:[],nbk:[]},
   gxn:{nkk:[],nbk:[]}
 };
+let epCounter = 0;
 
-function addParty(ns,type){
-  const name = prompt("Nhập họ tên / tên tổ chức:");
-  if(!name) return;
-  multiParty[ns][type].push(name);
-  renderParty(ns,type);
+const EP_LABEL = { nkk:'Người khởi kiện', nbk:'Người bị kiện' };
+
+function addParty(ns, type){
+  const id = ++epCounter;
+  multiParty[ns][type].push({ id, ptype:'ca_nhan' });
+  renderParty(ns, type);
+  // scroll to new block
+  setTimeout(()=>{
+    const el = document.getElementById('ep_'+id);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 50);
 }
 
-function renderParty(ns,type){
-  const box = document.getElementById(ns+'_'+type+'_list');
-  if(!box) return;
-
-  box.innerHTML = multiParty[ns][type].map((p,i)=>
-    `<div class="judge-tag">
-        ${p}
-        <button onclick="removeParty('${ns}','${type}',${i})">✕</button>
-     </div>`
-  ).join('');
+function removeParty(ns, type, id){
+  multiParty[ns][type] = multiParty[ns][type].filter(p=>p.id!==id);
+  renderParty(ns, type);
+  livePreview(ns);
 }
 
-function removeParty(ns,type,i){
-  multiParty[ns][type].splice(i,1);
-  renderParty(ns,type);
+function switchEPType(ns, type, id, ptype, btn){
+  const p = multiParty[ns][type].find(x=>x.id===id);
+  if(!p) return;
+  p.ptype = ptype;
+  const block = document.getElementById('ep_'+id);
+  block.querySelectorAll('.ep-ptab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  block.querySelector('.ep-cn').style.display = ptype==='ca_nhan'?'block':'none';
+  block.querySelector('.ep-tc').style.display = ptype==='to_chuc'?'block':'none';
+  livePreview(ns);
+}
+
+function renderParty(ns, type){
+  const container = document.getElementById(ns+'_'+type+'_extras');
+  if(!container) return;
+  const label = EP_LABEL[type];
+  container.innerHTML = multiParty[ns][type].map((p, idx) => {
+    const isCN = p.ptype === 'ca_nhan';
+    const n = idx + 2; // "thứ 2", "thứ 3"...
+    return `
+    <div class="extra-party-block" id="ep_${p.id}">
+      <div class="extra-party-header">
+        <span class="extra-party-label">${label} thứ ${n}</span>
+        <button class="extra-party-remove" onclick="removeParty('${ns}','${type}',${p.id})" title="Xóa">✕</button>
+      </div>
+      <div class="party-tabs" style="margin-bottom:14px">
+        <button class="party-tab ep-ptab${isCN?' active':''}" onclick="switchEPType('${ns}','${type}',${p.id},'ca_nhan',this)">Cá nhân</button>
+        <button class="party-tab ep-ptab${!isCN?' active':''}" onclick="switchEPType('${ns}','${type}',${p.id},'to_chuc',this)">Tổ chức</button>
+      </div>
+      <div class="ep-cn" style="display:${isCN?'block':'none'}">
+        <div class="form-row">
+          <div class="form-group full"><label>Họ và tên</label><input id="ep_${p.id}_ten" placeholder="Nguyễn Văn A" oninput="livePreview('${ns}')"></div>
+          <div class="form-group"><label>Ngày/Năm sinh</label><input id="ep_${p.id}_ns" placeholder="10/01/1990 hoặc 1990" oninput="livePreview('${ns}')"></div>
+          <div class="form-group"><label>Số CCCD</label><input id="ep_${p.id}_cccd" placeholder="Để trống nếu không có" oninput="livePreview('${ns}')"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="ep_${p.id}_tt" placeholder="Địa chỉ..." oninput="livePreview('${ns}')"></div>
+          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="ep_${p.id}_ct" placeholder="Để trống nếu giống thường trú" oninput="livePreview('${ns}')"></div>
+        </div>
+      </div>
+      <div class="ep-tc" style="display:${!isCN?'block':'none'}">
+        <div class="form-row">
+          <div class="form-group full"><label>Tên tổ chức</label><input id="ep_${p.id}_tc" placeholder="Công ty TNHH..." oninput="livePreview('${ns}')"></div>
+          <div class="form-group full"><label>Địa chỉ trụ sở</label><input id="ep_${p.id}_dc" placeholder="Số nhà, đường, phường, tỉnh..." oninput="livePreview('${ns}')"></div>
+          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="ep_${p.id}_dd" placeholder="Để trống nếu không có" oninput="livePreview('${ns}')"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildEPString(p){
+  const g = id => (document.getElementById(id)?.value||'').trim();
+  if(p.ptype==='ca_nhan'){
+    const ten = g('ep_'+p.id+'_ten'); if(!ten) return '';
+    const sinh = parseSinh(g('ep_'+p.id+'_ns'));
+    const cccd = g('ep_'+p.id+'_cccd');
+    const tt   = g('ep_'+p.id+'_tt');
+    const ct   = g('ep_'+p.id+'_ct') || tt;
+    let parts = [`Ông/bà ${ten}`];
+    if(sinh) parts.push(sinh);
+    if(cccd) parts.push(`số căn cước công dân: ${cccd}`);
+    if(tt)   parts.push(`nơi đăng ký thường trú: ${tt}`);
+    if(ct)   parts.push(`nơi cư trú: ${ct}`);
+    return parts.join('; ')+'.';
+  } else {
+    const ten = g('ep_'+p.id+'_tc'); if(!ten) return '';
+    const dc  = g('ep_'+p.id+'_dc');
+    const dd  = g('ep_'+p.id+'_dd');
+    let parts = [ten];
+    if(dc) parts.push(`địa chỉ trụ sở: ${dc}`);
+    if(dd) parts.push(`người đại diện theo pháp luật: ${dd}`);
+    return parts.join('; ')+'.';
+  }
 }
 
 // ═══════════════════════════════════════════
