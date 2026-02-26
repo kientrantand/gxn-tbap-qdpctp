@@ -843,7 +843,7 @@ function buildPH(ns){
                   .filter(s=>s&&s!=='(chưa nhập)');
 
   // Nếu nhiều hơn 1 người: đánh số "1.", "2."...
-  function formatList(list){ if(list.length<=1) return list.join(''); return list.map((s,i)=>(i+1)+'. '+s).join('\n'); }
+  function formatList(list){ if(list.length<=1) return list.join(''); return list.map((s,i)=>(i+1)+'. '+s).join('|||NP|||'); }
 
   // Danh sách tên ngắn
   const nkkNames = [buildPartyName(p+'nkk'), ...multiParty[ns].nkk.map(buildEPName)]
@@ -886,7 +886,7 @@ function livePreview(ns){
 function renderPreview(ns){
   const ph = buildPH(ns);
   document.getElementById(ns+'_preview_content').innerHTML =
-    Object.entries(ph).map(([k,v])=>`<div class="ph-row"><span class="ph-key">[[${k}]]</span><span class="ph-val">${(v||'').replace(/\r/g,' ↵ ')||'<em style="color:#aaa">chưa nhập</em>'}</span></div>`).join('');
+    Object.entries(ph).map(([k,v])=>`<div class="ph-row"><span class="ph-key">[[${k}]]</span><span class="ph-val">${(v||'').replace(/\|\|\|NP\|\|\|/g,' ↵ ')||'<em style="color:#aaa">chưa nhập</em>'}</span></div>`).join('');
 }
 
 // ===================== TEMPLATE MAP =====================
@@ -897,8 +897,75 @@ function getTemplateName(ns){
   if(ns==='gxn') return t==='DS'?'GXN_DS':'GXN_VDS';
 }
 
-// ── postProcessDocx: không cần thiết với \n linebreaks ──
-function postProcessDocx(zip){ /* no-op, kept for compatibility */ }
+// ── postProcessDocx: tách |||NP||| thành <w:p> mới giữ nguyên indent ──
+function postProcessDocx(zip){
+  const SEP = '|||NP|||';
+  const path = 'word/document.xml';
+  let xml = zip.file(path).asText();
+  if(!xml.includes(SEP)) return;
+
+  // Regex tìm toàn bộ <w:p> block (không lồng nhau trong OOXML thực tế)
+  // Dùng cách đơn giản: split theo </w:p> rồi xử lý từng block
+  const parts = xml.split('</w:p>');
+  const out = [];
+
+  for(let i = 0; i < parts.length; i++){
+    const part = parts[i];
+    if(!part.includes(SEP)){
+      out.push(part);
+      if(i < parts.length - 1) out.push('</w:p>');
+      continue;
+    }
+
+    // Block này chứa SEP — lấy header thẻ mở và pPr
+    // Tìm <w:p ...> hoặc <w:p> cuối cùng trong phần này
+    const pMatch = part.match(/([\s\S]*?)(<w:p(?:\s[^>]*)?>)([\s\S]*)$/);
+    if(!pMatch){ out.push(part); if(i < parts.length-1) out.push('</w:p>'); continue; }
+
+    const before  = pMatch[1];   // text trước <w:p>
+    const pOpen   = pMatch[2];   // <w:p ...>
+    const content = pMatch[3];   // nội dung sau <w:p>
+
+    // Lấy <w:pPr>...</w:pPr> để giữ indent/style
+    const pPrMatch = content.match(/<w:pPr>[\s\S]*?<\/w:pPr>/);
+    const pPr = pPrMatch ? pPrMatch[0] : '';
+
+    // Lấy <w:rPr> từ run đầu để giữ font
+    const rPrMatch = content.match(/<w:rPr>[\s\S]*?<\/w:rPr>/);
+    const rPr = rPrMatch ? rPrMatch[0] : '';
+
+    // Gom tất cả text từ <w:t>
+    let fullText = '';
+    const tRe = /<w:t(?:[^>]*)>([\s\S]*?)<\/w:t>/g;
+    let m;
+    while((m = tRe.exec(content)) !== null) fullText += m[1];
+
+    const segments = fullText.split(SEP).filter(s => s.length > 0);
+
+    if(segments.length <= 1){
+      // Chỉ xóa SEP còn sót
+      out.push(before + pOpen + content.replace(/\|\|\|NP\|\|\|/g, ''));
+      if(i < parts.length-1) out.push('</w:p>');
+      continue;
+    }
+
+    // Tạo paragraph mới cho mỗi segment
+    out.push(before);
+    segments.forEach((seg, idx) => {
+      const esc = seg
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      out.push(
+        pOpen + pPr +
+        '<w:r>' + rPr + '<w:t xml:space="preserve">' + esc + '</w:t></w:r>' +
+        '</w:p>'
+      );
+    });
+  }
+
+  zip.file(path, out.join(''));
+}
 
 // ===================== EXPORT WORD =====================
 async function exportWord(ns){
