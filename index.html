@@ -28,7 +28,7 @@ header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);co
 .header-sub{font-size:11px;opacity:0.6;letter-spacing:0.08em;text-transform:uppercase;}
 .header-badge{background:rgba(200,168,75,0.2);border:1px solid var(--gold);color:var(--gold-light);padding:4px 12px;border-radius:20px;font-size:12px;}
 
-.tab-container{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px;display:flex;box-shadow:0 2px 8px rgba(0,0,0,0.05);overflow-x:auto;}
+.tab-container{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px;display:flex;box-shadow:0 2px 8px rgba(0,0,0,0.05);overflow-x:auto;position:sticky;top:72px;z-index:99;}
 .tab-btn{padding:18px 24px;border:none;background:transparent;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:500;color:var(--text-light);cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0;}
 .tab-btn:hover{color:var(--navy);background:var(--cream);}
 .tab-btn.active{color:var(--navy);border-bottom-color:var(--gold);font-weight:600;}
@@ -354,6 +354,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 <div class="main-wrapper">
   <div class="sidebar-org">
     <div class="sidebar-title">🏢 Danh sách tổ chức/cá nhân lựa chọn</div>
+    <div style="font-size:11px;color:var(--text-light);margin-bottom:12px;line-height:1.5;">💡 Click vào ô nhập liệu (NKK/NBK) trước, rồi chọn tổ chức bên dưới để tự động điền.</div>
     <div id="orgList"></div>
   </div>
 
@@ -757,33 +758,91 @@ function loadOrgSidebar(){
   `).join('');
 }
 
+// Track nơi cuối cùng người dùng focus để copy org vào đúng chỗ
+let lastFocusedParty = { ns:null, type:null, epId:null };
+
 // Tự đổ dữ liệu khi click vào công ty
 function selectOrg(index){
   const org = ORG_LIST[index];
+  const target = lastFocusedParty;
 
-  const namespaces = ["ap","qd","gxn"];
+  // Nếu chưa có focus nào, mặc định = panel đang active, nkk chính
+  const activeNS = target.ns || (document.getElementById('panel0').classList.contains('active') ? 'ap' : document.getElementById('panel1').classList.contains('active') ? 'qd' : 'gxn');
+  const activeType = target.type || 'nkk';
+  const epId = target.epId;
 
-  namespaces.forEach(ns=>{
+  if(epId !== null && epId !== undefined){
+    // ── Copy vào extra party ──
+    const ep = multiParty[activeNS][activeType].find(p=>p.id===epId);
+    if(!ep) { showToast('⚠️ Không tìm thấy ô đích — hãy click vào ô cần điền trước','error'); return; }
 
-    // 1️⃣ Chuyển sang tab "Tổ chức" trước
-    const orgTabBtn = document.querySelector(
-      `#${ns}_nkk_to_chuc`
-    )?.parentElement.querySelectorAll('.party-tab')[1];
-
-    if(orgTabBtn){
-      orgTabBtn.click();
+    // Chuyển sang tab "Tổ chức" cho extra party
+    const block = document.getElementById('ep_'+epId);
+    if(block){
+      const tcBtn = block.querySelectorAll('.ep-ptab')[1];
+      if(tcBtn) tcBtn.click();
     }
 
-    // 2️⃣ Gán dữ liệu
-    const nameField = document.getElementById(ns+"_nkk_tentochuc");
-    const addrField = document.getElementById(ns+"_nkk_diachi");
-
+    const nameField = document.getElementById('ep_'+epId+'_tc');
+    const addrField = document.getElementById('ep_'+epId+'_dc');
     if(nameField) nameField.value = org.name;
     if(addrField) addrField.value = org.address;
-  });
+    livePreview(activeNS);
+  } else {
+    // ── Copy vào ô chính ──
+    const orgTabBtn = document.querySelector(
+      `#${activeNS}_${activeType}_to_chuc`
+    )?.parentElement.querySelectorAll('.party-tab')[1];
+    if(orgTabBtn) orgTabBtn.click();
 
-  showToast("✅ Đã chọn: "+org.name,"success");
+    const nameField = document.getElementById(activeNS+'_'+activeType+'_tentochuc');
+    const addrField = document.getElementById(activeNS+'_'+activeType+'_diachi');
+    if(nameField) nameField.value = org.name;
+    if(addrField) addrField.value = org.address;
+    livePreview(activeNS);
+  }
+
+  const epIdx = epId ? multiParty[activeNS][activeType].findIndex(p=>p.id===epId) : -1;
+  const slotLabel = epId ? (' thứ '+(epIdx+2)) : ' (chính)';
+  showToast('✅ Đã chọn: '+org.name+' → '+EP_LABEL[activeType]+slotLabel,'success');
 }
+
+// ── Bắt focus khi user click/focus vào input trong các khung party ──
+document.addEventListener('focusin', function(e){
+  const el = e.target;
+  if(!el || (el.tagName!=='INPUT' && el.tagName!=='SELECT')) return;
+
+  // Kiểm tra xem input nằm trong extra-party-block không
+  const epBlock = el.closest('.extra-party-block');
+  if(epBlock){
+    const epIdMatch = epBlock.id.match(/^ep_(\d+)$/);
+    if(epIdMatch){
+      const epId = parseInt(epIdMatch[1]);
+      for(const ns of ['ap','qd','gxn']){
+        for(const type of ['nkk','nbk']){
+          if(multiParty[ns][type].some(p=>p.id===epId)){
+            lastFocusedParty = { ns, type, epId };
+            return;
+          }
+        }
+      }
+    }
+    return;
+  }
+
+  // Kiểm tra xem có nằm trong card chứa ô chính (nkk/nbk) không
+  const card = el.closest('.card');
+  if(!card) return;
+  for(const ns of ['ap','qd','gxn']){
+    for(const type of ['nkk','nbk']){
+      const cnDiv = document.getElementById(ns+'_'+type+'_ca_nhan');
+      if(cnDiv && card.contains(cnDiv)){
+        lastFocusedParty = { ns, type, epId:null };
+        return;
+      }
+    }
+  }
+});
 // ===================== PARTY TOGGLE =====================
 function switchParty(prefix, type, btn){
   const card = document.getElementById(prefix+'_ca_nhan').closest('.card');
@@ -1156,8 +1215,17 @@ async function exportWord(ns){
     }
 
     const blob = new Blob([outBuf], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-    const soClean = (ph.SO||'vanban').replace(/\//g,'-');
-    await saveBlobToFolder(tplName, blob, tplName+'_'+soClean+'.docx');
+    // Build filename: TEMPLATE_SO_FirstNKK_FirstNBK.docx
+    const soClean = (ph.SO||'vanban').replace(/[\/\\:*?"<>|]/g,'-');
+    const nkkNamesFile = [buildPartyName(ns+'_nkk'), ...multiParty[ns].nkk.map(buildEPName)].filter(Boolean);
+    const nbkNamesFile = [buildPartyName(ns+'_nbk'), ...multiParty[ns].nbk.map(buildEPName)].filter(Boolean);
+    const firstNKK = (nkkNamesFile[0]||'').replace(/[\/\\:*?"<>|]/g,'').trim();
+    const firstNBK = (nbkNamesFile[0]||'').replace(/[\/\\:*?"<>|]/g,'').trim();
+    let fileName = tplName + '_' + soClean;
+    if(firstNKK) fileName += '_' + firstNKK;
+    if(firstNBK) fileName += '_' + firstNBK;
+    fileName += '.docx';
+    await saveBlobToFolder(tplName, blob, fileName);
 
   } catch(err){
     console.error('[exportWord] FINAL ERROR:', err);
@@ -1196,14 +1264,109 @@ const multiParty = { ap:{nkk:[],nbk:[]}, qd:{nkk:[],nbk:[]}, gxn:{nkk:[],nbk:[]}
 let epCounter = 0;
 const EP_LABEL = { nkk:'Người khởi kiện', nbk:'Người bị kiện' };
 
+// ── Lưu giá trị form hiện tại của 1 extra party vào object ──
+function saveEPValues(p){
+  const g = id => (document.getElementById(id)?.value||'');
+  p._vals = {
+    ten: g('ep_'+p.id+'_ten'),
+    gt:  g('ep_'+p.id+'_gt'),
+    ns:  g('ep_'+p.id+'_ns'),
+    cccd:g('ep_'+p.id+'_cccd'),
+    tt:  g('ep_'+p.id+'_tt'),
+    ct:  g('ep_'+p.id+'_ct'),
+    tc:  g('ep_'+p.id+'_tc'),
+    dc:  g('ep_'+p.id+'_dc'),
+    dd:  g('ep_'+p.id+'_dd'),
+  };
+}
+
+// ── Khôi phục giá trị form từ object ──
+function restoreEPValues(p){
+  if(!p._vals) return;
+  const s = (id,v) => { const el=document.getElementById(id); if(el) el.value=v; };
+  s('ep_'+p.id+'_ten',  p._vals.ten);
+  s('ep_'+p.id+'_gt',   p._vals.gt);
+  s('ep_'+p.id+'_ns',   p._vals.ns);
+  s('ep_'+p.id+'_cccd', p._vals.cccd);
+  s('ep_'+p.id+'_tt',   p._vals.tt);
+  s('ep_'+p.id+'_ct',   p._vals.ct);
+  s('ep_'+p.id+'_tc',   p._vals.tc);
+  s('ep_'+p.id+'_dc',   p._vals.dc);
+  s('ep_'+p.id+'_dd',   p._vals.dd);
+}
+
+// ── Lưu TẤT CẢ extra parties của 1 nhóm trước khi render lại ──
+function saveAllEPValues(ns,type){
+  multiParty[ns][type].forEach(p => saveEPValues(p));
+}
+
+// ── Khôi phục TẤT CẢ extra parties sau khi render ──
+function restoreAllEPValues(ns,type){
+  multiParty[ns][type].forEach(p => restoreEPValues(p));
+}
+
 function addParty(ns,type){
-  const id=++epCounter; multiParty[ns][type].push({id,ptype:'ca_nhan'});
-  renderParty(ns,type);
+  const id=++epCounter;
+  const newParty = {id, ptype:'ca_nhan'};
+  multiParty[ns][type].push(newParty);
+
+  // Chỉ APPEND block mới, KHÔNG re-render toàn bộ → giữ nguyên dữ liệu các ô cũ
+  const container=document.getElementById(ns+'_'+type+'_extras');
+  if(container){
+    const idx = multiParty[ns][type].length - 1;
+    const label=EP_LABEL[type];
+    const n = idx + 2;
+    const html = `<div class="extra-party-block" id="ep_${id}">
+      <div class="extra-party-header">
+        <span class="extra-party-label">${label} thứ ${n}</span>
+        <button class="extra-party-remove" onclick="removeParty('${ns}','${type}',${id})" title="Xóa">✕</button>
+      </div>
+      <div class="party-tabs" style="margin-bottom:14px">
+        <button class="party-tab ep-ptab active" onclick="switchEPType('${ns}','${type}',${id},'ca_nhan',this)">Cá nhân</button>
+        <button class="party-tab ep-ptab" onclick="switchEPType('${ns}','${type}',${id},'to_chuc',this)">Tổ chức</button>
+      </div>
+      <div class="ep-cn" style="display:block">
+        <div class="form-row">
+          <div class="form-group full"><label>Họ và tên</label><input id="ep_${id}_ten" placeholder="Nguyễn Văn A" oninput="livePreview('${ns}')"></div>
+          <div class="form-group"><label>Giới tính</label><select id="ep_${id}_gt" onchange="livePreview('${ns}')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
+          <div class="form-group"><label>Năm/Ngày sinh</label><input id="ep_${id}_ns" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('${ns}')"></div>
+          <div class="form-group"><label>Số CCCD</label><input id="ep_${id}_cccd" placeholder="Để trống nếu không có" oninput="livePreview('${ns}')"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="ep_${id}_tt" placeholder="Địa chỉ..." oninput="livePreview('${ns}')"></div>
+          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="ep_${id}_ct" placeholder="Để trống nếu giống thường trú" oninput="livePreview('${ns}')"></div>
+        </div>
+      </div>
+      <div class="ep-tc" style="display:none">
+        <div class="form-row">
+          <div class="form-group full"><label>Tên tổ chức</label><input id="ep_${id}_tc" placeholder="Công ty TNHH..." oninput="livePreview('${ns}')"></div>
+          <div class="form-group full"><label>Địa chỉ trụ sở</label><input id="ep_${id}_dc" placeholder="Số nhà, đường, phường, tỉnh..." oninput="livePreview('${ns}')"></div>
+          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="ep_${id}_dd" placeholder="Để trống nếu không có" oninput="livePreview('${ns}')"></div>
+        </div>
+      </div>
+    </div>`;
+    container.insertAdjacentHTML('beforeend', html);
+  }
+
+  // Tự động set focus target vào party mới để sidebar copy đúng chỗ
+  lastFocusedParty = { ns, type, epId: id };
+
   setTimeout(()=>{ const el=document.getElementById('ep_'+id); if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'}); },50);
 }
 function removeParty(ns,type,id){
   multiParty[ns][type]=multiParty[ns][type].filter(p=>p.id!==id);
-  renderParty(ns,type); livePreview(ns);
+  // Xóa chỉ block bị remove khỏi DOM, KHÔNG re-render toàn bộ
+  const block = document.getElementById('ep_'+id);
+  if(block) block.remove();
+  // Cập nhật lại label "thứ 2", "thứ 3"... cho các block còn lại
+  multiParty[ns][type].forEach((p,idx)=>{
+    const bl = document.getElementById('ep_'+p.id);
+    if(bl){
+      const labelEl = bl.querySelector('.extra-party-label');
+      if(labelEl) labelEl.textContent = EP_LABEL[type]+' thứ '+(idx+2);
+    }
+  });
+  livePreview(ns);
 }
 function switchEPType(ns,type,id,ptype,btn){
   const p=multiParty[ns][type].find(x=>x.id===id); if(!p) return;
