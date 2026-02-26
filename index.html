@@ -773,23 +773,10 @@ function buildPH(ns){
     NGAY_NHAN_DON_QUY_DOI: fmtDateLong(g(p+'ngaynhan')),
     THONG_TIN_KHOI_KIEN: [buildParty(p+'nkk'), ...multiParty[ns].nkk].filter(Boolean).join('\n'),
     THONG_TIN_BI_KIEN: [buildParty(p+'nbk'), ...multiParty[ns].nbk].filter(Boolean).join('\n'),
-    
   };
 
   if(type==='VDS') ph.QHPL_VDS = g(p+'quanhe');
   else             ph.QHPL_DS  = g(p+'quanhe');
-
-  // ===== TIỀN ÁN PHÍ (chỉ áp dụng cho panel ap) =====
-  if(ns === 'ap'){
-    const tienData = getTienApData();
-  
-    ph.TIEN_AP_DS  = type === 'DS'  ? tienData.text : '';
-    ph.TIEN_AP_VDS = type === 'VDS' ? tienData.text : '';
-  
-    ph.QUY_DOI_TIEN = numberToVietnameseText(tienData.number);
-  }
-
-  
 
   if(ns==='qd'){
     ph.THAM_PHAN  = g('qd_thamPhan');
@@ -829,115 +816,22 @@ function calcAnPhi(s){
   return 112000000+0.001*(s-4000000000);
 }
 function fmtVND(n){ return Math.round(n).toLocaleString('vi-VN')+' đ'; }
-function numberToVietnameseText(number){
-  if(!number || number === 0) return '';
-
-  const dv = ['','một','hai','ba','bốn','năm','sáu','bảy','tám','chín'];
-  const hang = ['','nghìn','triệu','tỷ'];
-
-  function readBlock(num){
-    let str = '';
-    const tram = Math.floor(num/100);
-    const chuc = Math.floor((num%100)/10);
-    const donvi = num%10;
-
-    if(tram) str += dv[tram] + ' trăm ';
-    if(chuc > 1){
-      str += dv[chuc] + ' mươi ';
-      if(donvi === 1) str += 'mốt ';
-      else if(donvi === 5) str += 'lăm ';
-      else if(donvi) str += dv[donvi] + ' ';
-    }
-    else if(chuc === 1){
-      str += 'mười ';
-      if(donvi === 5) str += 'lăm ';
-      else if(donvi) str += dv[donvi] + ' ';
-    }
-    else if(chuc === 0 && donvi){
-      if(tram) str += 'lẻ ';
-      if(donvi === 5 && tram) str += 'năm ';
-      else str += dv[donvi] + ' ';
-    }
-    return str.trim();
-  }
-
-  let i = 0;
-  let result = '';
-  while(number > 0){
-    const block = number % 1000;
-    if(block){
-      result = readBlock(block) + ' ' + hang[i] + ' ' + result;
-    }
-    number = Math.floor(number/1000);
-    i++;
-  }
-
-  return result.trim().replace(/\s+/g,' ') + ' đồng';
-}
 function calcAP(){
-  const s = parseFloat(document.getElementById('ap_sotien').value) || 0;
-  const parts = parseInt(document.getElementById('ap_sophần').value) || 1;
-
+  const s = parseFloat(document.getElementById('ap_sotien').value)||0;
+  const parts = parseInt(document.getElementById('ap_sophần').value)||1;
   const anphi = calcAnPhi(s);
-
-  let tamung = 0;
-
-  if(s){
-    tamung = anphi / 2;
-
-    // 🔥 Tạm ứng tối thiểu 300.000
-    if(tamung < 300000){
-      tamung = 300000;
-    }
-  }
-
+  const tamung = anphi/2;
   document.getElementById('apFull').textContent   = s ? fmtVND(anphi)  : '—';
   document.getElementById('apTamung').textContent = s ? fmtVND(tamung) : '—';
-
-  if(parts > 1){
-    let moiPhan = tamung / parts;
-
-    // 🔥 Mỗi phần tối thiểu 300.000
-    if(moiPhan < 300000){
-      moiPhan = 300000;
-    }
-
-    document.getElementById('apPart').textContent    = fmtVND(moiPhan);
+  if(parts>1){
+    document.getElementById('apPart').textContent    = fmtVND(tamung/parts);
     document.getElementById('apPartSub').textContent = `Tạm ứng ÷ ${parts} phần`;
   } else {
     document.getElementById('apPart').textContent    = '—';
     document.getElementById('apPartSub').textContent = 'Nhập số phần để tính';
   }
 }
-function getTienApData(){
-  const s = parseFloat(document.getElementById('ap_sotien').value) || 0;
-  const parts = parseInt(document.getElementById('ap_sophần').value) || 1;
 
-  if(!s) return {number:0, text:''};
-
-  const anphi = calcAnPhi(s);
-
-  let tamung = anphi / 2;
-
-  if(tamung < 300000){
-    tamung = 300000;
-  }
-
-  if(parts > 1){
-    let moiPhan = tamung / parts;
-
-    if(moiPhan < 300000){
-      moiPhan = 300000;
-    }
-
-    tamung = moiPhan;
-  }
-
-  return {
-    number: Math.round(tamung),
-    text: fmtVND(tamung)
-  };
-}
 // ===================== TEMPLATE MAP =====================
 function getTemplateName(ns){
   const t = state[ns].type;
