@@ -332,8 +332,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     <div class="card-title"><span class="dot"></span>Thông tin vụ việc</div>
     <div class="form-row">
       <div class="form-group"><label>Số nhận đơn <span class="req">*</span></label><input id="ap_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('ap')"></div>
-      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="date" id="ap_ngaylam" oninput="livePreview('ap')"></div>
-      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="date" id="ap_ngaynhan" oninput="livePreview('ap')"></div>
+      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="text" id="ap_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('ap')"></div>
+      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="text" id="ap_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('ap')"></div>
       <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="ap_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="livePreview('ap')"></div>
     </div>
   </div>
@@ -459,8 +459,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     <div class="card-title"><span class="dot"></span>Thông tin thụ lý</div>
     <div class="form-row">
       <div class="form-group"><label>Số nhận đơn [[SO]] <span class="req">*</span></label><input id="qd_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('qd')"></div>
-      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="date" id="qd_ngaylam" oninput="livePreview('qd')"></div>
-      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="date" id="qd_ngaynhan" oninput="livePreview('qd')"></div>
+      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="text" id="qd_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('qd')"></div>
+      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="text" id="qd_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('qd')"></div>
       <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="qd_quanhe" placeholder="VD: Tranh chấp thừa kế" oninput="livePreview('qd')"></div>
     </div>
   </div>
@@ -552,8 +552,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     <div class="card-title"><span class="dot"></span>Thông tin xác nhận</div>
     <div class="form-row">
       <div class="form-group"><label>Số nhận đơn [[SO]] <span class="req">*</span></label><input id="gxn_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('gxn')"></div>
-      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="date" id="gxn_ngaylam" oninput="livePreview('gxn')"></div>
-      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="date" id="gxn_ngaynhan" oninput="livePreview('gxn')"></div>
+      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="text" id="gxn_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('gxn')"></div>
+      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="text" id="gxn_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('gxn')"></div>
       <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="gxn_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="livePreview('gxn')"></div>
     </div>
   </div>
@@ -700,15 +700,31 @@ function removeJudge(i){
 }
 
 // ===================== DATE HELPERS =====================
-function fmtDate(val){ // YYYY-MM-DD → DD/MM/YYYY
-  if(!val) return '';
-  const [y,m,d] = val.split('-');
-  return `${d}/${m}/${y}`;
+// Parse dd/mm/yyyy text → {d,m,y} or null
+function parseDateVN(val){
+  if(!val) return null;
+  val = val.trim();
+  const parts = val.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if(!parts) return null;
+  return { d:parseInt(parts[1]), m:parseInt(parts[2]), y:parts[3] };
 }
-function fmtDateLong(val){ // YYYY-MM-DD → ngày D tháng M năm YYYY
-  if(!val) return '';
-  const [y,m,d] = val.split('-');
-  return `ngày ${parseInt(d)} tháng ${parseInt(m)} năm ${y}`;
+function fmtDate(val){ // dd/mm/yyyy → dd/mm/yyyy (validated)
+  const p = parseDateVN(val);
+  if(!p) return val||'';
+  return `${String(p.d).padStart(2,'0')}/${String(p.m).padStart(2,'0')}/${p.y}`;
+}
+function fmtDateLong(val){ // dd/mm/yyyy → ngày D tháng M năm YYYY
+  const p = parseDateVN(val);
+  if(!p) return val||'';
+  return `ngày ${p.d} tháng ${p.m} năm ${p.y}`;
+}
+// Auto-format date input: chèn / khi gõ
+function fmtDateInput(inp){
+  let v = inp.value.replace(/[^\d]/g,'');
+  if(v.length>2) v = v.slice(0,2)+'/'+v.slice(2);
+  if(v.length>5) v = v.slice(0,5)+'/'+v.slice(5);
+  if(v.length>10) v = v.slice(0,10);
+  inp.value = v;
 }
 function parseSinh(raw){
   if(!raw) return '';
@@ -762,8 +778,8 @@ function buildPH(ns){
     NGAY_LAM_DON:        fmtDate(g(p+'ngaylam')),
     NGAY_NHAN_DON:       fmtDate(g(p+'ngaynhan')),
     NGAY_NHAN_DON_QUY_DOI: fmtDateLong(g(p+'ngaynhan')),
-    THONG_TIN_KHOI_KIEN: [buildParty(p+'nkk'), ...multiParty[ns].nkk.map(buildEPString)].filter(Boolean).join('\n'),
-    THONG_TIN_BI_KIEN: [buildParty(p+'nbk'), ...multiParty[ns].nbk.map(buildEPString)].filter(Boolean).join('\n'),
+    THONG_TIN_KHOI_KIEN: [buildParty(p+'nkk'), ...multiParty[ns].nkk.map(buildEPString)].filter(s=>s&&s!=='(chưa nhập)').join('\r'),
+    THONG_TIN_BI_KIEN: [buildParty(p+'nbk'), ...multiParty[ns].nbk.map(buildEPString)].filter(s=>s&&s!=='(chưa nhập)').join('\r'),
   };
 
   if(type==='VDS') ph.QHPL_VDS = g(p+'quanhe');
