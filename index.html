@@ -401,7 +401,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   <div class="card" id="ap_calcCard">
     <div class="card-title"><span class="dot"></span>Tính toán Án phí Dân sự</div>
     <div class="form-row">
-      <div class="form-group"><label>Số tiền tranh chấp (đồng) <span class="req">*</span></label><input type="number" id="ap_sotien" placeholder="VD: 1000000000" oninput="calcAP()"></div>
+      <div class="form-group"><label>Số tiền tranh chấp (đồng) <span class="req">*</span></label><input type="text" id="ap_sotien" placeholder="VD: 1.000.000.000" oninput="formatMoneyInput(this);calcAP()"></div>
       <div class="form-group"><label>Chia theo phần (số người thừa kế...)</label><input type="number" id="ap_sophần" min="1" value="1" oninput="calcAP()"></div>
     </div>
     <div class="money-display">
@@ -742,7 +742,14 @@ function parseSinh(raw){
   if(/^\d{4}$/.test(raw)) return 'sinh năm '+raw;
   return 'sinh '+raw;
 }
-
+function formatMoneyInput(input){
+  let value = input.value.replace(/\D/g,'');
+  if(!value){
+    input.value='';
+    return;
+  }
+  input.value = Number(value).toLocaleString('vi-VN');
+}
 // ===================== BUILD PARTY =====================
 function buildParty(prefix){
   const cn = document.getElementById(prefix+'_ca_nhan'); if(!cn) return '';
@@ -786,7 +793,8 @@ function fmtVND(n){ return Math.round(n).toLocaleString('vi-VN')+' đồng'; }
 
 let _ap = { tamung:0, moiphan:0, parts:1 };
 function calcAP(){
-  const s = parseFloat(document.getElementById('ap_sotien').value)||0;
+  const raw = document.getElementById('ap_sotien').value.replace(/\./g,'');
+  const s = parseFloat(raw)||0;
   const parts = Math.max(1, parseInt(document.getElementById('ap_sophần').value)||1);
   const anphi = calcAnPhi(s);
   const tamung  = s ? minAP(roundTo1000(anphi/2)) : 0;
