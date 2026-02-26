@@ -836,9 +836,9 @@ function buildPH(ns){
   const g = id => (document.getElementById(id)?.value||'').trim();
   const p = ns+'_', type = state[ns].type;
   const nkk = [buildParty(p+'nkk'), ...multiParty[ns].nkk.map(buildEPString)]
-               .filter(s=>s&&s!=='(chưa nhập)').join('|||NP|||');
+               .filter(s=>s&&s!=='(chưa nhập)').join('\n');
   const nbk = [buildParty(p+'nbk'), ...multiParty[ns].nbk.map(buildEPString)]
-               .filter(s=>s&&s!=='(chưa nhập)').join('|||NP|||');
+               .filter(s=>s&&s!=='(chưa nhập)').join('\n');
   const ph = {
     SO:                    g(p+'so')||'',
     NGAY_LAM_DON:          fmtDate(g(p+'ngaylam')),
@@ -883,72 +883,8 @@ function getTemplateName(ns){
   if(ns==='gxn') return t==='DS'?'GXN_DS':'GXN_VDS';
 }
 
-// ── Tách |||NP||| thành paragraph Word mới, giữ nguyên indent ──
-function postProcessDocx(zip){
-  const SEP = '|||NP|||';
-  const xmlPath = 'word/document.xml';
-  let xml = zip.file(xmlPath).asText();
-  if(!xml.includes(SEP)) return;
-
-  let out = '', rest = xml;
-  while(rest.length > 0){
-    const i1 = rest.indexOf('<w:p '), i2 = rest.indexOf('<w:p>');
-    let pStart = -1;
-    if(i1 === -1 && i2 === -1){ out += rest; break; }
-    if(i1 === -1) pStart = i2;
-    else if(i2 === -1) pStart = i1;
-    else pStart = Math.min(i1, i2);
-
-    out += rest.slice(0, pStart);
-    rest = rest.slice(pStart);
-
-    // Tìm </w:p> đóng tương ứng (đếm depth)
-    let depth = 0, pos = 0, pEnd = -1;
-    while(pos < rest.length){
-      const op = rest.indexOf('<w:p', pos), cl = rest.indexOf('</w:p>', pos);
-      if(cl === -1){ pEnd = rest.length; break; }
-      if(op !== -1 && op < cl){
-        const ch = rest[op + 4];
-        if(ch === '>' || ch === ' ') depth++;
-        pos = op + 4;
-      } else {
-        if(depth === 0){ pEnd = cl + 6; break; }
-        depth--; pos = cl + 6;
-      }
-    }
-    if(pEnd === -1) pEnd = rest.length;
-    const pFull = rest.slice(0, pEnd);
-    rest = rest.slice(pEnd);
-
-    if(!pFull.includes(SEP)){ out += pFull; continue; }
-
-    // Lấy thẻ mở, <w:pPr> (indent), <w:rPr> (font)
-    const hEnd = pFull.indexOf('>') + 1;
-    const hTag = pFull.slice(0, hEnd);
-    const pPrM = pFull.match(/<w:pPr>[\s\S]*?<\/w:pPr>/);
-    const pPr  = pPrM ? pPrM[0] : '';
-    const rPrM = pFull.match(/<w:rPr>[\s\S]*?<\/w:rPr>/);
-    const rPr  = rPrM ? rPrM[0] : '';
-
-    // Gom text
-    let fullText = '';
-    const tRe = /<w:t[^>]*>([\s\S]*?)<\/w:t>/g;
-    let tm;
-    while((tm = tRe.exec(pFull)) !== null) fullText += tm[1];
-
-    const segs = fullText.split(SEP).filter(s => s.length > 0);
-    if(segs.length <= 1){ out += pFull.replace(/\|\|\|NP\|\|\|/g, ''); continue; }
-
-    // Tạo 1 paragraph mới cho mỗi đoạn
-    out += segs.map(seg => {
-      const esc = seg.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      return hTag + pPr + '<w:r>' + rPr +
-             '<w:t xml:space="preserve">' + esc + '</w:t>' +
-             '</w:r></w:p>';
-    }).join('');
-  }
-  zip.file(xmlPath, out);
-}
+// ── postProcessDocx: không cần thiết với \n linebreaks ──
+function postProcessDocx(zip){ /* no-op, kept for compatibility */ }
 
 // ===================== EXPORT WORD =====================
 async function exportWord(ns){
@@ -961,42 +897,90 @@ async function exportWord(ns){
   if(ns==='qd'&&!ph.THAM_PHAN) missing.push('Thẩm phán');
   if(missing.length){ showToast('⚠️ Vui lòng điền: '+missing.join(', '),'error'); return; }
 
+  // Log toàn bộ ph để debug
+  console.log('[exportWord] namespace:', ns, 'template:', tplName);
+  console.log('[exportWord] placeholders:', JSON.stringify(ph, null, 2));
+
   const btn = document.getElementById(ns+'_exportBtn');
-  btn.disabled = true; showLoading('Đang tải mẫu '+tplName+'.docx...');
+  btn.disabled = true;
+  showLoading('Đang tải mẫu '+tplName+'.docx...');
+
   try {
     const res = await fetch('templates/'+tplName+'.docx');
     if(!res.ok) throw new Error('Không tìm thấy templates/'+tplName+'.docx (HTTP '+res.status+')');
     const arrayBuf = await res.arrayBuffer();
+    console.log('[exportWord] template loaded, size:', arrayBuf.byteLength);
+
     showLoading('Đang điền dữ liệu...');
+
+    // Sanitize: loại bỏ ký tự điều khiển nguy hiểm trong tất cả string values
+    const safePH = {};
+    for(const [k,v] of Object.entries(ph)){
+      if(typeof v === 'string'){
+        // Chỉ giữ \n (docxtemplater linebreaks), loại bỏ \r, \t, và control chars khác
+        safePH[k] = v.replace(/\r/g,'').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g,'');
+      } else {
+        safePH[k] = v;
+      }
+    }
+    console.log('[exportWord] safePH THONG_TIN_KHOI_KIEN:', JSON.stringify(safePH.THONG_TIN_KHOI_KIEN));
+
     const zip = new PizZip(arrayBuf);
-    const doc = new window.docxtemplater(zip,{
-      paragraphLoop:true, linebreaks:true,
-      delimiters:{start:'[[',end:']]'}
+    const doc = new window.docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true,
+      delimiters: { start: '[[', end: ']]' },
+      nullGetter(){ return ''; }
     });
-    doc.setData(ph);
-    try { doc.render(); }
-    catch(renderErr){
-      // docxtemplater bắn lỗi đặc biệt với .properties.errors
+
+    doc.setData(safePH);
+
+    try {
+      doc.render();
+      console.log('[exportWord] render OK');
+    } catch(renderErr){
       let details = renderErr.message || '';
       if(renderErr.properties && Array.isArray(renderErr.properties.errors)){
         details = renderErr.properties.errors
-          .map(e => e.properties ? (e.properties.explanation||e.message) : (e.message||JSON.stringify(e)))
-          .join(' | ');
+          .map(e => e.properties
+            ? (e.properties.explanation || e.properties.id || e.message)
+            : (e.message || JSON.stringify(e)))
+          .join('\n');
       }
-      console.error('Render error:', renderErr);
-      throw new Error('Lỗi render template: ' + details);
+      console.error('[exportWord] render error full:', JSON.stringify(renderErr, ['message','properties','stack'], 2));
+      throw new Error('Lỗi render: ' + details);
     }
+
     let outBuf;
-    postProcessDocx(doc.getZip());
-    try { outBuf = doc.getZip().generate({type:'arraybuffer',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}); }
-    catch(zipErr){ throw new Error('Lỗi tạo file: ' + zipErr.message); }
-    const blob = new Blob([outBuf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    try {
+      outBuf = doc.getZip().generate({
+        type: 'arraybuffer',
+        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        compression: 'DEFLATE'
+      });
+      console.log('[exportWord] zip generated, size:', outBuf.byteLength);
+    } catch(zipErr){
+      console.error('[exportWord] zip error:', zipErr);
+      throw new Error('Lỗi tạo file ZIP: ' + zipErr.message);
+    }
+
+    if(!outBuf || outBuf.byteLength < 1000){
+      throw new Error('File tạo ra quá nhỏ ('+outBuf.byteLength+' bytes) — có thể bị lỗi');
+    }
+
+    const blob = new Blob([outBuf], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
     const soClean = (ph.SO||'vanban').replace(/\//g,'-');
     await saveBlobToFolder(tplName, blob, tplName+'_'+soClean+'.docx');
+
   } catch(err){
-    console.error('exportWord error:', err);
-    showToast('❌ ' + (err.message||'Lỗi không xác định. Kiểm tra Console (F12) để biết thêm.'),'error');
-  } finally { hideLoading(); btn.disabled=false; }
+    console.error('[exportWord] FINAL ERROR:', err);
+    showToast('❌ ' + (err.message || 'Lỗi không xác định — mở F12 > Console để xem chi tiết'), 'error');
+  } finally {
+    hideLoading();
+    btn.disabled = false;
+  }
+}
+
 }
 
 // ===================== LOADING / TOAST =====================
