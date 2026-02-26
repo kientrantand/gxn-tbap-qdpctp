@@ -5,46 +5,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hệ thống Quản lý Văn bản Tố tụng</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-<!-- docxtemplater + dependencies -->
 <script src="https://unpkg.com/pizzip@3.1.5/dist/pizzip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="https://unpkg.com/docxtemplater@3.47.4/build/docxtemplater.js"></script>
-
 <style>
-:root {
-  --navy:#0f1f3d; --navy-mid:#1a3260; --gold:#c8a84b; --gold-light:#e8c97a;
-  --cream:#f9f5ee; --cream-dark:#f0e9da; --text:#1a1a2e; --text-light:#5a6170;
-  --border:#d4c9b0; --red:#b03a2e; --green:#1e7e5a; --white:#ffffff;
-  --shadow:0 4px 24px rgba(15,31,61,0.10); --shadow-lg:0 12px 48px rgba(15,31,61,0.18);
+:root{
+  --navy:#0f1f3d;--navy-mid:#1a3260;--gold:#c8a84b;--gold-light:#e8c97a;
+  --cream:#f9f5ee;--cream-dark:#f0e9da;--text:#1a1a2e;--text-light:#5a6170;
+  --border:#d4c9b0;--red:#b03a2e;--green:#1e7e5a;--white:#ffffff;
+  --shadow:0 4px 24px rgba(15,31,61,0.10);--shadow-lg:0 12px 48px rgba(15,31,61,0.18);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Source Sans 3',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
-
 header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);color:white;padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:72px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.3);}
 .header-left{display:flex;align-items:center;gap:16px;}
 .logo-icon{width:44px;height:44px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;}
 .header-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;line-height:1.2;}
 .header-sub{font-size:11px;opacity:0.6;letter-spacing:0.08em;text-transform:uppercase;}
 .header-badge{background:rgba(200,168,75,0.2);border:1px solid var(--gold);color:var(--gold-light);padding:4px 12px;border-radius:20px;font-size:12px;}
-
 .tab-container{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px;display:flex;box-shadow:0 2px 8px rgba(0,0,0,0.05);overflow-x:auto;}
 .tab-btn{padding:18px 24px;border:none;background:transparent;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:500;color:var(--text-light);cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0;}
 .tab-btn:hover{color:var(--navy);background:var(--cream);}
 .tab-btn.active{color:var(--navy);border-bottom-color:var(--gold);font-weight:600;}
-
 .main{max-width:1100px;margin:0 auto;padding:36px 24px;}
 .panel{display:none;animation:fadeIn 0.3s ease;}
 .panel.active{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-
 .panel-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--navy);margin-bottom:6px;}
 .panel-desc{color:var(--text-light);font-size:14px;margin-bottom:28px;}
-
 .card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:20px;box-shadow:var(--shadow);}
 .card-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--navy);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--cream-dark);display:flex;align-items:center;gap:8px;}
 .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;}
-
 .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px;}
 .form-group{display:flex;flex-direction:column;gap:6px;}
 .form-group.full{grid-column:1/-1;}
@@ -52,32 +43,22 @@ label{font-size:11px;font-weight:700;color:var(--text-light);text-transform:uppe
 label span.req{color:var(--red);}
 input,select,textarea{padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:14px;color:var(--text);background:var(--cream);transition:all 0.2s;outline:none;}
 input:focus,select:focus,textarea:focus{border-color:var(--navy);background:white;box-shadow:0 0 0 3px rgba(15,31,61,0.08);}
-
 .type-selector{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
 .type-btn{padding:10px 18px;border:2px solid var(--border);border-radius:8px;background:white;font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:500;color:var(--text-light);cursor:pointer;transition:all 0.2s;}
 .type-btn:hover{border-color:var(--navy);color:var(--navy);}
 .type-btn.active{border-color:var(--navy);background:var(--navy);color:white;}
-
 .party-tabs{display:flex;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:16px;width:fit-content;}
 .party-tab{padding:7px 16px;border:none;background:var(--cream);font-family:'Source Sans 3',sans-serif;font-size:12px;font-weight:600;color:var(--text-light);cursor:pointer;transition:all 0.15s;border-right:1.5px solid var(--border);}
 .party-tab:last-child{border-right:none;}
 .party-tab.active{background:var(--navy);color:white;}
-
-.checkbox-group{display:flex;align-items:center;gap:10px;padding:14px 18px;background:#fff8e8;border:1.5px solid var(--gold);border-radius:8px;margin-bottom:16px;}
-.checkbox-group input[type=checkbox]{width:18px;height:18px;accent-color:var(--navy);cursor:pointer;margin:0;padding:0;}
-.checkbox-group label{font-size:14px;text-transform:none;letter-spacing:0;font-weight:500;color:var(--navy);cursor:pointer;}
-
 .exempt-info{display:none;background:#f0fff8;border:1.5px solid var(--green);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--green);font-weight:500;margin-bottom:16px;}
 .exempt-info.show{display:block;}
-
 .money-display{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);border-radius:10px;padding:20px 24px;color:white;display:flex;gap:24px;align-items:center;margin-top:16px;flex-wrap:wrap;}
 .money-item{flex:1;min-width:150px;}
 .money-label{font-size:11px;opacity:0.6;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
 .money-value{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--gold-light);}
 .money-sub{font-size:11px;opacity:0.5;}
-
 .party-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-
 .actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px;flex-wrap:wrap;}
 .btn{padding:12px 24px;border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;display:flex;align-items:center;gap:8px;}
 .btn-primary{background:var(--navy);color:white;}
@@ -85,8 +66,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--navy);background:whit
 .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text-light);}
 .btn-outline:hover{border-color:var(--navy);color:var(--navy);}
 .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none!important;}
-
-/* JUDGE MANAGER */
+.btn-add{background:var(--cream-dark);border:1.5px dashed var(--border);color:var(--text-light);padding:9px 18px;font-size:13px;border-radius:8px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-weight:600;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-add:hover{border-color:var(--navy);color:var(--navy);background:white;}
 .judge-manager{background:var(--cream-dark);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:16px;}
 .judge-manager-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-light);margin-bottom:10px;}
 .judge-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;min-height:32px;}
@@ -95,37 +76,37 @@ input:focus,select:focus,textarea:focus{border-color:var(--navy);background:whit
 .judge-add-row{display:flex;gap:8px;}
 .judge-add-row input{flex:1;padding:8px 12px;font-size:13px;}
 .judge-add-row button{padding:8px 16px;background:var(--navy);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
-
-/* PLACEHOLDER PREVIEW */
+.extra-party-block{border:1.5px solid var(--border);border-radius:10px;padding:16px 18px;margin-top:14px;position:relative;background:var(--cream);}
+.extra-party-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.extra-party-label{font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:0.06em;}
+.extra-party-remove{border:none;background:none;cursor:pointer;color:var(--red);font-size:18px;line-height:1;padding:2px 6px;border-radius:4px;}
+.extra-party-remove:hover{background:#fff0ee;}
 .preview-box{background:#f4f7fb;border:1.5px solid #b0c4de;border-radius:10px;padding:20px;margin-top:20px;display:none;}
 .preview-box.show{display:block;}
 .preview-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--navy);margin-bottom:14px;}
 .ph-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #dde8f0;}
 .ph-row:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
 .ph-key{font-family:monospace;font-size:11px;background:#1a3260;color:#e8c97a;padding:3px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0;}
-.ph-val{font-size:13px;color:var(--text);line-height:1.5;}
-
-/* LOADING OVERLAY */
+.ph-val{font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;}
 .loading-overlay{position:fixed;inset:0;background:rgba(15,31,61,0.7);display:none;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;}
 .loading-overlay.show{display:flex;}
 .loading-spinner{width:48px;height:48px;border:4px solid rgba(200,168,75,0.3);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{color:white;font-size:16px;font-weight:500;}
-
-.toast{position:fixed;bottom:32px;right:32px;padding:14px 20px;border-radius:10px;font-size:14px;box-shadow:var(--shadow-lg);display:none;align-items:center;gap:10px;z-index:9998;max-width:420px;}
+.toast{position:fixed;bottom:32px;right:32px;padding:14px 20px;border-radius:10px;font-size:14px;box-shadow:var(--shadow-lg);display:none;align-items:center;gap:10px;z-index:9998;max-width:440px;}
 .toast.show{display:flex;animation:slideUp 0.3s ease;}
 .toast.success{background:var(--navy);color:white;}
 .toast.error{background:var(--red);color:white;}
 @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
-
+.shared-banner{background:linear-gradient(90deg,#eef3fb,#f4f0e8);border:1px solid #c5d3e8;border-radius:8px;padding:9px 14px;font-size:12px;color:#3a5080;margin-bottom:16px;display:flex;align-items:center;gap:7px;}
+.party-preview-box{margin-top:12px;padding:12px 14px;background:var(--cream-dark);border-radius:8px;font-size:13px;color:var(--text);line-height:1.7;min-height:44px;white-space:pre-wrap;}
 input[type=number]{-moz-appearance:textfield;}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
-
 @media(max-width:700px){
   .party-grid{grid-template-columns:1fr;}
   header{padding:0 16px;}
   .tab-container{padding:0 8px;}
-  .tab-btn{padding:14px 12px;font-size:12px;}
+  .tab-btn{padding:14px 10px;font-size:12px;}
   .main{padding:20px 12px;}
   .card{padding:18px;}
 }
@@ -133,7 +114,6 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 </head>
 <body>
 
-<!-- LOADING -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
   <div class="loading-text" id="loadingText">Đang tạo văn bản...</div>
@@ -158,7 +138,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
 <div class="main">
 
-<!-- ===== PANEL 0: ÁN PHÍ ===== -->
+<!-- ===================== PANEL 0: ÁN PHÍ ===================== -->
 <div class="panel active" id="panel0">
   <div class="panel-title">Thông báo Nộp tiền Tạm ứng Án phí</div>
   <div class="panel-desc">Tạo thông báo nộp tiền tạm ứng án phí dân sự sơ thẩm, lệ phí việc dân sự, hoặc miễn án phí</div>
@@ -170,83 +150,82 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <button class="type-btn" onclick="setType('ap','VDS',this)">📄 Lệ phí Việc Dân sự <small style="opacity:.6">→ TB_AP_VDS.docx</small></button>
       <button class="type-btn" onclick="setType('ap','MAP',this)">✅ Miễn Án phí <small style="opacity:.6">→ TB_MAP.docx</small></button>
     </div>
-    <div class="exempt-info show" id="ap_exemptInfo">✅ Sẽ sử dụng mẫu <strong>TB_MAP.docx</strong> — Thông báo miễn nộp tiền tạm ứng án phí</div>
+    <div class="exempt-info" id="ap_exemptInfo">✅ Sẽ sử dụng mẫu <strong>TB_MAP.docx</strong> — Thông báo miễn nộp tiền tạm ứng án phí</div>
   </div>
 
+  <!-- THÔNG TIN VỤ VIỆC — DÙNG CHUNG -->
   <div class="card">
-    <div class="card-title"><span class="dot"></span>Thông tin vụ việc</div>
+    <div class="card-title"><span class="dot"></span>Thông tin vụ việc <small style="font-weight:400;color:var(--text-light);font-family:'Source Sans 3',sans-serif;font-size:13px">— dùng chung cho cả 3 tab</small></div>
     <div class="form-row">
-      <div class="form-group"><label>Số nhận đơn <span class="req">*</span></label><input id="ap_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('ap')"></div>
-      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="date" id="ap_ngaylam" oninput="livePreview('ap')"></div>
-      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="date" id="ap_ngaynhan" oninput="livePreview('ap')"></div>
-      <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="ap_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="livePreview('ap')"></div>
+      <div class="form-group"><label>Số nhận đơn <span class="req">*</span></label><input id="shared_so" placeholder="VD: 01/2025/TLDS" oninput="onSharedInput()"></div>
+      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="date" id="shared_ngaylam" oninput="onSharedInput()"></div>
+      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="date" id="shared_ngaynhan" oninput="onSharedInput()"></div>
+      <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="shared_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="onSharedInput()"></div>
     </div>
   </div>
 
+  <!-- PARTY GRID -->
   <div class="party-grid">
+    <!-- NGƯỜI KHỞI KIỆN -->
     <div class="card">
-      <div class="card-title"><span class="dot"></span>Người khởi kiện / Nguyên đơn</div>
+      <div class="card-title"><span class="dot"></span>Người khởi kiện / Nguyên đơn <small style="font-weight:400;color:var(--text-light);font-family:'Source Sans 3',sans-serif;font-size:12px">— dùng chung 3 tab</small></div>
       <div class="party-tabs">
-        <button class="party-tab active" onclick="switchParty('ap_nkk','ca_nhan',this)">Cá nhân</button>
-        <button class="party-tab" onclick="switchParty('ap_nkk','to_chuc',this)">Tổ chức</button>
+        <button class="party-tab active" onclick="switchParty('shared_nkk','ca_nhan',this)">Cá nhân</button>
+        <button class="party-tab" onclick="switchParty('shared_nkk','to_chuc',this)">Tổ chức</button>
       </div>
-      <div id="ap_nkk_ca_nhan">
+      <div id="shared_nkk_ca_nhan">
         <div class="form-row">
-          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="ap_nkk_ten" placeholder="Nguyễn Văn A" oninput="livePreview('ap')"></div>
-          <div class="form-group"><label>Ngày/Năm sinh</label><input id="ap_nkk_namsinh" placeholder="10/01/1990 hoặc 1990" oninput="livePreview('ap')"></div>
-          <div class="form-group"><label>Số CCCD</label><input id="ap_nkk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
+          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="shared_nkk_ten" placeholder="Nguyễn Văn A" oninput="onPartyInput()"></div>
+          <div class="form-group"><label>Ngày/Năm sinh</label><input id="shared_nkk_namsinh" placeholder="10/01/1990 hoặc 1990" oninput="onPartyInput()"></div>
+          <div class="form-group"><label>Số CCCD</label><input id="shared_nkk_cccd" placeholder="Để trống nếu không có" oninput="onPartyInput()"></div>
         </div>
         <div class="form-row">
-          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="ap_nkk_thuongtru" placeholder="Địa chỉ thường trú..." oninput="livePreview('ap')"></div>
-          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="ap_nkk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('ap')"></div>
+          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="shared_nkk_thuongtru" placeholder="Địa chỉ thường trú..." oninput="onPartyInput()"></div>
+          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="shared_nkk_cutru" placeholder="Để trống nếu giống thường trú" oninput="onPartyInput()"></div>
         </div>
       </div>
-      <div id="ap_nkk_to_chuc" style="display:none">
+      <div id="shared_nkk_to_chuc" style="display:none">
         <div class="form-row">
-          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="ap_nkk_tentochuc" placeholder="Công ty TNHH..." oninput="livePreview('ap')"></div>
-          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="ap_nkk_diachi" placeholder="Số nhà, đường, phường, tỉnh..." oninput="livePreview('ap')"></div>
-          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="ap_nkk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
+          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="shared_nkk_tentochuc" placeholder="Công ty TNHH..." oninput="onPartyInput()"></div>
+          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="shared_nkk_diachi" placeholder="Số nhà, đường, phường, tỉnh..." oninput="onPartyInput()"></div>
+          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="shared_nkk_daidien" placeholder="Để trống nếu không có" oninput="onPartyInput()"></div>
         </div>
       </div>
-      <div style="margin-top:10px">
-        <button type="button" class="btn btn-outline"
-                onclick="addParty('ap','nkk')">+ Thêm</button>
-      </div>
-      <div id="ap_nkk_list" class="judge-list"></div>
+      <div id="extra_nkk_container"></div>
+      <div style="margin-top:14px"><button class="btn-add" onclick="addExtraParty('nkk')">＋ Thêm người khởi kiện</button></div>
     </div>
 
+    <!-- NGƯỜI BỊ KIỆN -->
     <div class="card">
-      <div class="card-title"><span class="dot"></span>Người bị kiện / Bị đơn</div>
+      <div class="card-title"><span class="dot"></span>Người bị kiện / Bị đơn <small style="font-weight:400;color:var(--text-light);font-family:'Source Sans 3',sans-serif;font-size:12px">— dùng chung 3 tab</small></div>
       <div class="party-tabs">
-        <button class="party-tab active" onclick="switchParty('ap_nbk','ca_nhan',this)">Cá nhân</button>
-        <button class="party-tab" onclick="switchParty('ap_nbk','to_chuc',this)">Tổ chức</button>
+        <button class="party-tab active" onclick="switchParty('shared_nbk','ca_nhan',this)">Cá nhân</button>
+        <button class="party-tab" onclick="switchParty('shared_nbk','to_chuc',this)">Tổ chức</button>
       </div>
-      <div id="ap_nbk_ca_nhan">
+      <div id="shared_nbk_ca_nhan">
         <div class="form-row">
-          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="ap_nbk_ten" placeholder="Trần Thị B" oninput="livePreview('ap')"></div>
-          <div class="form-group"><label>Ngày/Năm sinh</label><input id="ap_nbk_namsinh" placeholder="10/01/1990 hoặc 1990" oninput="livePreview('ap')"></div>
-          <div class="form-group"><label>Số CCCD</label><input id="ap_nbk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
+          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="shared_nbk_ten" placeholder="Trần Thị B" oninput="onPartyInput()"></div>
+          <div class="form-group"><label>Ngày/Năm sinh</label><input id="shared_nbk_namsinh" placeholder="10/01/1990 hoặc 1990" oninput="onPartyInput()"></div>
+          <div class="form-group"><label>Số CCCD</label><input id="shared_nbk_cccd" placeholder="Để trống nếu không có" oninput="onPartyInput()"></div>
         </div>
         <div class="form-row">
-          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="ap_nbk_thuongtru" placeholder="Địa chỉ thường trú..." oninput="livePreview('ap')"></div>
-          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="ap_nbk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('ap')"></div>
+          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="shared_nbk_thuongtru" placeholder="Địa chỉ thường trú..." oninput="onPartyInput()"></div>
+          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="shared_nbk_cutru" placeholder="Để trống nếu giống thường trú" oninput="onPartyInput()"></div>
         </div>
       </div>
-      <div id="ap_nbk_to_chuc" style="display:none">
+      <div id="shared_nbk_to_chuc" style="display:none">
         <div class="form-row">
-          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="ap_nbk_tentochuc" placeholder="Công ty TNHH..." oninput="livePreview('ap')"></div>
-          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="ap_nbk_diachi" placeholder="Số nhà, đường, phường, tỉnh..." oninput="livePreview('ap')"></div>
-          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="ap_nbk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
+          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="shared_nbk_tentochuc" placeholder="Công ty TNHH..." oninput="onPartyInput()"></div>
+          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="shared_nbk_diachi" placeholder="Số nhà, đường, phường, tỉnh..." oninput="onPartyInput()"></div>
+          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="shared_nbk_daidien" placeholder="Để trống nếu không có" oninput="onPartyInput()"></div>
         </div>
       </div>
-      <div style="margin-top:10px">
-        <button type="button" class="btn btn-outline"
-                onclick="addParty('ap','nkk')">+ Thêm</button>
-      </div>
-      <div id="ap_nkk_list" class="judge-list"></div>
+      <div id="extra_nbk_container"></div>
+      <div style="margin-top:14px"><button class="btn-add" onclick="addExtraParty('nbk')">＋ Thêm người bị kiện</button></div>
     </div>
   </div>
 
+  <!-- TÍNH TOÁN ÁN PHÍ -->
   <div class="card" id="ap_calcCard">
     <div class="card-title"><span class="dot"></span>Tính toán Án phí Dân sự</div>
     <div class="form-row">
@@ -260,19 +239,15 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     </div>
   </div>
 
-  <div class="preview-box" id="ap_preview">
-    <div class="preview-title">🔖 Placeholders sẽ điền vào file Word</div>
-    <div id="ap_preview_content"></div>
-  </div>
-
+  <div class="preview-box" id="ap_preview"><div class="preview-title">🔖 Placeholders sẽ điền vào file Word</div><div id="ap_preview_content"></div></div>
   <div class="actions">
     <button class="btn btn-outline" onclick="togglePreview('ap')">👁 Xem Placeholders</button>
-    <button class="btn btn-outline" onclick="resetPanel('ap')">🔄 Làm mới</button>
+    <button class="btn btn-outline" onclick="resetAll()">🔄 Làm mới</button>
     <button class="btn btn-primary" id="ap_exportBtn" onclick="exportWord('ap')">📥 Xuất văn bản Word</button>
   </div>
 </div>
 
-<!-- ===== PANEL 1: PHÂN CÔNG ===== -->
+<!-- ===================== PANEL 1: PHÂN CÔNG ===================== -->
 <div class="panel" id="panel1">
   <div class="panel-title">Quyết định Phân công Thẩm phán</div>
   <div class="panel-desc">Tạo quyết định phân công thẩm phán xem xét đơn khởi kiện hoặc đơn yêu cầu giải quyết việc dân sự</div>
@@ -288,7 +263,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   <div class="card">
     <div class="card-title"><span class="dot"></span>Thẩm phán được phân công [[THAM_PHAN]]</div>
     <div class="judge-manager">
-      <div class="judge-manager-title">Quản lý danh sách Thẩm phán</div>
+      <div class="judge-manager-title">Quản lý danh sách Thẩm phán (lưu vĩnh viễn — không bị xóa khi Làm mới)</div>
       <div class="judge-list" id="judgeList"></div>
       <div class="judge-add-row">
         <input id="judgeInput" placeholder="Nhập tên Thẩm phán rồi nhấn Thêm..." onkeydown="if(event.key==='Enter')addJudge()">
@@ -302,97 +277,41 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
           <option value="">-- Chọn Thẩm phán --</option>
         </select>
       </div>
-    
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title"><span class="dot"></span>Thông tin thụ lý</div>
+    <div class="card-title"><span class="dot"></span>Thông tin thụ lý <small style="font-weight:400;color:var(--text-light);font-family:'Source Sans 3',sans-serif;font-size:13px">— dùng chung, nhập ở tab Án phí hoặc chỉnh trực tiếp</small></div>
     <div class="form-row">
-      <div class="form-group"><label>Số nhận đơn [[SO]] <span class="req">*</span></label><input id="qd_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('qd')"></div>
-      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="date" id="qd_ngaylam" oninput="livePreview('qd')"></div>
-      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="date" id="qd_ngaynhan" oninput="livePreview('qd')"></div>
-      <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="qd_quanhe" placeholder="VD: Tranh chấp thừa kế" oninput="livePreview('qd')"></div>
+      <div class="form-group"><label>Số nhận đơn <span class="req">*</span></label><input id="qd_so_m" placeholder="VD: 01/2025/TLDS" oninput="onMirrorInput('so',this.value)"></div>
+      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="date" id="qd_ngaylam_m" oninput="onMirrorInput('ngaylam',this.value)"></div>
+      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="date" id="qd_ngaynhan_m" oninput="onMirrorInput('ngaynhan',this.value)"></div>
+      <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="qd_quanhe_m" placeholder="VD: Tranh chấp thừa kế" oninput="onMirrorInput('quanhe',this.value)"></div>
     </div>
   </div>
 
   <div class="party-grid">
     <div class="card">
       <div class="card-title"><span class="dot"></span>Người khởi kiện [[THONG_TIN_KHOI_KIEN]]</div>
-      <div class="party-tabs">
-        <button class="party-tab active" onclick="switchParty('qd_nkk','ca_nhan',this)">Cá nhân</button>
-        <button class="party-tab" onclick="switchParty('qd_nkk','to_chuc',this)">Tổ chức</button>
-      </div>
-      <div id="qd_nkk_ca_nhan">
-        <div class="form-row">
-          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="qd_nkk_ten" placeholder="Nguyễn Văn A" oninput="livePreview('qd')"></div>
-          <div class="form-group"><label>Ngày/Năm sinh</label><input id="qd_nkk_namsinh" placeholder="10/01/1990 hoặc 1990" oninput="livePreview('qd')"></div>
-          <div class="form-group"><label>Số CCCD</label><input id="qd_nkk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="qd_nkk_thuongtru" placeholder="Địa chỉ..." oninput="livePreview('qd')"></div>
-          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="qd_nkk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('qd')"></div>
-        </div>
-      </div>
-      <div id="qd_nkk_to_chuc" style="display:none">
-        <div class="form-row">
-          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="qd_nkk_tentochuc" placeholder="Công ty..." oninput="livePreview('qd')"></div>
-          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="qd_nkk_diachi" placeholder="Địa chỉ..." oninput="livePreview('qd')"></div>
-          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="qd_nkk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
-        </div>
-      </div>
-      <div style="margin-top:10px">
-        <button type="button" class="btn btn-outline"
-                onclick="addParty('ap','nkk')">+ Thêm</button>
-      </div>
-      <div id="ap_nkk_list" class="judge-list"></div>
+      <div class="shared-banner">🔗 Dùng chung — Chỉnh tại tab "Thông báo Án phí"</div>
+      <div class="party-preview-box" id="qd_nkk_txt">—</div>
     </div>
-
     <div class="card">
       <div class="card-title"><span class="dot"></span>Người bị kiện [[THONG_TIN_BI_KIEN]]</div>
-      <div class="party-tabs">
-        <button class="party-tab active" onclick="switchParty('qd_nbk','ca_nhan',this)">Cá nhân</button>
-        <button class="party-tab" onclick="switchParty('qd_nbk','to_chuc',this)">Tổ chức</button>
-      </div>
-      <div id="qd_nbk_ca_nhan">
-        <div class="form-row">
-          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="qd_nbk_ten" placeholder="Trần Thị B" oninput="livePreview('qd')"></div>
-          <div class="form-group"><label>Ngày/Năm sinh</label><input id="qd_nbk_namsinh" placeholder="10/01/1990 hoặc 1990" oninput="livePreview('qd')"></div>
-          <div class="form-group"><label>Số CCCD</label><input id="qd_nbk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="qd_nbk_thuongtru" placeholder="Địa chỉ..." oninput="livePreview('qd')"></div>
-          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="qd_nbk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('qd')"></div>
-        </div>
-      </div>
-      <div id="qd_nbk_to_chuc" style="display:none">
-        <div class="form-row">
-          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="qd_nbk_tentochuc" placeholder="Công ty..." oninput="livePreview('qd')"></div>
-          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="qd_nbk_diachi" placeholder="Địa chỉ..." oninput="livePreview('qd')"></div>
-          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="qd_nbk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
-        </div>
-      </div>
-      <div style="margin-top:10px">
-        <button type="button" class="btn btn-outline"
-                onclick="addParty('ap','nkk')">+ Thêm</button>
-      </div>
-      <div id="ap_nkk_list" class="judge-list"></div>
+      <div class="shared-banner">🔗 Dùng chung — Chỉnh tại tab "Thông báo Án phí"</div>
+      <div class="party-preview-box" id="qd_nbk_txt">—</div>
     </div>
   </div>
 
-  <div class="preview-box" id="qd_preview">
-    <div class="preview-title">🔖 Placeholders sẽ điền vào file Word</div>
-    <div id="qd_preview_content"></div>
-  </div>
-
+  <div class="preview-box" id="qd_preview"><div class="preview-title">🔖 Placeholders sẽ điền vào file Word</div><div id="qd_preview_content"></div></div>
   <div class="actions">
     <button class="btn btn-outline" onclick="togglePreview('qd')">👁 Xem Placeholders</button>
-    <button class="btn btn-outline" onclick="resetPanel('qd')">🔄 Làm mới</button>
+    <button class="btn btn-outline" onclick="resetAll()">🔄 Làm mới</button>
     <button class="btn btn-primary" id="qd_exportBtn" onclick="exportWord('qd')">📥 Xuất Quyết định Word</button>
   </div>
 </div>
 
-<!-- ===== PANEL 2: GIẤY XÁC NHẬN ===== -->
+<!-- ===================== PANEL 2: GIẤY XÁC NHẬN ===================== -->
 <div class="panel" id="panel2">
   <div class="panel-title">Giấy Xác nhận Đơn Khởi kiện</div>
   <div class="panel-desc">Tạo giấy xác nhận đã nhận đơn khởi kiện hoặc đơn yêu cầu giải quyết việc dân sự</div>
@@ -406,105 +325,82 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   </div>
 
   <div class="card">
-    <div class="card-title"><span class="dot"></span>Thông tin xác nhận</div>
+    <div class="card-title"><span class="dot"></span>Thông tin xác nhận <small style="font-weight:400;color:var(--text-light);font-family:'Source Sans 3',sans-serif;font-size:13px">— dùng chung, nhập ở tab Án phí hoặc chỉnh trực tiếp</small></div>
     <div class="form-row">
-      <div class="form-group"><label>Số nhận đơn [[SO]] <span class="req">*</span></label><input id="gxn_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('gxn')"></div>
-      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="date" id="gxn_ngaylam" oninput="livePreview('gxn')"></div>
-      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="date" id="gxn_ngaynhan" oninput="livePreview('gxn')"></div>
-      <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="gxn_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="livePreview('gxn')"></div>
+      <div class="form-group"><label>Số nhận đơn <span class="req">*</span></label><input id="gxn_so_m" placeholder="VD: 01/2025/TLDS" oninput="onMirrorInput('so',this.value)"></div>
+      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="date" id="gxn_ngaylam_m" oninput="onMirrorInput('ngaylam',this.value)"></div>
+      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="date" id="gxn_ngaynhan_m" oninput="onMirrorInput('ngaynhan',this.value)"></div>
+      <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="gxn_quanhe_m" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="onMirrorInput('quanhe',this.value)"></div>
     </div>
   </div>
 
   <div class="party-grid">
     <div class="card">
       <div class="card-title"><span class="dot"></span>Người khởi kiện [[THONG_TIN_KHOI_KIEN]]</div>
-      <div class="party-tabs">
-        <button class="party-tab active" onclick="switchParty('gxn_nkk','ca_nhan',this)">Cá nhân</button>
-        <button class="party-tab" onclick="switchParty('gxn_nkk','to_chuc',this)">Tổ chức</button>
-      </div>
-      <div id="gxn_nkk_ca_nhan">
-        <div class="form-row">
-          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="gxn_nkk_ten" placeholder="Nguyễn Văn A" oninput="livePreview('gxn')"></div>
-          <div class="form-group"><label>Ngày/Năm sinh</label><input id="gxn_nkk_namsinh" placeholder="10/01/1990 hoặc 1990" oninput="livePreview('gxn')"></div>
-          <div class="form-group"><label>Số CCCD</label><input id="gxn_nkk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="gxn_nkk_thuongtru" placeholder="Địa chỉ..." oninput="livePreview('gxn')"></div>
-          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="gxn_nkk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('gxn')"></div>
-        </div>
-      </div>
-      <div id="gxn_nkk_to_chuc" style="display:none">
-        <div class="form-row">
-          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="gxn_nkk_tentochuc" placeholder="Công ty..." oninput="livePreview('gxn')"></div>
-          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="gxn_nkk_diachi" placeholder="Địa chỉ..." oninput="livePreview('gxn')"></div>
-          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="gxn_nkk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
-        </div>
-      </div>
-      <div style="margin-top:10px">
-        <button type="button" class="btn btn-outline"
-                onclick="addParty('ap','nkk')">+ Thêm</button>
-      </div>
-      <div id="ap_nkk_list" class="judge-list"></div>
+      <div class="shared-banner">🔗 Dùng chung — Chỉnh tại tab "Thông báo Án phí"</div>
+      <div class="party-preview-box" id="gxn_nkk_txt">—</div>
     </div>
-
     <div class="card">
       <div class="card-title"><span class="dot"></span>Người bị kiện [[THONG_TIN_BI_KIEN]]</div>
-      <div class="party-tabs">
-        <button class="party-tab active" onclick="switchParty('gxn_nbk','ca_nhan',this)">Cá nhân</button>
-        <button class="party-tab" onclick="switchParty('gxn_nbk','to_chuc',this)">Tổ chức</button>
-      </div>
-      <div id="gxn_nbk_ca_nhan">
-        <div class="form-row">
-          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="gxn_nbk_ten" placeholder="Trần Thị B" oninput="livePreview('gxn')"></div>
-          <div class="form-group"><label>Ngày/Năm sinh</label><input id="gxn_nbk_namsinh" placeholder="10/01/1990 hoặc 1990" oninput="livePreview('gxn')"></div>
-          <div class="form-group"><label>Số CCCD</label><input id="gxn_nbk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="gxn_nbk_thuongtru" placeholder="Địa chỉ..." oninput="livePreview('gxn')"></div>
-          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="gxn_nbk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('gxn')"></div>
-        </div>
-      </div>
-      <div id="gxn_nbk_to_chuc" style="display:none">
-        <div class="form-row">
-          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="gxn_nbk_tentochuc" placeholder="Công ty..." oninput="livePreview('gxn')"></div>
-          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="gxn_nbk_diachi" placeholder="Địa chỉ..." oninput="livePreview('gxn')"></div>
-          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="gxn_nbk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
-        </div>
-      </div>
-      <div style="margin-top:10px">
-        <button type="button" class="btn btn-outline"
-                onclick="addParty('ap','nkk')">+ Thêm</button>
-      </div>
-      <div id="ap_nkk_list" class="judge-list"></div>
+      <div class="shared-banner">🔗 Dùng chung — Chỉnh tại tab "Thông báo Án phí"</div>
+      <div class="party-preview-box" id="gxn_nbk_txt">—</div>
     </div>
   </div>
 
-  <div class="preview-box" id="gxn_preview">
-    <div class="preview-title">🔖 Placeholders sẽ điền vào file Word</div>
-    <div id="gxn_preview_content"></div>
-  </div>
-
+  <div class="preview-box" id="gxn_preview"><div class="preview-title">🔖 Placeholders sẽ điền vào file Word</div><div id="gxn_preview_content"></div></div>
   <div class="actions">
     <button class="btn btn-outline" onclick="togglePreview('gxn')">👁 Xem Placeholders</button>
-    <button class="btn btn-outline" onclick="resetPanel('gxn')">🔄 Làm mới</button>
+    <button class="btn btn-outline" onclick="resetAll()">🔄 Làm mới</button>
     <button class="btn btn-primary" id="gxn_exportBtn" onclick="exportWord('gxn')">📥 Xuất Giấy xác nhận Word</button>
   </div>
 </div>
 
-</div><!-- /main -->
-
+</div>
 <div class="toast" id="toast"><span id="toastMsg"></span></div>
 
 <script>
 // ===================== STATE =====================
 const state = { ap:{type:'DS'}, qd:{type:'DS'}, gxn:{type:'DS'} };
 let judges = [];
-try { judges = JSON.parse(localStorage.getItem('toa_judges') || '[]'); } catch(e){}
+try { judges = JSON.parse(localStorage.getItem('toa_judges')||'[]'); } catch(e){}
+const extraParties = { nkk:[], nbk:[] };
+let epCounter = 0;
+
+// ===================== HELPERS =====================
+function g(id){ return (document.getElementById(id)?.value||'').trim(); }
+function sv(id,v){ const el=document.getElementById(id); if(el&&el.value!==v) el.value=v; }
 
 // ===================== TABS =====================
 function switchTab(i){
   document.querySelectorAll('.tab-btn').forEach((b,j)=>b.classList.toggle('active',i===j));
   document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',i===j));
+  pushToMirrors();
+  refreshPartyDisplays();
+  if(i===1) livePreview('qd');
+  if(i===2) livePreview('gxn');
+}
+
+// ===================== SHARED FIELD SYNC =====================
+const SF = ['so','ngaylam','ngaynhan','quanhe'];
+
+function onSharedInput(){
+  pushToMirrors();
+  livePreview('ap');
+}
+
+function pushToMirrors(){
+  SF.forEach(f=>{
+    const v = g('shared_'+f);
+    sv('qd_'+f+'_m', v);
+    sv('gxn_'+f+'_m', v);
+  });
+}
+
+function onMirrorInput(field, value){
+  sv('shared_'+field, value);
+  // sync the other mirror
+  ['qd','gxn'].forEach(ns=> sv(ns+'_'+field+'_m', value));
+  livePreview('qd'); livePreview('gxn'); livePreview('ap');
 }
 
 // ===================== TYPE =====================
@@ -514,302 +410,322 @@ function setType(ns, type, btn){
   btn.classList.add('active');
   if(ns==='ap'){
     const isMAP = type==='MAP';
-    document.getElementById('ap_calcCard').style.display = isMAP ? 'none' : 'block';
-    const info = document.getElementById('ap_exemptInfo');
-    info.className = 'exempt-info' + (isMAP ? ' show' : '');
+    document.getElementById('ap_calcCard').style.display = isMAP?'none':'block';
+    document.getElementById('ap_exemptInfo').className = 'exempt-info'+(isMAP?' show':'');
   }
   livePreview(ns);
 }
 
 // ===================== PARTY TOGGLE =====================
 function switchParty(prefix, type, btn){
-  const card = document.getElementById(prefix+'_ca_nhan').closest('.card');
-  card.querySelectorAll('.party-tab').forEach(t=>t.classList.remove('active'));
+  const cnEl = document.getElementById(prefix+'_ca_nhan');
+  if(!cnEl) return;
+  cnEl.closest('.card').querySelectorAll('.party-tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById(prefix+'_ca_nhan').style.display = type==='ca_nhan'?'block':'none';
+  cnEl.style.display = type==='ca_nhan'?'block':'none';
   document.getElementById(prefix+'_to_chuc').style.display = type==='to_chuc'?'block':'none';
-  livePreview(prefix.split('_')[0]);
+  refreshPartyDisplays(); livePreview('ap');
+}
+
+function onPartyInput(){
+  refreshPartyDisplays(); livePreview('ap');
+}
+
+// ===================== EXTRA PARTIES =====================
+function addExtraParty(role){
+  const id = ++epCounter;
+  extraParties[role].push({id, type:'ca_nhan'});
+  renderExtraParties(role);
+}
+
+function removeExtraParty(role, id){
+  extraParties[role] = extraParties[role].filter(p=>p.id!==id);
+  renderExtraParties(role);
+  refreshPartyDisplays();
+}
+
+function switchEPType(role, id, type, btn){
+  const p = extraParties[role].find(p=>p.id===id);
+  if(!p) return;
+  p.type = type;
+  const block = document.getElementById('ep_'+role+'_'+id);
+  block.querySelectorAll('.party-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  block.querySelector('.ep_cn').style.display = type==='ca_nhan'?'block':'none';
+  block.querySelector('.ep_tc').style.display = type==='to_chuc'?'block':'none';
+  refreshPartyDisplays();
+}
+
+function renderExtraParties(role){
+  const c = document.getElementById('extra_'+role+'_container');
+  if(!c) return;
+  const lbl = role==='nkk'?'Người khởi kiện':'Người bị kiện';
+  c.innerHTML = extraParties[role].map((p,idx)=>`
+    <div class="extra-party-block" id="ep_${role}_${p.id}">
+      <div class="extra-party-header">
+        <span class="extra-party-label">${lbl} thứ ${idx+2}</span>
+        <button class="extra-party-remove" onclick="removeExtraParty('${role}',${p.id})">✕</button>
+      </div>
+      <div class="party-tabs">
+        <button class="party-tab${p.type==='ca_nhan'?' active':''}" onclick="switchEPType('${role}',${p.id},'ca_nhan',this)">Cá nhân</button>
+        <button class="party-tab${p.type==='to_chuc'?' active':''}" onclick="switchEPType('${role}',${p.id},'to_chuc',this)">Tổ chức</button>
+      </div>
+      <div class="ep_cn" style="display:${p.type==='ca_nhan'?'block':'none'}">
+        <div class="form-row">
+          <div class="form-group full"><label>Họ và tên</label><input id="ep_${role}_${p.id}_ten" placeholder="Nguyễn Văn A" oninput="refreshPartyDisplays()"></div>
+          <div class="form-group"><label>Ngày/Năm sinh</label><input id="ep_${role}_${p.id}_ns" placeholder="10/01/1990 hoặc 1990" oninput="refreshPartyDisplays()"></div>
+          <div class="form-group"><label>Số CCCD</label><input id="ep_${role}_${p.id}_cccd" placeholder="Để trống nếu không có" oninput="refreshPartyDisplays()"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="ep_${role}_${p.id}_tt" placeholder="Địa chỉ..." oninput="refreshPartyDisplays()"></div>
+          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="ep_${role}_${p.id}_ct" placeholder="Để trống nếu giống thường trú" oninput="refreshPartyDisplays()"></div>
+        </div>
+      </div>
+      <div class="ep_tc" style="display:${p.type==='to_chuc'?'block':'none'}">
+        <div class="form-row">
+          <div class="form-group full"><label>Tên tổ chức</label><input id="ep_${role}_${p.id}_tc" placeholder="Công ty..." oninput="refreshPartyDisplays()"></div>
+          <div class="form-group full"><label>Địa chỉ trụ sở</label><input id="ep_${role}_${p.id}_dc" placeholder="Địa chỉ..." oninput="refreshPartyDisplays()"></div>
+          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="ep_${role}_${p.id}_dd" placeholder="Để trống nếu không có" oninput="refreshPartyDisplays()"></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
 }
 
 // ===================== JUDGE MANAGER =====================
-function saveJudges(){ try{ localStorage.setItem('toa_judges', JSON.stringify(judges)); }catch(e){} }
-
+function saveJudges(){ try{localStorage.setItem('toa_judges',JSON.stringify(judges));}catch(e){} }
 function renderJudges(){
-  const list = document.getElementById('judgeList');
-  const sel  = document.getElementById('qd_thamPhan');
+  const list=document.getElementById('judgeList'), sel=document.getElementById('qd_thamPhan');
   if(!list||!sel) return;
   list.innerHTML = judges.length
-    ? judges.map((j,i)=>`<div class="judge-tag">${j}<button onclick="removeJudge(${i})" title="Xóa">✕</button></div>`).join('')
+    ? judges.map((j,i)=>`<div class="judge-tag">${j}<button onclick="removeJudge(${i})">✕</button></div>`).join('')
     : '<span style="color:#aaa;font-size:13px">Chưa có thẩm phán nào</span>';
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">-- Chọn Thẩm phán --</option>' +
-    judges.map(j=>`<option value="${j}"${cur===j?' selected':''}>${j}</option>`).join('');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- Chọn Thẩm phán --</option>'+judges.map(j=>`<option value="${j}"${cur===j?' selected':''}>${j}</option>`).join('');
 }
-
 function addJudge(){
-  const inp = document.getElementById('judgeInput');
-  const name = inp.value.trim();
+  const inp=document.getElementById('judgeInput'), name=inp.value.trim();
   if(!name) return;
-  if(!judges.includes(name)){ judges.push(name); saveJudges(); renderJudges(); showToast('✅ Đã thêm: '+name,'success'); }
+  if(!judges.includes(name)){judges.push(name);saveJudges();renderJudges();showToast('✅ Đã thêm: '+name,'success');}
   else showToast('⚠️ Thẩm phán đã có trong danh sách','error');
   inp.value='';
 }
-
 function removeJudge(i){
-  const name = judges[i];
-  judges.splice(i,1);
-  saveJudges(); renderJudges();
+  const name=judges[i]; judges.splice(i,1); saveJudges(); renderJudges();
   showToast('🗑 Đã xóa: '+name,'success');
 }
 
-// ===================== DATE HELPERS =====================
-function fmtDate(val){ // YYYY-MM-DD → DD/MM/YYYY
-  if(!val) return '';
-  const [y,m,d] = val.split('-');
-  return `${d}/${m}/${y}`;
-}
-function fmtDateLong(val){ // YYYY-MM-DD → ngày D tháng M năm YYYY
-  if(!val) return '';
-  const [y,m,d] = val.split('-');
-  return `ngày ${parseInt(d)} tháng ${parseInt(m)} năm ${y}`;
-}
-function parseSinh(raw){
-  if(!raw) return '';
-  raw = raw.trim();
-  const full = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-  if(full) return `sinh ngày ${full[1]}/${full[2]}/${full[3]}`;
-  if(/^\d{4}$/.test(raw)) return `sinh năm ${raw}`;
-  return `sinh ${raw}`;
+// ===================== DATE =====================
+function fmtDate(v){ if(!v) return ''; const[y,m,d]=v.split('-'); return `${d}/${m}/${y}`; }
+function fmtDateLong(v){ if(!v) return ''; const[y,m,d]=v.split('-'); return `ngày ${parseInt(d)} tháng ${parseInt(m)} năm ${y}`; }
+function parseSinh(r){
+  if(!r) return '';
+  r=r.trim();
+  const f=r.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if(f) return `sinh ngày ${f[1]}/${f[2]}/${f[3]}`;
+  if(/^\d{4}$/.test(r)) return `sinh năm ${r}`;
+  return `sinh ${r}`;
 }
 
-// ===================== BUILD PARTY STRING =====================
-function buildParty(prefix){
-  const cn = document.getElementById(prefix+'_ca_nhan');
+// ===================== BUILD PARTY STRINGS =====================
+function buildSharedParty(role){
+  const pfx='shared_'+role;
+  const cn=document.getElementById(pfx+'_ca_nhan');
   if(!cn) return '';
-  const isCN = cn.style.display !== 'none';
-  const g = id => (document.getElementById(id)?.value||'').trim();
-
-  if(isCN){
-    const ten = g(prefix+'_ten');
-    if(!ten) return '(chưa nhập)';
-    const sinh   = parseSinh(g(prefix+'_namsinh'));
-    const cccd   = g(prefix+'_cccd');
-    const tt     = g(prefix+'_thuongtru');
-    const ct     = g(prefix+'_cutru') || tt;
-    let parts = [`Ông/bà ${ten}`];
-    if(sinh)  parts.push(sinh);
-    if(cccd)  parts.push(`số căn cước công dân: ${cccd}`);
-    if(tt)    parts.push(`nơi đăng ký thường trú: ${tt}`);
-    if(ct)    parts.push(`nơi cư trú: ${ct}`);
-    return parts.join('; ')+'.';
+  if(cn.style.display!=='none'){
+    const ten=g(pfx+'_ten'); if(!ten) return '';
+    const sinh=parseSinh(g(pfx+'_namsinh')), cccd=g(pfx+'_cccd');
+    const tt=g(pfx+'_thuongtru'), ct=g(pfx+'_cutru')||tt;
+    let p=[`Ông/bà ${ten}`];
+    if(sinh) p.push(sinh);
+    if(cccd) p.push(`số căn cước công dân: ${cccd}`);
+    if(tt)   p.push(`nơi đăng ký thường trú: ${tt}`);
+    if(ct)   p.push(`nơi cư trú: ${ct}`);
+    return p.join('; ')+'.';
   } else {
-    const ten    = g(prefix+'_tentochuc');
-    if(!ten) return '(chưa nhập)';
-    const diachi = g(prefix+'_diachi');
-    const dd     = g(prefix+'_daidien');
-    let parts = [ten];
-    if(diachi) parts.push(`địa chỉ trụ sở: ${diachi}`);
-    if(dd)     parts.push(`người đại diện theo pháp luật: ${dd}`);
-    return parts.join('; ')+'.';
+    const ten=g(pfx+'_tentochuc'); if(!ten) return '';
+    const dc=g(pfx+'_diachi'), dd=g(pfx+'_daidien');
+    let p=[ten];
+    if(dc) p.push(`địa chỉ trụ sở: ${dc}`);
+    if(dd) p.push(`người đại diện theo pháp luật: ${dd}`);
+    return p.join('; ')+'.';
   }
+}
+
+function buildEPString(role, pid){
+  const p=extraParties[role].find(x=>x.id===pid); if(!p) return '';
+  if(p.type==='ca_nhan'){
+    const ten=g(`ep_${role}_${pid}_ten`); if(!ten) return '';
+    const sinh=parseSinh(g(`ep_${role}_${pid}_ns`)), cccd=g(`ep_${role}_${pid}_cccd`);
+    const tt=g(`ep_${role}_${pid}_tt`), ct=g(`ep_${role}_${pid}_ct`)||tt;
+    let pa=[`Ông/bà ${ten}`];
+    if(sinh) pa.push(sinh);
+    if(cccd) pa.push(`số căn cước công dân: ${cccd}`);
+    if(tt)   pa.push(`nơi đăng ký thường trú: ${tt}`);
+    if(ct)   pa.push(`nơi cư trú: ${ct}`);
+    return pa.join('; ')+'.';
+  } else {
+    const ten=g(`ep_${role}_${pid}_tc`); if(!ten) return '';
+    const dc=g(`ep_${role}_${pid}_dc`), dd=g(`ep_${role}_${pid}_dd`);
+    let pa=[ten];
+    if(dc) pa.push(`địa chỉ trụ sở: ${dc}`);
+    if(dd) pa.push(`người đại diện theo pháp luật: ${dd}`);
+    return pa.join('; ')+'.';
+  }
+}
+
+function buildFullParty(role){
+  const main=buildSharedParty(role);
+  const extras=extraParties[role].map(p=>buildEPString(role,p.id)).filter(Boolean);
+  return [main,...extras].filter(Boolean).join('\n');
+}
+
+function refreshPartyDisplays(){
+  const nkk=buildFullParty('nkk')||'—';
+  const nbk=buildFullParty('nbk')||'—';
+  ['qd','gxn'].forEach(ns=>{
+    const en=document.getElementById(ns+'_nkk_txt');
+    const eb=document.getElementById(ns+'_nbk_txt');
+    if(en) en.textContent=nkk;
+    if(eb) eb.textContent=nbk;
+  });
+  ['ap','qd','gxn'].forEach(ns=>livePreview(ns));
 }
 
 // ===================== BUILD PLACEHOLDERS =====================
 function buildPH(ns){
-  const g = id => (document.getElementById(id)?.value||'').trim();
-  const p = ns+'_';
-  const type = state[ns].type;
-
-  const ph = {
-    SO:                  g(p+'so') || '',
-    NGAY_LAM_DON:        fmtDate(g(p+'ngaylam')),
-    NGAY_NHAN_DON:       fmtDate(g(p+'ngaynhan')),
-    NGAY_NHAN_DON_QUY_DOI: fmtDateLong(g(p+'ngaynhan')),
-    THONG_TIN_KHOI_KIEN: [buildParty(p+'nkk'), ...multiParty[ns].nkk].filter(Boolean).join('\n'),
-    THONG_TIN_BI_KIEN: [buildParty(p+'nbk'), ...multiParty[ns].nbk].filter(Boolean).join('\n'),
+  const type=state[ns].type;
+  const ph={
+    SO:                    g('shared_so'),
+    NGAY_LAM_DON:          fmtDate(g('shared_ngaylam')),
+    NGAY_NHAN_DON:         fmtDate(g('shared_ngaynhan')),
+    NGAY_NHAN_DON_QUY_DOI: fmtDateLong(g('shared_ngaynhan')),
+    THONG_TIN_KHOI_KIEN:   buildFullParty('nkk')||'(chưa nhập)',
+    THONG_TIN_BI_KIEN:     buildFullParty('nbk')||'(chưa nhập)',
   };
-
-  if(type==='VDS') ph.QHPL_VDS = g(p+'quanhe');
-  else             ph.QHPL_DS  = g(p+'quanhe');
-
-  if(ns==='qd'){
-    ph.THAM_PHAN  = g('qd_thamPhan');
-  }
-
+  if(type==='VDS') ph.QHPL_VDS=g('shared_quanhe');
+  else             ph.QHPL_DS =g('shared_quanhe');
+  if(ns==='qd') ph.THAM_PHAN=g('qd_thamPhan');
   return ph;
 }
 
 // ===================== PREVIEW =====================
 function togglePreview(ns){
-  const box = document.getElementById(ns+'_preview');
-  if(box.classList.contains('show')){ box.classList.remove('show'); return; }
-  renderPreview(ns);
-  box.classList.add('show');
+  const box=document.getElementById(ns+'_preview');
+  if(box.classList.contains('show')){box.classList.remove('show');return;}
+  renderPreview(ns); box.classList.add('show');
   box.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function livePreview(ns){
-  const box = document.getElementById(ns+'_preview');
+  const box=document.getElementById(ns+'_preview');
   if(box&&box.classList.contains('show')) renderPreview(ns);
 }
 function renderPreview(ns){
-  const ph = buildPH(ns);
-  document.getElementById(ns+'_preview_content').innerHTML =
+  const ph=buildPH(ns);
+  document.getElementById(ns+'_preview_content').innerHTML=
     Object.entries(ph).map(([k,v])=>
       `<div class="ph-row"><span class="ph-key">[[${k}]]</span><span class="ph-val">${v||'<em style="color:#aaa">chưa nhập</em>'}</span></div>`
     ).join('');
 }
 
-// ===================== ÁN PHÍ CALC =====================
+// ===================== ÁN PHÍ =====================
 function calcAnPhi(s){
   if(!s||s<=0) return 0;
-  if(s<=6000000)      return 300000;
-  if(s<=400000000)    return s*0.05;
-  if(s<=800000000)    return 20000000+0.04*(s-400000000);
-  if(s<=2000000000)   return 36000000+0.03*(s-800000000);
-  if(s<=4000000000)   return 72000000+0.02*(s-2000000000);
+  if(s<=6000000)    return 300000;
+  if(s<=400000000)  return s*0.05;
+  if(s<=800000000)  return 20000000+0.04*(s-400000000);
+  if(s<=2000000000) return 36000000+0.03*(s-800000000);
+  if(s<=4000000000) return 72000000+0.02*(s-2000000000);
   return 112000000+0.001*(s-4000000000);
 }
 function fmtVND(n){ return Math.round(n).toLocaleString('vi-VN')+' đ'; }
 function calcAP(){
-  const s = parseFloat(document.getElementById('ap_sotien').value)||0;
-  const parts = parseInt(document.getElementById('ap_sophần').value)||1;
-  const anphi = calcAnPhi(s);
-  const tamung = anphi/2;
-  document.getElementById('apFull').textContent   = s ? fmtVND(anphi)  : '—';
-  document.getElementById('apTamung').textContent = s ? fmtVND(tamung) : '—';
-  if(parts>1){
-    document.getElementById('apPart').textContent    = fmtVND(tamung/parts);
-    document.getElementById('apPartSub').textContent = `Tạm ứng ÷ ${parts} phần`;
-  } else {
-    document.getElementById('apPart').textContent    = '—';
-    document.getElementById('apPartSub').textContent = 'Nhập số phần để tính';
-  }
+  const s=parseFloat(document.getElementById('ap_sotien').value)||0;
+  const pts=parseInt(document.getElementById('ap_sophần').value)||1;
+  const ap=calcAnPhi(s), tu=ap/2;
+  document.getElementById('apFull').textContent   = s?fmtVND(ap):'—';
+  document.getElementById('apTamung').textContent = s?fmtVND(tu):'—';
+  document.getElementById('apPart').textContent   = pts>1?fmtVND(tu/pts):'—';
+  document.getElementById('apPartSub').textContent= pts>1?`Tạm ứng ÷ ${pts} phần`:'Nhập số phần để tính';
 }
 
-// ===================== TEMPLATE MAP =====================
+// ===================== EXPORT =====================
 function getTemplateName(ns){
-  const t = state[ns].type;
+  const t=state[ns].type;
   if(ns==='ap')  return t==='DS'?'TB_AP_DS':t==='VDS'?'TB_AP_VDS':'TB_MAP';
   if(ns==='qd')  return t==='DS'?'QD_Phancong_DS':'QD_Phancong_VDS';
   if(ns==='gxn') return t==='DS'?'GXN_DS':'GXN_VDS';
 }
 
-// ===================== EXPORT WORD =====================
 async function exportWord(ns){
-  const tplName = getTemplateName(ns);
-  const ph = buildPH(ns);
-
-  // Basic validation
-  const missing = [];
-  if(!ph.SO) missing.push('Số nhận đơn');
-  if(!ph.NGAY_NHAN_DON) missing.push('Ngày nhận đơn');
-  if(ph.THONG_TIN_KHOI_KIEN==='(chưa nhập)') missing.push('Thông tin người khởi kiện');
-  if(ns==='qd' && !ph.THAM_PHAN) missing.push('Thẩm phán');
-  if(missing.length){
-    showToast('⚠️ Vui lòng điền: '+missing.join(', '),'error'); return;
-  }
-
-  const btn = document.getElementById(ns+'_exportBtn');
-  btn.disabled = true;
-  showLoading(`Đang tải mẫu ${tplName}.docx...`);
-
-  try {
-    // Fetch template from /templates/ folder (same origin on Vercel)
-    const url = `templates/${tplName}.docx`;
-    const res = await fetch(url);
-    if(!res.ok) throw new Error(`Không tìm thấy file ${url} (HTTP ${res.status})`);
-
-    const arrayBuf = await res.arrayBuffer();
+  const tpl=getTemplateName(ns), ph=buildPH(ns);
+  const miss=[];
+  if(!ph.SO) miss.push('Số nhận đơn');
+  if(!ph.NGAY_NHAN_DON) miss.push('Ngày nhận đơn');
+  if(ph.THONG_TIN_KHOI_KIEN==='(chưa nhập)') miss.push('Thông tin người khởi kiện');
+  if(ns==='qd'&&!ph.THAM_PHAN) miss.push('Thẩm phán');
+  if(miss.length){showToast('⚠️ Vui lòng điền: '+miss.join(', '),'error');return;}
+  const btn=document.getElementById(ns+'_exportBtn');
+  btn.disabled=true; showLoading(`Đang tải mẫu ${tpl}.docx...`);
+  try{
+    const res=await fetch(`templates/${tpl}.docx`);
+    if(!res.ok) throw new Error(`Không tìm thấy file templates/${tpl}.docx (HTTP ${res.status})`);
+    const buf=await res.arrayBuffer();
     showLoading('Đang điền dữ liệu vào văn bản...');
-
-    const zip = new PizZip(arrayBuf);
-    const doc = new window.docxtemplater(zip, {
-      paragraphLoop: true,
-      linebreaks: true,
-      delimiters: { start: '[[', end: ']]' },
-    });
-
-    doc.setData(ph);
-    doc.render();
-
-    const outBuf = doc.getZip().generate({ type:'arraybuffer', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-    const blob = new Blob([outBuf], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-
-    // Filename: TB_AP_DS_SO01-2025.docx
-    const soClean = (ph.SO||'vanban').replace(/\//g,'-');
-    saveAs(blob, `${tplName}_${soClean}.docx`);
-
-    showToast(`✅ Đã xuất file ${tplName}_${soClean}.docx`,'success');
-  } catch(err){
-    console.error(err);
-    showToast('❌ Lỗi: '+err.message,'error');
-  } finally {
-    hideLoading();
-    btn.disabled = false;
-  }
+    const zip=new PizZip(buf);
+    const doc=new window.docxtemplater(zip,{paragraphLoop:true,linebreaks:true,delimiters:{start:'[[',end:']]'}});
+    doc.setData(ph); doc.render();
+    const out=doc.getZip().generate({type:'arraybuffer',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    const blob=new Blob([out],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    const sc=(ph.SO||'vanban').replace(/\//g,'-');
+    saveAs(blob,`${tpl}_${sc}.docx`);
+    showToast(`✅ Đã xuất file ${tpl}_${sc}.docx`,'success');
+  }catch(err){console.error(err);showToast('❌ Lỗi: '+err.message,'error');}
+  finally{hideLoading();btn.disabled=false;}
 }
 
-// ===================== LOADING =====================
-function showLoading(msg){
-  document.getElementById('loadingText').textContent = msg||'Đang xử lý...';
-  document.getElementById('loadingOverlay').classList.add('show');
-}
-function hideLoading(){ document.getElementById('loadingOverlay').classList.remove('show'); }
-
-// ===================== TOAST =====================
-let _toastTimer;
-function showToast(msg, type='success'){
-  const t = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
-  t.className = `toast show ${type}`;
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(()=>t.classList.remove('show'), 4500);
+// ===================== LOADING / TOAST =====================
+function showLoading(m){document.getElementById('loadingText').textContent=m||'...';document.getElementById('loadingOverlay').classList.add('show');}
+function hideLoading(){document.getElementById('loadingOverlay').classList.remove('show');}
+let _tt;
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.className=`toast show ${type}`;
+  clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),4500);
 }
 
-// ===================== RESET =====================
-function resetPanel(ns){
-  const idx = ns==='ap'?0:ns==='qd'?1:2;
-  const panel = document.getElementById('panel'+idx);
-  panel.querySelectorAll('input:not([type=checkbox])').forEach(i=>{
-    if(i.id==='ap_sophần') i.value='1'; else i.value='';
+// ===================== RESET ALL =====================
+function resetAll(){
+  // Shared fields
+  SF.forEach(f=>{
+    sv('shared_'+f,'');
+    sv('qd_'+f+'_m','');
+    sv('gxn_'+f+'_m','');
   });
-  panel.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
-  document.getElementById(ns+'_preview').classList.remove('show');
-  if(ns==='ap') calcAP();
-  showToast('🔄 Đã làm mới biểu mẫu','success');
-}
-// ===================== MULTI PARTY =====================
-const multiParty = {
-  ap:{nkk:[],nbk:[]},
-  qd:{nkk:[],nbk:[]},
-  gxn:{nkk:[],nbk:[]}
-};
-
-function addParty(ns,type){
-  const name = prompt("Nhập họ tên / tên tổ chức:");
-  if(!name) return;
-  multiParty[ns][type].push(name);
-  renderParty(ns,type);
-}
-
-function renderParty(ns,type){
-  const box = document.getElementById(ns+'_'+type+'_list');
-  if(!box) return;
-
-  box.innerHTML = multiParty[ns][type].map((p,i)=>
-    `<div class="judge-tag">
-        ${p}
-        <button onclick="removeParty('${ns}','${type}',${i})">✕</button>
-     </div>`
-  ).join('');
+  // Shared party
+  ['nkk','nbk'].forEach(role=>{
+    ['ten','namsinh','cccd','thuongtru','cutru','tentochuc','diachi','daidien'].forEach(f=>{
+      sv('shared_'+role+'_'+f,'');
+    });
+  });
+  // Extra parties
+  extraParties.nkk=[]; extraParties.nbk=[];
+  renderExtraParties('nkk'); renderExtraParties('nbk');
+  // Án phí
+  sv('ap_sotien',''); sv('ap_sophần','1'); calcAP();
+  // Thẩm phán chọn (KHÔNG xóa danh sách)
+  const sel=document.getElementById('qd_thamPhan'); if(sel) sel.selectedIndex=0;
+  // Preview boxes
+  ['ap','qd','gxn'].forEach(ns=>document.getElementById(ns+'_preview')?.classList.remove('show'));
+  refreshPartyDisplays();
+  showToast('🔄 Đã làm mới toàn bộ — danh sách thẩm phán vẫn giữ nguyên','success');
 }
 
-function removeParty(ns,type,i){
-  multiParty[ns][type].splice(i,1);
-  renderParty(ns,type);
-}
 // ===================== INIT =====================
 renderJudges();
+renderExtraParties('nkk');
+renderExtraParties('nbk');
 calcAP();
 </script>
 </body>
