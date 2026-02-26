@@ -885,7 +885,7 @@ function calcAP(){
   if(s){
     tamung = anphi / 2;
 
-    // 🔥 QUAN TRỌNG: nếu tạm ứng < 300.000 → bắt buộc 300.000
+    // 🔥 Tạm ứng tối thiểu 300.000
     if(tamung < 300000){
       tamung = 300000;
     }
@@ -895,7 +895,14 @@ function calcAP(){
   document.getElementById('apTamung').textContent = s ? fmtVND(tamung) : '—';
 
   if(parts > 1){
-    document.getElementById('apPart').textContent    = fmtVND(tamung / parts);
+    let moiPhan = tamung / parts;
+
+    // 🔥 Mỗi phần tối thiểu 300.000
+    if(moiPhan < 300000){
+      moiPhan = 300000;
+    }
+
+    document.getElementById('apPart').textContent    = fmtVND(moiPhan);
     document.getElementById('apPartSub').textContent = `Tạm ứng ÷ ${parts} phần`;
   } else {
     document.getElementById('apPart').textContent    = '—';
@@ -912,13 +919,18 @@ function getTienApData(){
 
   let tamung = anphi / 2;
 
-  // 🔥 CHỐT 300.000
   if(tamung < 300000){
     tamung = 300000;
   }
 
   if(parts > 1){
-    tamung = tamung / parts;
+    let moiPhan = tamung / parts;
+
+    if(moiPhan < 300000){
+      moiPhan = 300000;
+    }
+
+    tamung = moiPhan;
   }
 
   return {
@@ -926,7 +938,6 @@ function getTienApData(){
     text: fmtVND(tamung)
   };
 }
-
 // ===================== TEMPLATE MAP =====================
 function getTemplateName(ns){
   const t = state[ns].type;
