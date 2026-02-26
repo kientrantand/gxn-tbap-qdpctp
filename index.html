@@ -883,18 +883,18 @@ function calcAP(){
   let tamung = 0;
 
   if(s){
-    // Nếu án phí = 300.000 → không chia đôi
-    if(anphi === 300000){
+    tamung = anphi / 2;
+
+    // 🔥 QUAN TRỌNG: nếu tạm ứng < 300.000 → bắt buộc 300.000
+    if(tamung < 300000){
       tamung = 300000;
-    } else {
-      tamung = anphi / 2;
     }
   }
 
   document.getElementById('apFull').textContent   = s ? fmtVND(anphi)  : '—';
   document.getElementById('apTamung').textContent = s ? fmtVND(tamung) : '—';
 
-  if(parts > 1 && tamung){
+  if(parts > 1){
     document.getElementById('apPart').textContent    = fmtVND(tamung / parts);
     document.getElementById('apPartSub').textContent = `Tạm ứng ÷ ${parts} phần`;
   } else {
@@ -910,11 +910,11 @@ function getTienApData(){
 
   const anphi = calcAnPhi(s);
 
-  let tamung;
-  if(anphi === 300000){
+  let tamung = anphi / 2;
+
+  // 🔥 CHỐT 300.000
+  if(tamung < 300000){
     tamung = 300000;
-  } else {
-    tamung = anphi / 2;
   }
 
   if(parts > 1){
