@@ -625,8 +625,8 @@ function buildPH(ns){
     NGAY_LAM_DON:        fmtDate(g(p+'ngaylam')),
     NGAY_NHAN_DON:       fmtDate(g(p+'ngaynhan')),
     NGAY_NHAN_DON_QUY_DOI: fmtDateLong(g(p+'ngaynhan')),
-    THONG_TIN_KHOI_KIEN: buildParty(p+'nkk'),
-    THONG_TIN_BI_KIEN:   buildParty(p+'nbk'),
+    THONG_TIN_KHOI_KIEN: [buildParty(p+'nkk'), ...multiParty[ns].nkk].filter(Boolean).join('\n'),
+    THONG_TIN_BI_KIEN: [buildParty(p+'nbk'), ...multiParty[ns].nbk].filter(Boolean).join('\n'),
   };
 
   if(type==='VDS') ph.QHPL_VDS = g(p+'quanhe');
@@ -778,7 +778,36 @@ function resetPanel(ns){
   if(ns==='ap') calcAP();
   showToast('🔄 Đã làm mới biểu mẫu','success');
 }
+// ===================== MULTI PARTY =====================
+const multiParty = {
+  ap:{nkk:[],nbk:[]},
+  qd:{nkk:[],nbk:[]},
+  gxn:{nkk:[],nbk:[]}
+};
 
+function addParty(ns,type){
+  const name = prompt("Nhập họ tên / tên tổ chức:");
+  if(!name) return;
+  multiParty[ns][type].push(name);
+  renderParty(ns,type);
+}
+
+function renderParty(ns,type){
+  const box = document.getElementById(ns+'_'+type+'_list');
+  if(!box) return;
+
+  box.innerHTML = multiParty[ns][type].map((p,i)=>
+    `<div class="judge-tag">
+        ${p}
+        <button onclick="removeParty('${ns}','${type}',${i})">✕</button>
+     </div>`
+  ).join('');
+}
+
+function removeParty(ns,type,i){
+  multiParty[ns][type].splice(i,1);
+  renderParty(ns,type);
+}
 // ===================== INIT =====================
 renderJudges();
 calcAP();
