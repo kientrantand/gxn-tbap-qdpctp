@@ -1033,6 +1033,7 @@ async function exportWord(ns){
     }
 
     let outBuf;
+    postProcessDocx(doc.getZip());
     try {
       outBuf = doc.getZip().generate({
         type: 'arraybuffer',
