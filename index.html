@@ -657,9 +657,8 @@ function setType(ns, type, btn){
   btn.classList.add('active');
   if(ns==='ap'){
     const isMAP = type==='MAP';
-    document.getElementById('ap_calcCard').style.display = isMAP ? 'none' : 'block';
-    const info = document.getElementById('ap_exemptInfo');
-    info.className = 'exempt-info' + (isMAP ? ' show' : '');
+    document.getElementById('ap_calcCard').style.display = isMAP?'none':'block';
+    document.getElementById('ap_exemptInfo').className = 'exempt-info'+(isMAP?' show':'');
   }
   livePreview(ns);
 }
@@ -676,7 +675,6 @@ function switchParty(prefix, type, btn){
 
 // ===================== JUDGE MANAGER =====================
 function saveJudges(){ try{ localStorage.setItem('toa_judges', JSON.stringify(judges)); }catch(e){} }
-
 function renderJudges(){
   const list = document.getElementById('judgeList');
   const sel  = document.getElementById('qd_thamPhan');
@@ -688,24 +686,19 @@ function renderJudges(){
   sel.innerHTML = '<option value="">-- Chọn Thẩm phán --</option>' +
     judges.map(j=>`<option value="${j}"${cur===j?' selected':''}>${j}</option>`).join('');
 }
-
 function addJudge(){
   const inp = document.getElementById('judgeInput');
-  const name = inp.value.trim();
-  if(!name) return;
+  const name = inp.value.trim(); if(!name) return;
   if(!judges.includes(name)){ judges.push(name); saveJudges(); renderJudges(); showToast('✅ Đã thêm: '+name,'success'); }
   else showToast('⚠️ Thẩm phán đã có trong danh sách','error');
   inp.value='';
 }
-
 function removeJudge(i){
-  const name = judges[i];
-  judges.splice(i,1);
-  saveJudges(); renderJudges();
+  const name = judges[i]; judges.splice(i,1); saveJudges(); renderJudges();
   showToast('🗑 Đã xóa: '+name,'success');
 }
 
-// ══ XƯNG HÔ theo giới tính + tuổi ══
+// ===================== XƯNG HÔ =====================
 function getXungHo(gt, sinhRaw){
   if(!gt) return 'Ông/bà';
   let namSinh = null;
@@ -719,116 +712,149 @@ function getXungHo(gt, sinhRaw){
 }
 
 // ===================== DATE HELPERS =====================
-// Parse dd/mm/yyyy text → {d,m,y} or null
 function parseDateVN(val){
-  if(!val) return null;
-  val = val.trim();
-  const parts = val.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
-  if(!parts) return null;
-  return { d:parseInt(parts[1]), m:parseInt(parts[2]), y:parts[3] };
+  if(!val) return null; val = val.trim();
+  const p = val.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if(!p) return null;
+  return { d:parseInt(p[1]), m:parseInt(p[2]), y:p[3] };
 }
-function fmtDate(val){ // dd/mm/yyyy → dd/mm/yyyy (validated)
-  const p = parseDateVN(val);
-  if(!p) return val||'';
-  return `${String(p.d).padStart(2,'0')}/${String(p.m).padStart(2,'0')}/${p.y}`;
+function fmtDate(val){
+  const p = parseDateVN(val); if(!p) return val||'';
+  return String(p.d).padStart(2,'0')+'/'+String(p.m).padStart(2,'0')+'/'+p.y;
 }
-function fmtDateLong(val){ // dd/mm/yyyy → ngày D tháng M năm YYYY
-  const p = parseDateVN(val);
-  if(!p) return val||'';
-  return `ngày ${p.d} tháng ${p.m} năm ${p.y}`;
+function fmtDateLong(val){
+  const p = parseDateVN(val); if(!p) return val||'';
+  return 'ngày '+p.d+' tháng '+p.m+' năm '+p.y;
 }
-// Auto-format date input: chèn / khi gõ (dd/mm/yyyy)
 function fmtDateInput(inp){
   const sel = inp.selectionStart;
-  const old = inp.value;
-  // Chỉ giữ số
-  let raw = old.replace(/\D/g,'');
-  // Giới hạn 8 chữ số
-  if(raw.length > 8) raw = raw.slice(0, 8);
-  // Ghép lại dd/mm/yyyy
-  let v = raw;
-  if(raw.length > 4) v = raw.slice(0,2) + '/' + raw.slice(2,4) + '/' + raw.slice(4);
-  else if(raw.length > 2) v = raw.slice(0,2) + '/' + raw.slice(2);
-  if(inp.value !== v) {
-    inp.value = v;
-    // Đặt lại cursor sau ký tự vừa nhập
-    const addedSlashes = (v.slice(0,sel+2).split('/').length - old.slice(0,sel).split('/').length);
-    const newSel = Math.min(sel + Math.max(0,addedSlashes), v.length);
-    try{ inp.setSelectionRange(newSel, newSel); }catch(e){}
-  }
+  let raw = inp.value.replace(/\D/g,'').slice(0,8);
+  let v = raw.slice(0,2);
+  if(raw.length>2) v += '/'+raw.slice(2,4);
+  if(raw.length>4) v += '/'+raw.slice(4,8);
+  inp.value = v;
+  try{ const np=Math.min(sel+(v.length>sel&&v[sel-1]==='/'?1:0),v.length); inp.setSelectionRange(np,np); }catch(e){}
 }
 function parseSinh(raw){
-  if(!raw) return '';
-  raw = raw.trim();
+  if(!raw) return ''; raw = raw.trim();
   const full = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-  if(full) return `sinh ngày ${full[1]}/${full[2]}/${full[3]}`;
-  if(/^\d{4}$/.test(raw)) return `sinh năm ${raw}`;
-  return `sinh ${raw}`;
+  if(full) return 'sinh ngày '+full[1]+'/'+full[2]+'/'+full[3];
+  if(/^\d{4}$/.test(raw)) return 'sinh năm '+raw;
+  return 'sinh '+raw;
 }
 
-// ===================== BUILD PARTY STRING =====================
+// ===================== BUILD PARTY =====================
 function buildParty(prefix){
-  const cn = document.getElementById(prefix+'_ca_nhan');
-  if(!cn) return '';
-  const isCN = cn.style.display !== 'none';
+  const cn = document.getElementById(prefix+'_ca_nhan'); if(!cn) return '';
+  const isCN = cn.style.display!=='none';
   const g = id => (document.getElementById(id)?.value||'').trim();
-
   if(isCN){
-    const ten = g(prefix+'_ten');
-    if(!ten) return '(chưa nhập)';
+    const ten = g(prefix+'_ten'); if(!ten) return '(chưa nhập)';
     const sinhRaw = g(prefix+'_namsinh');
-    const sinh   = parseSinh(sinhRaw);
-    const cccd   = g(prefix+'_cccd');
-    const tt     = g(prefix+'_thuongtru');
-    const ct     = g(prefix+'_cutru') || tt;
-    const gt = g(prefix+'_gt');
-    const xh = getXungHo(gt, sinhRaw);
-    let parts = [`${xh} ${ten}`];
-    if(sinh)  parts.push(sinh);
-    if(cccd)  parts.push(`số căn cước công dân: ${cccd}`);
-    if(tt)    parts.push(`nơi đăng ký thường trú: ${tt}`);
-    if(ct)    parts.push(`nơi cư trú: ${ct}`);
+    const xh = getXungHo(g(prefix+'_gt'), sinhRaw);
+    const sinh = parseSinh(sinhRaw);
+    const cccd = g(prefix+'_cccd'), tt = g(prefix+'_thuongtru'), ct = g(prefix+'_cutru')||tt;
+    let parts = [xh+' '+ten];
+    if(sinh) parts.push(sinh);
+    if(cccd) parts.push('số căn cước công dân: '+cccd);
+    if(tt)   parts.push('nơi đăng ký thường trú: '+tt);
+    if(ct)   parts.push('nơi cư trú: '+ct);
     return parts.join('; ')+'.';
   } else {
-    const ten    = g(prefix+'_tentochuc');
-    if(!ten) return '(chưa nhập)';
-    const diachi = g(prefix+'_diachi');
-    const dd     = g(prefix+'_daidien');
+    const ten = g(prefix+'_tentochuc'); if(!ten) return '(chưa nhập)';
+    const diachi = g(prefix+'_diachi'), dd = g(prefix+'_daidien');
     let parts = [ten];
-    if(diachi) parts.push(`địa chỉ trụ sở: ${diachi}`);
-    if(dd)     parts.push(`người đại diện theo pháp luật: ${dd}`);
+    if(diachi) parts.push('địa chỉ trụ sở: '+diachi);
+    if(dd)     parts.push('người đại diện theo pháp luật: '+dd);
     return parts.join('; ')+'.';
   }
+}
+
+// ===================== ÁN PHÍ =====================
+function calcAnPhi(s){
+  if(!s||s<=0) return 0;
+  if(s<=6000000)    return 300000;
+  if(s<=400000000)  return s*0.05;
+  if(s<=800000000)  return 20000000+0.04*(s-400000000);
+  if(s<=2000000000) return 36000000+0.03*(s-800000000);
+  if(s<=4000000000) return 72000000+0.02*(s-2000000000);
+  return 112000000+0.001*(s-4000000000);
+}
+function roundTo1000(n){ return Math.round(n/1000)*1000; }
+function minAP(n){ return Math.max(n,300000); }
+function fmtVND(n){ return Math.round(n).toLocaleString('vi-VN')+' đ'; }
+
+let _ap = { tamung:0, moiphan:0, parts:1 };
+function calcAP(){
+  const s = parseFloat(document.getElementById('ap_sotien').value)||0;
+  const parts = Math.max(1, parseInt(document.getElementById('ap_sophần').value)||1);
+  const anphi = calcAnPhi(s);
+  const tamung  = s ? minAP(roundTo1000(anphi/2)) : 0;
+  const moiphan = (s&&parts>1) ? minAP(roundTo1000(tamung/parts)) : 0;
+  _ap = { tamung, moiphan, parts };
+  document.getElementById('apFull').textContent    = s ? fmtVND(anphi)  : '—';
+  document.getElementById('apTamung').textContent  = s ? fmtVND(tamung) : '—';
+  if(parts>1&&s){
+    document.getElementById('apPart').textContent    = fmtVND(moiphan);
+    document.getElementById('apPartSub').textContent = 'Tạm ứng ÷ '+parts+' phần';
+  } else {
+    document.getElementById('apPart').textContent    = '—';
+    document.getElementById('apPartSub').textContent = 'Nhập số phần để tính';
+  }
+  livePreview('ap');
+}
+function getTienAP(){ if(!_ap.tamung) return 0; return _ap.parts>1 ? _ap.moiphan : _ap.tamung; }
+
+function soThanhChu(n){
+  if(!n||n<=0) return ''; n = Math.round(n);
+  const CH = ['','một','hai','ba','bốn','năm','sáu','bảy','tám','chín'];
+  function doc3(x, dau){
+    if(x===0) return ''; let s='';
+    const tr=Math.floor(x/100), ch=Math.floor((x%100)/10), dv=x%10;
+    if(tr) s+=CH[tr]+' trăm';
+    if(ch===0){ if(dv&&!dau) s+=' lẻ '+CH[dv]; else if(dv) s+=' '+CH[dv]; }
+    else if(ch===1){ s+=' mười'; if(dv===5) s+=' lăm'; else if(dv) s+=' '+CH[dv]; }
+    else { s+=' '+CH[ch]+' mươi';
+      if(dv===1) s+=' mốt'; else if(dv===4) s+=' tư'; else if(dv===5) s+=' lăm'; else if(dv) s+=' '+CH[dv];
+    }
+    return s.trim();
+  }
+  const TY=Math.floor(n/1000000000), TR=Math.floor((n%1000000000)/1000000);
+  const NG=Math.floor((n%1000000)/1000), DV=n%1000;
+  let p=[];
+  if(TY) p.push(doc3(TY,true)+' tỷ');
+  if(TR) p.push(doc3(TR,!TY)+' triệu');
+  if(NG) p.push(doc3(NG,!TY&&!TR)+' nghìn');
+  if(DV) p.push(doc3(DV,!TY&&!TR&&!NG));
+  if(!p.length) return 'không đồng';
+  const s=p.join(' ').trim();
+  return s.charAt(0).toUpperCase()+s.slice(1)+' đồng';
 }
 
 // ===================== BUILD PLACEHOLDERS =====================
 function buildPH(ns){
   const g = id => (document.getElementById(id)?.value||'').trim();
-  const p = ns+'_';
-  const type = state[ns].type;
-
+  const p = ns+'_', type = state[ns].type;
+  const nkk = [buildParty(p+'nkk'), ...multiParty[ns].nkk.map(buildEPString)]
+               .filter(s=>s&&s!=='(chưa nhập)').join('|||NP|||');
+  const nbk = [buildParty(p+'nbk'), ...multiParty[ns].nbk.map(buildEPString)]
+               .filter(s=>s&&s!=='(chưa nhập)').join('|||NP|||');
   const ph = {
-    SO:                  g(p+'so') || '',
-    NGAY_LAM_DON:        fmtDate(g(p+'ngaylam')),
-    NGAY_NHAN_DON:       fmtDate(g(p+'ngaynhan')),
+    SO:                    g(p+'so')||'',
+    NGAY_LAM_DON:          fmtDate(g(p+'ngaylam')),
+    NGAY_NHAN_DON:         fmtDate(g(p+'ngaynhan')),
     NGAY_NHAN_DON_QUY_DOI: fmtDateLong(g(p+'ngaynhan')),
-    THONG_TIN_KHOI_KIEN: [buildParty(p+'nkk'), ...multiParty[ns].nkk.map(buildEPString)].filter(s=>s&&s!=='(chưa nhập)').join('|||NEWPARA|||'),
-    THONG_TIN_BI_KIEN: [buildParty(p+'nbk'), ...multiParty[ns].nbk.map(buildEPString)].filter(s=>s&&s!=='(chưa nhập)').join('|||NEWPARA|||'),
+    THONG_TIN_KHOI_KIEN:   nkk,
+    THONG_TIN_BI_KIEN:     nbk,
   };
-
   if(type==='VDS') ph.QHPL_VDS = g(p+'quanhe');
   else             ph.QHPL_DS  = g(p+'quanhe');
-
-  if(ns==='qd'){
-    ph.THAM_PHAN = g('qd_thamPhan');
-  }
-
+  if(ns==='qd') ph.THAM_PHAN = g('qd_thamPhan');
   if(ns==='ap'){
-    const tienAP = getTienAP();
-    ph.TIEN_AP       = tienAP ? fmtVND(tienAP) : '';
-    ph.QUY_DOI_TIEN_AP = tienAP ? soThanhChu(tienAP) : '';
+    const t = getTienAP();
+    ph.TIEN_AP         = t ? fmtVND(t)     : '';
+    ph.QUY_DOI_TIEN_AP = t ? soThanhChu(t) : '';
   }
-
   return ph;
 }
 
@@ -836,8 +862,7 @@ function buildPH(ns){
 function togglePreview(ns){
   const box = document.getElementById(ns+'_preview');
   if(box.classList.contains('show')){ box.classList.remove('show'); return; }
-  renderPreview(ns);
-  box.classList.add('show');
+  renderPreview(ns); box.classList.add('show');
   box.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function livePreview(ns){
@@ -847,104 +872,7 @@ function livePreview(ns){
 function renderPreview(ns){
   const ph = buildPH(ns);
   document.getElementById(ns+'_preview_content').innerHTML =
-    Object.entries(ph).map(([k,v])=>
-      `<div class="ph-row"><span class="ph-key">[[${k}]]</span><span class="ph-val">${v||'<em style="color:#aaa">chưa nhập</em>'}</span></div>`
-    ).join('');
-}
-
-// ===================== ÁN PHÍ CALC =====================
-function calcAnPhi(s){
-  if(!s||s<=0) return 0;
-  if(s<=6000000)      return 300000;
-  if(s<=400000000)    return s*0.05;
-  if(s<=800000000)    return 20000000+0.04*(s-400000000);
-  if(s<=2000000000)   return 36000000+0.03*(s-800000000);
-  if(s<=4000000000)   return 72000000+0.02*(s-2000000000);
-  return 112000000+0.001*(s-4000000000);
-}
-
-// Làm tròn đến hàng nghìn (0.5 lên, <0.5 xuống)
-function roundToThousand(n){
-  return Math.round(n / 1000) * 1000;
-}
-
-// Số tiền tạm ứng tối thiểu 300.000đ
-function minTamUng(n){ return Math.max(n, 300000); }
-
-function fmtVND(n){ return Math.round(n).toLocaleString('vi-VN')+' đ'; }
-
-// Đọc số tiền đang hiển thị để dùng cho buildPH
-let _apCalcState = { tamung:0, moiphan:0, parts:1 };
-
-function calcAP(){
-  const s = parseFloat(document.getElementById('ap_sotien').value)||0;
-  const parts = parseInt(document.getElementById('ap_sophần').value)||1;
-  const anphi = calcAnPhi(s);
-  const tamungRaw = anphi/2;
-  const tamung = s ? minTamUng(roundToThousand(tamungRaw)) : 0;
-  const moiphan = (parts>1) ? minTamUng(roundToThousand(tamung/parts)) : 0;
-
-  _apCalcState = { tamung, moiphan, parts };
-
-  document.getElementById('apFull').textContent   = s ? fmtVND(anphi)   : '—';
-  document.getElementById('apTamung').textContent = s ? fmtVND(tamung)  : '—';
-  if(parts>1){
-    document.getElementById('apPart').textContent    = fmtVND(moiphan);
-    document.getElementById('apPartSub').textContent = `Tạm ứng ÷ ${parts} phần`;
-  } else {
-    document.getElementById('apPart').textContent    = '—';
-    document.getElementById('apPartSub').textContent = 'Nhập số phần để tính';
-  }
-  // cập nhật preview nếu đang mở
-  livePreview('ap');
-}
-
-// ── Đọc TIEN_AP (ưu tiên mỗi phần nếu có) ──
-function getTienAP(){
-  const { tamung, moiphan, parts } = _apCalcState;
-  if(!tamung) return 0;
-  return parts>1 ? moiphan : tamung;
-}
-
-// ── Đổi số tiền → chữ tiếng Việt ──
-function soThanhChu(n){
-  if(!n) return '';
-  n = Math.round(n);
-  const donvi   = ['','một','hai','ba','bốn','năm','sáu','bảy','tám','chín'];
-  const hang    = ['','nghìn','triệu','tỷ'];
-
-  function readThree(n, isFirst){
-    let s = '';
-    const tram = Math.floor(n/100);
-    const chuc = Math.floor((n%100)/10);
-    const dvoi = n%10;
-    if(tram>0) s += donvi[tram]+' trăm ';
-    if(chuc===0 && dvoi>0 && !isFirst) s += 'lẻ ';
-    else if(chuc===1) s += 'mười ';
-    else if(chuc>1) s += donvi[chuc]+' mươi ';
-    if(dvoi===1 && chuc>1) s += 'mốt';
-    else if(dvoi===5 && chuc>0) s += 'lăm';
-    else if(dvoi===4 && chuc>0) s += 'tư';
-    else if(dvoi>0) s += donvi[dvoi];
-    return s.trim();
-  }
-
-  if(n===0) return 'không đồng';
-  let parts = [];
-  let idx=0;
-  while(n>0){
-    const rem = n%1000;
-    if(rem>0) parts.unshift({ val:rem, hang:hang[idx], isFirst: n<1000 });
-    n = Math.floor(n/1000);
-    idx++;
-  }
-  let result = parts.map((p,i)=>{
-    const chu = readThree(p.val, i===0);
-    return chu + (p.hang ? ' '+p.hang : '');
-  }).join(' ');
-  // Viết hoa chữ đầu
-  result = result.trim().charAt(0).toUpperCase() + result.trim().slice(1);
-  return result + ' đồng';
+    Object.entries(ph).map(([k,v])=>`<div class="ph-row"><span class="ph-key">[[${k}]]</span><span class="ph-val">${(v||'').replace(/\r/g,' ↵ ')||'<em style="color:#aaa">chưa nhập</em>'}</span></div>`).join('');
 }
 
 // ===================== TEMPLATE MAP =====================
@@ -955,245 +883,108 @@ function getTemplateName(ns){
   if(ns==='gxn') return t==='DS'?'GXN_DS':'GXN_VDS';
 }
 
-
-// ══ POST-PROCESS: tách NEWPARA → <w:p> mới giữ nguyên định dạng ══
-function splitParagraphsInDocx(zip) {
-  const SEP = '|||NEWPARA|||';
-  const xmlPath = 'word/document.xml';
-  let xml = zip.file(xmlPath).asText();
-
-  if (!xml.includes(SEP)) return; // không có gì để xử lý
-
-  // Tìm từng <w:p>...</w:p> chứa SEP và nhân bản thành nhiều <w:p>
-  // Dùng split theo thẻ đóng để duyệt an toàn
-  const OPEN = '<w:p ';
-  const OPEN2 = '<w:p>';
-  const CLOSE = '</w:p>';
-
-  let out = '';
-  let rest = xml;
-
-  while (rest.length > 0) {
-    // Tìm <w:p ...> hoặc <w:p> tiếp theo
-    let pStart = -1, pTag = '';
-    const i1 = rest.indexOf('<w:p ');
-    const i2 = rest.indexOf('<w:p>');
-    if (i1 === -1 && i2 === -1) { out += rest; break; }
-    if (i1 === -1) { pStart = i2; pTag = '<w:p>'; }
-    else if (i2 === -1) { pStart = i1; pTag = '<w:p '; }
-    else if (i1 < i2) { pStart = i1; pTag = '<w:p '; }
-    else { pStart = i2; pTag = '<w:p>'; }
-
-    // Thêm phần trước <w:p>
-    out += rest.slice(0, pStart);
-    rest = rest.slice(pStart);
-
-    // Tìm </w:p> đóng tương ứng (cần đếm nested <w:p> nếu có)
-    let depth = 0, pos = 0, pEnd = -1;
-    while (pos < rest.length) {
-      const op = rest.indexOf('<w:p', pos);
-      const cl = rest.indexOf('</w:p>', pos);
-      if (cl === -1) { pEnd = rest.length; break; }
-      if (op !== -1 && op < cl) {
-        // Kiểm tra đây có phải <w:p> hay <w:pPr> hay <w:pStyle>...
-        const ch = rest[op + 4];
-        if (ch === '>' || ch === ' ') depth++;
-        pos = op + 4;
-      } else {
-        if (depth === 0) { pEnd = cl + 6; break; }
-        depth--;
-        pos = cl + 6;
-      }
-    }
-    if (pEnd === -1) pEnd = rest.length;
-
-    const pFull = rest.slice(0, pEnd);
-    rest = rest.slice(pEnd);
-
-    if (!pFull.includes(SEP)) {
-      out += pFull;
-      continue;
-    }
-
-    // Lấy thuộc tính thẻ mở <w:p...>
-    const pOpenEnd = pFull.indexOf('>') + 1;
-    const pOpenTag = pFull.slice(0, pOpenEnd); // e.g. <w:p w:rsidR="...">
-
-    // Lấy <w:pPr> nếu có
-    const pPrMatch = pFull.match(/<w:pPr>[\s\S]*?<\/w:pPr>/);
-    const pPr = pPrMatch ? pPrMatch[0] : '';
-
-    // Lấy <w:rPr> từ run đầu tiên (để giữ font, size)
-    const rPrMatch = pFull.match(/<w:rPr>[\s\S]*?<\/w:rPr>/);
-    const rPr = rPrMatch ? rPrMatch[0] : '';
-
-    // Thu thập toàn bộ text trong paragraph
-    let fullText = '';
-    const tRe = /<w:t[^>]*>([\s\S]*?)<\/w:t>/g;
-    let tm;
-    while ((tm = tRe.exec(pFull)) !== null) fullText += tm[1];
-
-    const segments = fullText.split(SEP).filter(s => s.length > 0);
-    if (segments.length <= 1) {
-      // Xóa SEP còn thừa
-      out += pFull.replace(/\|\|\|NEWPARA\|\|\|/g, '');
-      continue;
-    }
-
-    // Tạo paragraph mới cho mỗi segment
-    const newParas = segments.map(seg => {
-      const escaped = seg
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-      return pOpenTag + pPr
-        + '<w:r>' + rPr
-        + '<w:t xml:space="preserve">' + escaped + '</w:t>'
-        + '</w:r></w:p>';
-    }).join('');
-
-    out += newParas;
-  }
-
-  zip.file(xmlPath, out);
-}
-
 // ===================== EXPORT WORD =====================
 async function exportWord(ns){
   const tplName = getTemplateName(ns);
   const ph = buildPH(ns);
-
-  // Basic validation
   const missing = [];
   if(!ph.SO) missing.push('Số nhận đơn');
   if(!ph.NGAY_NHAN_DON) missing.push('Ngày nhận đơn');
-  if(ph.THONG_TIN_KHOI_KIEN==='(chưa nhập)') missing.push('Thông tin người khởi kiện');
-  if(ns==='qd' && !ph.THAM_PHAN) missing.push('Thẩm phán');
-  if(missing.length){
-    showToast('⚠️ Vui lòng điền: '+missing.join(', '),'error'); return;
-  }
+  if(!ph.THONG_TIN_KHOI_KIEN) missing.push('Thông tin người khởi kiện');
+  if(ns==='qd'&&!ph.THAM_PHAN) missing.push('Thẩm phán');
+  if(missing.length){ showToast('⚠️ Vui lòng điền: '+missing.join(', '),'error'); return; }
 
   const btn = document.getElementById(ns+'_exportBtn');
-  btn.disabled = true;
-  showLoading(`Đang tải mẫu ${tplName}.docx...`);
-
+  btn.disabled = true; showLoading('Đang tải mẫu '+tplName+'.docx...');
   try {
-    // Fetch template from /templates/ folder (same origin on Vercel)
-    const url = `templates/${tplName}.docx`;
-    const res = await fetch(url);
-    if(!res.ok) throw new Error(`Không tìm thấy file ${url} (HTTP ${res.status})`);
-
+    const res = await fetch('templates/'+tplName+'.docx');
+    if(!res.ok) throw new Error('Không tìm thấy templates/'+tplName+'.docx (HTTP '+res.status+')');
     const arrayBuf = await res.arrayBuffer();
-    showLoading('Đang điền dữ liệu vào văn bản...');
-
+    showLoading('Đang điền dữ liệu...');
     const zip = new PizZip(arrayBuf);
-    const doc = new window.docxtemplater(zip, {
-      paragraphLoop: true,
-      linebreaks: true,
-      delimiters: { start: '[[', end: ']]' },
+    const doc = new window.docxtemplater(zip,{
+      paragraphLoop:true, linebreaks:true,
+      delimiters:{start:'[[',end:']]'}
     });
-
     doc.setData(ph);
-    doc.render();
-
-    // Post-process: tách |||NEWPARA||| thành paragraph Word mới
-    splitParagraphsInDocx(doc.getZip());
-
-    const outBuf = doc.getZip().generate({ type:'arraybuffer', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-    const blob = new Blob([outBuf], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-
+    try { doc.render(); }
+    catch(renderErr){
+      // docxtemplater bắn lỗi đặc biệt với .properties.errors
+      let details = renderErr.message || '';
+      if(renderErr.properties && Array.isArray(renderErr.properties.errors)){
+        details = renderErr.properties.errors
+          .map(e => e.properties ? (e.properties.explanation||e.message) : (e.message||JSON.stringify(e)))
+          .join(' | ');
+      }
+      console.error('Render error:', renderErr);
+      throw new Error('Lỗi render template: ' + details);
+    }
+    let outBuf;
+    postProcessDocx(doc.getZip());
+    try { outBuf = doc.getZip().generate({type:'arraybuffer',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}); }
+    catch(zipErr){ throw new Error('Lỗi tạo file: ' + zipErr.message); }
+    const blob = new Blob([outBuf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
     const soClean = (ph.SO||'vanban').replace(/\//g,'-');
-    const fileName = `${tplName}_${soClean}.docx`;
-    await saveBlobToFolder(tplName, blob, fileName);
+    await saveBlobToFolder(tplName, blob, tplName+'_'+soClean+'.docx');
   } catch(err){
-    console.error(err);
-    showToast('❌ Lỗi: '+err.message,'error');
-  } finally {
-    hideLoading();
-    btn.disabled = false;
-  }
+    console.error('exportWord error:', err);
+    showToast('❌ ' + (err.message||'Lỗi không xác định. Kiểm tra Console (F12) để biết thêm.'),'error');
+  } finally { hideLoading(); btn.disabled=false; }
 }
 
-// ===================== LOADING =====================
-function showLoading(msg){
-  document.getElementById('loadingText').textContent = msg||'Đang xử lý...';
-  document.getElementById('loadingOverlay').classList.add('show');
-}
+// ===================== LOADING / TOAST =====================
+function showLoading(msg){ document.getElementById('loadingText').textContent=msg||'Đang xử lý...'; document.getElementById('loadingOverlay').classList.add('show'); }
 function hideLoading(){ document.getElementById('loadingOverlay').classList.remove('show'); }
-
-// ===================== TOAST =====================
 let _toastTimer;
-function showToast(msg, type='success'){
-  const t = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
-  t.className = `toast show ${type}`;
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(()=>t.classList.remove('show'), 4500);
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg;
+  t.className='toast show '+type; clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>t.classList.remove('show'),4500);
 }
 
 // ===================== RESET =====================
 function resetPanel(ns){
-  const idx = ns==='ap'?0:ns==='qd'?1:2;
-  const panel = document.getElementById('panel'+idx);
-  panel.querySelectorAll('input:not([type=checkbox])').forEach(i=>{
-    if(i.id==='ap_sophần') i.value='1'; else i.value='';
-  });
+  const idx=ns==='ap'?0:ns==='qd'?1:2;
+  const panel=document.getElementById('panel'+idx);
+  panel.querySelectorAll('input:not([type=checkbox])').forEach(i=>{ if(i.id==='ap_sophần') i.value='1'; else i.value=''; });
   panel.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
-  // Clear extra parties
-  multiParty[ns].nkk = []; multiParty[ns].nbk = [];
+  multiParty[ns].nkk=[]; multiParty[ns].nbk=[];
   renderParty(ns,'nkk'); renderParty(ns,'nbk');
   document.getElementById(ns+'_preview').classList.remove('show');
   if(ns==='ap') calcAP();
   showToast('🔄 Đã làm mới biểu mẫu','success');
 }
-// ===================== MULTI PARTY — inline form blocks =====================
-const multiParty = {
-  ap:{nkk:[],nbk:[]},
-  qd:{nkk:[],nbk:[]},
-  gxn:{nkk:[],nbk:[]}
-};
-let epCounter = 0;
 
+// ===================== MULTI PARTY =====================
+const multiParty = { ap:{nkk:[],nbk:[]}, qd:{nkk:[],nbk:[]}, gxn:{nkk:[],nbk:[]} };
+let epCounter = 0;
 const EP_LABEL = { nkk:'Người khởi kiện', nbk:'Người bị kiện' };
 
-function addParty(ns, type){
-  const id = ++epCounter;
-  multiParty[ns][type].push({ id, ptype:'ca_nhan' });
-  renderParty(ns, type);
-  // scroll to new block
-  setTimeout(()=>{
-    const el = document.getElementById('ep_'+id);
-    if(el) el.scrollIntoView({behavior:'smooth', block:'nearest'});
-  }, 50);
+function addParty(ns,type){
+  const id=++epCounter; multiParty[ns][type].push({id,ptype:'ca_nhan'});
+  renderParty(ns,type);
+  setTimeout(()=>{ const el=document.getElementById('ep_'+id); if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'}); },50);
 }
-
-function removeParty(ns, type, id){
-  multiParty[ns][type] = multiParty[ns][type].filter(p=>p.id!==id);
-  renderParty(ns, type);
-  livePreview(ns);
+function removeParty(ns,type,id){
+  multiParty[ns][type]=multiParty[ns][type].filter(p=>p.id!==id);
+  renderParty(ns,type); livePreview(ns);
 }
-
-function switchEPType(ns, type, id, ptype, btn){
-  const p = multiParty[ns][type].find(x=>x.id===id);
-  if(!p) return;
-  p.ptype = ptype;
-  const block = document.getElementById('ep_'+id);
+function switchEPType(ns,type,id,ptype,btn){
+  const p=multiParty[ns][type].find(x=>x.id===id); if(!p) return;
+  p.ptype=ptype;
+  const block=document.getElementById('ep_'+id);
   block.querySelectorAll('.ep-ptab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
-  block.querySelector('.ep-cn').style.display = ptype==='ca_nhan'?'block':'none';
-  block.querySelector('.ep-tc').style.display = ptype==='to_chuc'?'block':'none';
+  block.querySelector('.ep-cn').style.display=ptype==='ca_nhan'?'block':'none';
+  block.querySelector('.ep-tc').style.display=ptype==='to_chuc'?'block':'none';
   livePreview(ns);
 }
-
-function renderParty(ns, type){
-  const container = document.getElementById(ns+'_'+type+'_extras');
-  if(!container) return;
-  const label = EP_LABEL[type];
-  container.innerHTML = multiParty[ns][type].map((p, idx) => {
-    const isCN = p.ptype === 'ca_nhan';
-    const n = idx + 2; // "thứ 2", "thứ 3"...
-    return `
-    <div class="extra-party-block" id="ep_${p.id}">
+function renderParty(ns,type){
+  const container=document.getElementById(ns+'_'+type+'_extras'); if(!container) return;
+  const label=EP_LABEL[type];
+  container.innerHTML=multiParty[ns][type].map((p,idx)=>{
+    const isCN=p.ptype==='ca_nhan', n=idx+2;
+    return `<div class="extra-party-block" id="ep_${p.id}">
       <div class="extra-party-header">
         <span class="extra-party-label">${label} thứ ${n}</span>
         <button class="extra-party-remove" onclick="removeParty('${ns}','${type}',${p.id})" title="Xóa">✕</button>
@@ -1206,7 +997,7 @@ function renderParty(ns, type){
         <div class="form-row">
           <div class="form-group full"><label>Họ và tên</label><input id="ep_${p.id}_ten" placeholder="Nguyễn Văn A" oninput="livePreview('${ns}')"></div>
           <div class="form-group"><label>Giới tính</label><select id="ep_${p.id}_gt" onchange="livePreview('${ns}')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
-          <div class="form-group"><label>Năm sinh / Ngày sinh</label><input id="ep_${p.id}_ns" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('${ns}')"></div>
+          <div class="form-group"><label>Năm/Ngày sinh</label><input id="ep_${p.id}_ns" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('${ns}')"></div>
           <div class="form-group"><label>Số CCCD</label><input id="ep_${p.id}_cccd" placeholder="Để trống nếu không có" oninput="livePreview('${ns}')"></div>
         </div>
         <div class="form-row">
@@ -1224,173 +1015,109 @@ function renderParty(ns, type){
     </div>`;
   }).join('');
 }
-
 function buildEPString(p){
-  const g = id => (document.getElementById(id)?.value||'').trim();
+  const g = id=>(document.getElementById(id)?.value||'').trim();
   if(p.ptype==='ca_nhan'){
-    const ten = g('ep_'+p.id+'_ten'); if(!ten) return '';
-    const sinh = parseSinh(g('ep_'+p.id+'_ns'));
-    const cccd = g('ep_'+p.id+'_cccd');
-    const tt   = g('ep_'+p.id+'_tt');
-    const ct   = g('ep_'+p.id+'_ct') || tt;
-    const sinhRaw = g('ep_'+p.id+'_ns');
-    const gt = g('ep_'+p.id+'_gt');
-    const xh = getXungHo(gt, sinhRaw);
-    let parts = [`${xh} ${ten}`];
+    const ten=g('ep_'+p.id+'_ten'); if(!ten) return '';
+    const sinhRaw=g('ep_'+p.id+'_ns');
+    const xh=getXungHo(g('ep_'+p.id+'_gt'),sinhRaw);
+    const sinh=parseSinh(sinhRaw), cccd=g('ep_'+p.id+'_cccd');
+    const tt=g('ep_'+p.id+'_tt'), ct=g('ep_'+p.id+'_ct')||tt;
+    let parts=[xh+' '+ten];
     if(sinh) parts.push(sinh);
-    if(cccd) parts.push(`số căn cước công dân: ${cccd}`);
-    if(tt)   parts.push(`nơi đăng ký thường trú: ${tt}`);
-    if(ct)   parts.push(`nơi cư trú: ${ct}`);
+    if(cccd) parts.push('số căn cước công dân: '+cccd);
+    if(tt)   parts.push('nơi đăng ký thường trú: '+tt);
+    if(ct)   parts.push('nơi cư trú: '+ct);
     return parts.join('; ')+'.';
   } else {
-    const ten = g('ep_'+p.id+'_tc'); if(!ten) return '';
-    const dc  = g('ep_'+p.id+'_dc');
-    const dd  = g('ep_'+p.id+'_dd');
-    let parts = [ten];
-    if(dc) parts.push(`địa chỉ trụ sở: ${dc}`);
-    if(dd) parts.push(`người đại diện theo pháp luật: ${dd}`);
+    const ten=g('ep_'+p.id+'_tc'); if(!ten) return '';
+    const dc=g('ep_'+p.id+'_dc'), dd=g('ep_'+p.id+'_dd');
+    let parts=[ten];
+    if(dc) parts.push('địa chỉ trụ sở: '+dc);
+    if(dd) parts.push('người đại diện theo pháp luật: '+dd);
     return parts.join('; ')+'.';
   }
 }
 
-// ══════════════════════════════════════════════════════
-// FOLDER SETTINGS — File System Access API + IndexedDB
-// IndexedDB lưu DirectoryHandle bền vững qua reload trang
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// FOLDER SETTINGS — FSA + IndexedDB
+// ══════════════════════════════════════════════
 const ALL_TPLS = ['TB_AP_DS','TB_AP_VDS','TB_MAP','QD_Phancong_DS','QD_Phancong_VDS','GXN_DS','GXN_VDS'];
 const fsaOK = ('showDirectoryPicker' in window);
 let folderNames = {};
-try{ folderNames = JSON.parse(localStorage.getItem('toa_folderNames')||'{}'); }catch(e){}
-const folderHandles = {};  // key → FileSystemDirectoryHandle (in-memory)
-
+try{ folderNames=JSON.parse(localStorage.getItem('toa_folderNames')||'{}'); }catch(e){}
+const folderHandles = {};
 function saveFolderNames(){ try{localStorage.setItem('toa_folderNames',JSON.stringify(folderNames));}catch(e){} }
 
-// ── IndexedDB helper ──
-const IDB_NAME = 'toa_fsa', IDB_STORE = 'handles', IDB_VER = 1;
-function openIDB(){
-  return new Promise((res,rej)=>{
-    const req = indexedDB.open(IDB_NAME, IDB_VER);
-    req.onupgradeneeded = e => e.target.result.createObjectStore(IDB_STORE);
-    req.onsuccess = e => res(e.target.result);
-    req.onerror   = e => rej(e.target.error);
-  });
-}
-async function idbPut(key, val){
-  try{ const db=await openIDB(); const tx=db.transaction(IDB_STORE,'readwrite'); tx.objectStore(IDB_STORE).put(val,key); await new Promise((r,j)=>{tx.oncomplete=r;tx.onerror=j;}); }catch(e){}
-}
-async function idbGet(key){
-  try{ const db=await openIDB(); return await new Promise((res,rej)=>{ const req=db.transaction(IDB_STORE,'readonly').objectStore(IDB_STORE).get(key); req.onsuccess=()=>res(req.result); req.onerror=()=>rej(); }); }catch(e){ return null; }
-}
-async function idbDelete(key){
-  try{ const db=await openIDB(); const tx=db.transaction(IDB_STORE,'readwrite'); tx.objectStore(IDB_STORE).delete(key); }catch(e){}
-}
+// IndexedDB để lưu DirectoryHandle bền vững
+const IDB={name:'toa_fsa',store:'handles',ver:1};
+function openIDB(){ return new Promise((res,rej)=>{ const r=indexedDB.open(IDB.name,IDB.ver); r.onupgradeneeded=e=>e.target.result.createObjectStore(IDB.store); r.onsuccess=e=>res(e.target.result); r.onerror=e=>rej(e.target.error); }); }
+async function idbPut(k,v){ try{const db=await openIDB();const tx=db.transaction(IDB.store,'readwrite');tx.objectStore(IDB.store).put(v,k);await new Promise((r,j)=>{tx.oncomplete=r;tx.onerror=j;});}catch(e){} }
+async function idbGet(k){ try{const db=await openIDB();return await new Promise((res,rej)=>{const r=db.transaction(IDB.store,'readonly').objectStore(IDB.store).get(k);r.onsuccess=()=>res(r.result);r.onerror=rej;});}catch(e){return null;} }
+async function idbDel(k){ try{const db=await openIDB();db.transaction(IDB.store,'readwrite').objectStore(IDB.store).delete(k);}catch(e){} }
 
-// Tải lại handles từ IndexedDB khi khởi động
-async function restoreHandlesFromIDB(){
+async function restoreHandles(){
   for(const tpl of ALL_TPLS){
     if(!folderNames[tpl]) continue;
-    const h = await idbGet(tpl);
-    if(!h) continue;
-    try{
-      // Thử query permission — nếu được thì dùng lại, không thì để user chọn lại
-      const perm = await h.queryPermission({mode:'readwrite'});
-      if(perm==='granted'){ folderHandles[tpl]=h; }
-      else { folderHandles[tpl]=h; } // lưu handle, khi dùng sẽ request
-    }catch(e){}
+    const h=await idbGet(tpl); if(h) folderHandles[tpl]=h;
   }
   renderSettingsUI();
 }
 
 function openSettings(){ renderSettingsUI(); document.getElementById('settingsModal').classList.add('show'); document.body.style.overflow='hidden'; }
 function closeSettings(){ document.getElementById('settingsModal').classList.remove('show'); document.body.style.overflow=''; }
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSettings(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSettings(); });
 
 function renderSettingsUI(){
-  if(!fsaOK){
-    document.getElementById('compatBanner').className='compat-banner no';
-    document.getElementById('compatMsg').innerHTML='⚠️ Trình duyệt <strong>không hỗ trợ</strong> chọn thư mục lưu trực tiếp. Yêu cầu Chrome/Edge mới. File sẽ lưu vào Downloads.';
-  }
+  if(!fsaOK){ document.getElementById('compatBanner').className='compat-banner no'; document.getElementById('compatMsg').innerHTML='⚠️ Trình duyệt <strong>không hỗ trợ</strong> chọn thư mục. Yêu cầu Chrome/Edge mới. File lưu vào Downloads.'; }
   ALL_TPLS.forEach(tpl=>{
-    const hasH = !!folderHandles[tpl];
-    const hasN = !!folderNames[tpl];
-    const pathEl  = document.getElementById('srp_'+tpl);
-    const clearBtn= document.getElementById('src_'+tpl);
-    const rowEl   = document.getElementById('sr_'+tpl);
-    const pickBtn = rowEl?.querySelector('.sbtn-pick');
+    const hasH=!!folderHandles[tpl], hasN=!!folderNames[tpl];
+    const pathEl=document.getElementById('srp_'+tpl), clearBtn=document.getElementById('src_'+tpl);
+    const rowEl=document.getElementById('sr_'+tpl), pickBtn=rowEl?.querySelector('.sbtn-pick');
     if(!pathEl) return;
-    if(hasH && hasN){
-      pathEl.textContent='✅ '+folderNames[tpl]; pathEl.className='srow-path set';
-      rowEl.classList.add('has-dir'); if(clearBtn) clearBtn.disabled=false;
-      if(pickBtn) pickBtn.textContent='📁 Đổi thư mục';
-    } else if(hasN){
-      pathEl.innerHTML='⚠️ Cần chọn lại: <strong>'+folderNames[tpl]+'</strong>'; pathEl.className='srow-path';
-      rowEl.classList.remove('has-dir'); if(clearBtn) clearBtn.disabled=false;
-      if(pickBtn) pickBtn.textContent='📁 Chọn lại';
-    } else {
-      pathEl.textContent='Chưa cài đặt — dùng hộp thoại lưu mặc định'; pathEl.className='srow-path';
-      rowEl.classList.remove('has-dir'); if(clearBtn) clearBtn.disabled=true;
-      if(pickBtn) pickBtn.textContent='📁 Chọn thư mục';
-    }
-    if(!fsaOK && pickBtn) pickBtn.disabled=true;
+    if(hasH&&hasN){ pathEl.textContent='✅ '+folderNames[tpl]; pathEl.className='srow-path set'; rowEl.classList.add('has-dir'); if(clearBtn) clearBtn.disabled=false; if(pickBtn) pickBtn.textContent='📁 Đổi thư mục'; }
+    else if(hasN){ pathEl.innerHTML='⚠️ Cần chọn lại: <strong>'+folderNames[tpl]+'</strong>'; pathEl.className='srow-path'; rowEl.classList.remove('has-dir'); if(clearBtn) clearBtn.disabled=false; if(pickBtn) pickBtn.textContent='📁 Chọn lại'; }
+    else { pathEl.textContent='Chưa cài đặt — dùng hộp thoại mặc định'; pathEl.className='srow-path'; rowEl.classList.remove('has-dir'); if(clearBtn) clearBtn.disabled=true; if(pickBtn) pickBtn.textContent='📁 Chọn thư mục'; }
+    if(!fsaOK&&pickBtn) pickBtn.disabled=true;
   });
 }
 
 async function pickFolder(tpl){
-  if(!fsaOK){ showToast('⚠️ Cần Chrome/Edge để chọn thư mục','error'); return; }
+  if(!fsaOK){ showToast('⚠️ Cần Chrome/Edge để dùng tính năng này','error'); return; }
   try{
-    const handle = await window.showDirectoryPicker({mode:'readwrite', startIn:'documents'});
+    const handle=await window.showDirectoryPicker({mode:'readwrite',startIn:'documents'});
     folderHandles[tpl]=handle; folderNames[tpl]=handle.name;
-    saveFolderNames();
-    await idbPut(tpl, handle);   // lưu handle vào IndexedDB
-    renderSettingsUI();
-    showToast('✅ Đã lưu thư mục "'+handle.name+'" — giữ nguyên khi tắt trình duyệt','success');
+    saveFolderNames(); await idbPut(tpl,handle); renderSettingsUI();
+    showToast('✅ Đã lưu thư mục "'+handle.name+'" — bền vững qua các lần tắt/mở','success');
   }catch(e){ if(e.name!=='AbortError') showToast('❌ '+e.message,'error'); }
 }
+async function clearFolder(tpl){ delete folderHandles[tpl]; delete folderNames[tpl]; saveFolderNames(); await idbDel(tpl); renderSettingsUI(); showToast('🗑 Đã xóa cài đặt cho '+tpl,'success'); }
+async function clearAllFolders(){ for(const t of ALL_TPLS){ delete folderHandles[t]; delete folderNames[t]; await idbDel(t); } saveFolderNames(); renderSettingsUI(); showToast('🗑 Đã xóa tất cả cài đặt','success'); }
 
-async function clearFolder(tpl){
-  delete folderHandles[tpl]; delete folderNames[tpl];
-  saveFolderNames(); await idbDelete(tpl);
-  renderSettingsUI();
-  showToast('🗑 Đã xóa cài đặt cho '+tpl,'success');
-}
-
-async function clearAllFolders(){
-  for(const t of ALL_TPLS){ delete folderHandles[t]; delete folderNames[t]; await idbDelete(t); }
-  saveFolderNames(); renderSettingsUI();
-  showToast('🗑 Đã xóa tất cả cài đặt ổ lưu','success');
-}
-
-// Lưu file: ưu tiên thư mục đã cài đặt, fallback saveAs
-async function saveBlobToFolder(tpl, blob, fileName){
-  const handle = folderHandles[tpl];
-  if(handle){
+async function saveBlobToFolder(tpl,blob,fileName){
+  const h=folderHandles[tpl];
+  if(h){
     try{
-      let perm = await handle.queryPermission({mode:'readwrite'});
-      if(perm!=='granted') perm = await handle.requestPermission({mode:'readwrite'});
+      let perm=await h.queryPermission({mode:'readwrite'});
+      if(perm!=='granted') perm=await h.requestPermission({mode:'readwrite'});
       if(perm==='granted'){
-        const fh = await handle.getFileHandle(fileName,{create:true});
-        const w  = await fh.createWritable();
-        await w.write(await blob.arrayBuffer());
-        await w.close();
-        showToast('✅ Đã lưu: "'+folderNames[tpl]+'/'+fileName+'"','success');
-        return;
+        const fh=await h.getFileHandle(fileName,{create:true});
+        const w=await fh.createWritable();
+        await w.write(await blob.arrayBuffer()); await w.close();
+        showToast('✅ Đã lưu: "'+folderNames[tpl]+'/'+fileName+'"','success'); return;
       }
-    }catch(err){
-      showToast('⚠️ Mất quyền ghi — Vào Cài đặt → Chọn lại thư mục. Đang lưu qua hộp thoại...','error');
-    }
+    }catch(err){ showToast('⚠️ Mất quyền ghi — vào ⚙️ Cài đặt chọn lại. Đang lưu qua hộp thoại...','error'); }
   }
-  if(folderNames[tpl] && !handle){
-    showToast('ℹ️ Cần xác nhận lại thư mục "'+folderNames[tpl]+'". Vào ⚙️ Cài đặt để chọn lại.','error');
-  } else if(!folderNames[tpl]){
-    showToast('✅ Đã xuất: '+fileName,'success');
-  }
-  saveAs(blob, fileName);
+  if(folderNames[tpl]&&!h) showToast('ℹ️ Vào ⚙️ Cài đặt xác nhận lại thư mục "'+folderNames[tpl]+'"','error');
+  else if(!folderNames[tpl]) showToast('✅ Đã xuất: '+fileName,'success');
+  saveAs(blob,fileName);
 }
 
 // ===================== INIT =====================
 renderJudges();
 calcAP();
-restoreHandlesFromIDB();
+restoreHandles();
+
 </script>
 </body>
 </html>
