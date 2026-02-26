@@ -883,6 +883,73 @@ function getTemplateName(ns){
   if(ns==='gxn') return t==='DS'?'GXN_DS':'GXN_VDS';
 }
 
+// ── Tách |||NP||| thành paragraph Word mới, giữ nguyên indent ──
+function postProcessDocx(zip){
+  const SEP = '|||NP|||';
+  const xmlPath = 'word/document.xml';
+  let xml = zip.file(xmlPath).asText();
+  if(!xml.includes(SEP)) return;
+
+  let out = '', rest = xml;
+  while(rest.length > 0){
+    const i1 = rest.indexOf('<w:p '), i2 = rest.indexOf('<w:p>');
+    let pStart = -1;
+    if(i1 === -1 && i2 === -1){ out += rest; break; }
+    if(i1 === -1) pStart = i2;
+    else if(i2 === -1) pStart = i1;
+    else pStart = Math.min(i1, i2);
+
+    out += rest.slice(0, pStart);
+    rest = rest.slice(pStart);
+
+    // Tìm </w:p> đóng tương ứng (đếm depth)
+    let depth = 0, pos = 0, pEnd = -1;
+    while(pos < rest.length){
+      const op = rest.indexOf('<w:p', pos), cl = rest.indexOf('</w:p>', pos);
+      if(cl === -1){ pEnd = rest.length; break; }
+      if(op !== -1 && op < cl){
+        const ch = rest[op + 4];
+        if(ch === '>' || ch === ' ') depth++;
+        pos = op + 4;
+      } else {
+        if(depth === 0){ pEnd = cl + 6; break; }
+        depth--; pos = cl + 6;
+      }
+    }
+    if(pEnd === -1) pEnd = rest.length;
+    const pFull = rest.slice(0, pEnd);
+    rest = rest.slice(pEnd);
+
+    if(!pFull.includes(SEP)){ out += pFull; continue; }
+
+    // Lấy thẻ mở, <w:pPr> (indent), <w:rPr> (font)
+    const hEnd = pFull.indexOf('>') + 1;
+    const hTag = pFull.slice(0, hEnd);
+    const pPrM = pFull.match(/<w:pPr>[\s\S]*?<\/w:pPr>/);
+    const pPr  = pPrM ? pPrM[0] : '';
+    const rPrM = pFull.match(/<w:rPr>[\s\S]*?<\/w:rPr>/);
+    const rPr  = rPrM ? rPrM[0] : '';
+
+    // Gom text
+    let fullText = '';
+    const tRe = /<w:t[^>]*>([\s\S]*?)<\/w:t>/g;
+    let tm;
+    while((tm = tRe.exec(pFull)) !== null) fullText += tm[1];
+
+    const segs = fullText.split(SEP).filter(s => s.length > 0);
+    if(segs.length <= 1){ out += pFull.replace(/\|\|\|NP\|\|\|/g, ''); continue; }
+
+    // Tạo 1 paragraph mới cho mỗi đoạn
+    out += segs.map(seg => {
+      const esc = seg.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return hTag + pPr + '<w:r>' + rPr +
+             '<w:t xml:space="preserve">' + esc + '</w:t>' +
+             '</w:r></w:p>';
+    }).join('');
+  }
+  zip.file(xmlPath, out);
+}
+
 // ===================== EXPORT WORD =====================
 async function exportWord(ns){
   const tplName = getTemplateName(ns);
