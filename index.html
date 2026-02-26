@@ -182,6 +182,46 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .modal-footer{padding:16px 28px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--cream);border-radius:0 0 16px 16px;}
 .footer-note{font-size:12px;color:var(--text-light);max-width:300px;line-height:1.4;}
 .footer-acts{display:flex;gap:8px;}
+.main-wrapper{
+  display:flex;
+  gap:24px;
+}
+
+.sidebar-org{
+  width:280px;
+  background:white;
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  padding:18px;
+  height:fit-content;
+  position:sticky;
+  top:100px;
+  box-shadow:var(--shadow);
+}
+
+.sidebar-title{
+  font-weight:700;
+  margin-bottom:14px;
+  font-size:14px;
+  color:var(--navy);
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+}
+
+.org-item{
+  padding:10px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  border:1px solid var(--cream-dark);
+  margin-bottom:8px;
+  font-size:13px;
+  transition:all .15s;
+}
+
+.org-item:hover{
+  background:var(--navy);
+  color:white;
+}
 
 </style>
 </head>
@@ -311,337 +351,368 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   <button class="tab-btn" onclick="switchTab(2)">📋 Giấy Xác nhận Đơn</button>
 </div>
 
-<div class="main">
-
-<!-- ===== PANEL 0: ÁN PHÍ ===== -->
-<div class="panel active" id="panel0">
-  <div class="panel-title">Thông báo Nộp tiền Tạm ứng Án phí</div>
-  <div class="panel-desc">Tạo thông báo nộp tiền tạm ứng án phí dân sự sơ thẩm, lệ phí việc dân sự, hoặc miễn án phí</div>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Loại thông báo — Chọn mẫu văn bản</div>
-    <div class="type-selector">
-      <button class="type-btn active" onclick="setType('ap','DS',this)">📄 Án phí Dân sự Sơ thẩm <small style="opacity:.6">→ TB_AP_DS.docx</small></button>
-      <button class="type-btn" onclick="setType('ap','VDS',this)">📄 Lệ phí Việc Dân sự <small style="opacity:.6">→ TB_AP_VDS.docx</small></button>
-      <button class="type-btn" onclick="setType('ap','MAP',this)">✅ Miễn Án phí <small style="opacity:.6">→ TB_MAP.docx</small></button>
-    </div>
-    <div class="exempt-info" id="ap_exemptInfo">✅ Sẽ sử dụng mẫu <strong>TB_MAP.docx</strong> — Thông báo miễn nộp tiền tạm ứng án phí</div>
+<div class="main-wrapper">
+  <div class="sidebar-org">
+    <div class="sidebar-title">🏢 Danh sách tổ chức/cá nhân lựa chọn</div>
+    <div id="orgList"></div>
   </div>
 
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Thông tin vụ việc</div>
-    <div class="form-row">
-      <div class="form-group"><label>Số nhận đơn <span class="req">*</span></label><input id="ap_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('ap')"></div>
-      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="text" id="ap_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('ap')"></div>
-      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="text" id="ap_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('ap')"></div>
-      <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="ap_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="livePreview('ap')"></div>
-    </div>
-  </div>
+  <div class="main">
 
-  <div class="party-grid">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>Người khởi kiện / Nguyên đơn</div>
-      <div class="party-tabs">
-        <button class="party-tab active" onclick="switchParty('ap_nkk','ca_nhan',this)">Cá nhân</button>
-        <button class="party-tab" onclick="switchParty('ap_nkk','to_chuc',this)">Tổ chức</button>
-      </div>
-      <div id="ap_nkk_ca_nhan">
-        <div class="form-row">
-          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="ap_nkk_ten" placeholder="Nguyễn Văn A" oninput="livePreview('ap')"></div>
-          <div class="form-group"><label>Giới tính</label><select id="ap_nkk_gt" onchange="livePreview('ap')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
-          <div class="form-group"><label>Năm sinh / Ngày sinh</label><input id="ap_nkk_namsinh" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('ap')"></div>
-          <div class="form-group"><label>Số CCCD</label><input id="ap_nkk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
+    <!-- ===== PANEL 0: ÁN PHÍ ===== -->
+    <div class="panel active" id="panel0">
+      <div class="panel-title">Thông báo Nộp tiền Tạm ứng Án phí</div>
+      <div class="panel-desc">Tạo thông báo nộp tiền tạm ứng án phí dân sự sơ thẩm, lệ phí việc dân sự, hoặc miễn án phí</div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Loại thông báo — Chọn mẫu văn bản</div>
+        <div class="type-selector">
+          <button class="type-btn active" onclick="setType('ap','DS',this)">📄 Án phí Dân sự Sơ thẩm <small style="opacity:.6">→ TB_AP_DS.docx</small></button>
+          <button class="type-btn" onclick="setType('ap','VDS',this)">📄 Lệ phí Việc Dân sự <small style="opacity:.6">→ TB_AP_VDS.docx</small></button>
+          <button class="type-btn" onclick="setType('ap','MAP',this)">✅ Miễn Án phí <small style="opacity:.6">→ TB_MAP.docx</small></button>
         </div>
+        <div class="exempt-info" id="ap_exemptInfo">✅ Sẽ sử dụng mẫu <strong>TB_MAP.docx</strong> — Thông báo miễn nộp tiền tạm ứng án phí</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Thông tin vụ việc</div>
         <div class="form-row">
-          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="ap_nkk_thuongtru" placeholder="Địa chỉ thường trú..." oninput="livePreview('ap')"></div>
-          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="ap_nkk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('ap')"></div>
+          <div class="form-group"><label>Số nhận đơn <span class="req">*</span></label><input id="ap_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('ap')"></div>
+          <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="text" id="ap_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('ap')"></div>
+          <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="text" id="ap_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('ap')"></div>
+          <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="ap_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="livePreview('ap')"></div>
         </div>
       </div>
-      <div id="ap_nkk_to_chuc" style="display:none">
-        <div class="form-row">
-          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="ap_nkk_tentochuc" placeholder="Công ty TNHH..." oninput="livePreview('ap')"></div>
-          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="ap_nkk_diachi" placeholder="Số nhà, đường, phường, tỉnh..." oninput="livePreview('ap')"></div>
-          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="ap_nkk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
+
+      <div class="party-grid">
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Người khởi kiện / Nguyên đơn</div>
+          <div class="party-tabs">
+            <button class="party-tab active" onclick="switchParty('ap_nkk','ca_nhan',this)">Cá nhân</button>
+            <button class="party-tab" onclick="switchParty('ap_nkk','to_chuc',this)">Tổ chức</button>
+          </div>
+          <div id="ap_nkk_ca_nhan">
+            <div class="form-row">
+              <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="ap_nkk_ten" placeholder="Nguyễn Văn A" oninput="livePreview('ap')"></div>
+              <div class="form-group"><label>Giới tính</label><select id="ap_nkk_gt" onchange="livePreview('ap')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
+              <div class="form-group"><label>Năm sinh / Ngày sinh</label><input id="ap_nkk_namsinh" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('ap')"></div>
+              <div class="form-group"><label>Số CCCD</label><input id="ap_nkk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="ap_nkk_thuongtru" placeholder="Địa chỉ thường trú..." oninput="livePreview('ap')"></div>
+              <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="ap_nkk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('ap')"></div>
+            </div>
+          </div>
+          <div id="ap_nkk_to_chuc" style="display:none">
+            <div class="form-row">
+              <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="ap_nkk_tentochuc" placeholder="Công ty TNHH..." oninput="livePreview('ap')"></div>
+              <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="ap_nkk_diachi" placeholder="Số nhà, đường, phường, tỉnh..." oninput="livePreview('ap')"></div>
+              <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="ap_nkk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
+            </div>
+          </div>
+          <div id="ap_nkk_extras"></div>
+          <button type="button" class="btn-add-party" onclick="addParty('ap','nkk')">＋ Thêm người khởi kiện</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Người bị kiện / Bị đơn</div>
+          <div class="party-tabs">
+            <button class="party-tab active" onclick="switchParty('ap_nbk','ca_nhan',this)">Cá nhân</button>
+            <button class="party-tab" onclick="switchParty('ap_nbk','to_chuc',this)">Tổ chức</button>
+          </div>
+          <div id="ap_nbk_ca_nhan">
+            <div class="form-row">
+              <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="ap_nbk_ten" placeholder="Trần Thị B" oninput="livePreview('ap')"></div>
+              <div class="form-group"><label>Giới tính</label><select id="ap_nbk_gt" onchange="livePreview('ap')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
+              <div class="form-group"><label>Năm sinh / Ngày sinh</label><input id="ap_nbk_namsinh" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('ap')"></div>
+              <div class="form-group"><label>Số CCCD</label><input id="ap_nbk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="ap_nbk_thuongtru" placeholder="Địa chỉ thường trú..." oninput="livePreview('ap')"></div>
+              <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="ap_nbk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('ap')"></div>
+            </div>
+          </div>
+          <div id="ap_nbk_to_chuc" style="display:none">
+            <div class="form-row">
+              <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="ap_nbk_tentochuc" placeholder="Công ty TNHH..." oninput="livePreview('ap')"></div>
+              <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="ap_nbk_diachi" placeholder="Số nhà, đường, phường, tỉnh..." oninput="livePreview('ap')"></div>
+              <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="ap_nbk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
+            </div>
+          </div>
+          <div id="ap_nbk_extras"></div>
+          <button type="button" class="btn-add-party" onclick="addParty('ap','nbk')">＋ Thêm người bị kiện</button>
         </div>
       </div>
-      <div id="ap_nkk_extras"></div>
-      <button type="button" class="btn-add-party" onclick="addParty('ap','nkk')">＋ Thêm người khởi kiện</button>
-    </div>
 
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>Người bị kiện / Bị đơn</div>
-      <div class="party-tabs">
-        <button class="party-tab active" onclick="switchParty('ap_nbk','ca_nhan',this)">Cá nhân</button>
-        <button class="party-tab" onclick="switchParty('ap_nbk','to_chuc',this)">Tổ chức</button>
-      </div>
-      <div id="ap_nbk_ca_nhan">
+      <div class="card" id="ap_calcCard">
+        <div class="card-title"><span class="dot"></span>Tính toán Án phí Dân sự</div>
         <div class="form-row">
-          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="ap_nbk_ten" placeholder="Trần Thị B" oninput="livePreview('ap')"></div>
-          <div class="form-group"><label>Giới tính</label><select id="ap_nbk_gt" onchange="livePreview('ap')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
-          <div class="form-group"><label>Năm sinh / Ngày sinh</label><input id="ap_nbk_namsinh" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('ap')"></div>
-          <div class="form-group"><label>Số CCCD</label><input id="ap_nbk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
+          <div class="form-group"><label>Số tiền tranh chấp (đồng) <span class="req">*</span></label><input type="text" id="ap_sotien" placeholder="VD: 1.000.000.000" oninput="formatMoneyInput(this);calcAP()"></div>
+          <div class="form-group"><label>Chia theo phần (số người thừa kế...)</label><input type="number" id="ap_sophan" min="1" value="1" oninput="calcAP()"></div>
         </div>
-        <div class="form-row">
-          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="ap_nbk_thuongtru" placeholder="Địa chỉ thường trú..." oninput="livePreview('ap')"></div>
-          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="ap_nbk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('ap')"></div>
+        <div class="money-display">
+          <div class="money-item"><div class="money-label">Án phí phải nộp</div><div class="money-value" id="apFull">—</div></div>
+          <div class="money-item"><div class="money-label">Tạm ứng án phí (÷ 2)</div><div class="money-value" id="apTamung">—</div></div>
+          <div class="money-item"><div class="money-label">Mỗi phần</div><div class="money-value" id="apPart">—</div><div class="money-sub" id="apPartSub">Nhập số phần để tính</div></div>
         </div>
       </div>
-      <div id="ap_nbk_to_chuc" style="display:none">
-        <div class="form-row">
-          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="ap_nbk_tentochuc" placeholder="Công ty TNHH..." oninput="livePreview('ap')"></div>
-          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="ap_nbk_diachi" placeholder="Số nhà, đường, phường, tỉnh..." oninput="livePreview('ap')"></div>
-          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="ap_nbk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('ap')"></div>
-        </div>
+
+      <div class="preview-box" id="ap_preview">
+        <div class="preview-title">🔖 Placeholders sẽ điền vào file Word</div>
+        <div id="ap_preview_content"></div>
       </div>
-      <div id="ap_nbk_extras"></div>
-      <button type="button" class="btn-add-party" onclick="addParty('ap','nbk')">＋ Thêm người bị kiện</button>
-    </div>
-  </div>
 
-  <div class="card" id="ap_calcCard">
-    <div class="card-title"><span class="dot"></span>Tính toán Án phí Dân sự</div>
-    <div class="form-row">
-      <div class="form-group"><label>Số tiền tranh chấp (đồng) <span class="req">*</span></label><input type="text" id="ap_sotien" placeholder="VD: 1.000.000.000" oninput="formatMoneyInput(this);calcAP()"></div>
-      <div class="form-group"><label>Chia theo phần (số người thừa kế...)</label><input type="number" id="ap_sophần" min="1" value="1" oninput="calcAP()"></div>
-    </div>
-    <div class="money-display">
-      <div class="money-item"><div class="money-label">Án phí phải nộp</div><div class="money-value" id="apFull">—</div></div>
-      <div class="money-item"><div class="money-label">Tạm ứng án phí (÷ 2)</div><div class="money-value" id="apTamung">—</div></div>
-      <div class="money-item"><div class="money-label">Mỗi phần</div><div class="money-value" id="apPart">—</div><div class="money-sub" id="apPartSub">Nhập số phần để tính</div></div>
-    </div>
-  </div>
-
-  <div class="preview-box" id="ap_preview">
-    <div class="preview-title">🔖 Placeholders sẽ điền vào file Word</div>
-    <div id="ap_preview_content"></div>
-  </div>
-
-  <div class="actions">
-    <button class="btn btn-outline" onclick="togglePreview('ap')">👁 Xem Placeholders</button>
-    <button class="btn btn-outline" onclick="resetPanel('ap')">🔄 Làm mới</button>
-    <button class="btn btn-primary" id="ap_exportBtn" onclick="exportWord('ap')">📥 Xuất văn bản Word</button>
-  </div>
-</div>
-
-<!-- ===== PANEL 1: PHÂN CÔNG ===== -->
-<div class="panel" id="panel1">
-  <div class="panel-title">Quyết định Phân công Thẩm phán</div>
-  <div class="panel-desc">Tạo quyết định phân công thẩm phán xem xét đơn khởi kiện hoặc đơn yêu cầu giải quyết việc dân sự</div>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Loại quyết định — Chọn mẫu văn bản</div>
-    <div class="type-selector">
-      <button class="type-btn active" onclick="setType('qd','DS',this)">⚖️ Phân công — Vụ án Dân sự <small style="opacity:.6">→ QD_Phancong_DS.docx</small></button>
-      <button class="type-btn" onclick="setType('qd','VDS',this)">📑 Phân công — Việc Dân sự <small style="opacity:.6">→ QD_Phancong_VDS.docx</small></button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Thẩm phán được phân công [[THAM_PHAN]]</div>
-    <div class="judge-manager">
-      <div class="judge-manager-title">Quản lý danh sách Thẩm phán</div>
-      <div class="judge-list" id="judgeList"></div>
-      <div class="judge-add-row">
-        <input id="judgeInput" placeholder="Nhập tên Thẩm phán rồi nhấn Thêm..." onkeydown="if(event.key==='Enter')addJudge()">
-        <button onclick="addJudge()">+ Thêm</button>
+      <div class="actions">
+        <button class="btn btn-outline" onclick="togglePreview('ap')">👁 Xem Placeholders</button>
+        <button class="btn btn-outline" onclick="resetPanel('ap')">🔄 Làm mới</button>
+        <button class="btn btn-primary" id="ap_exportBtn" onclick="exportWord('ap')">📥 Xuất văn bản Word</button>
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Chọn Thẩm phán <span class="req">*</span></label>
-        <select id="qd_thamPhan" onchange="livePreview('qd')">
-          <option value="">-- Chọn Thẩm phán --</option>
-        </select>
-      </div>
-    
-    </div>
-  </div>
 
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Thông tin thụ lý</div>
-    <div class="form-row">
-      <div class="form-group"><label>Số nhận đơn [[SO]] <span class="req">*</span></label><input id="qd_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('qd')"></div>
-      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="text" id="qd_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('qd')"></div>
-      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="text" id="qd_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('qd')"></div>
-      <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="qd_quanhe" placeholder="VD: Tranh chấp thừa kế" oninput="livePreview('qd')"></div>
-    </div>
-  </div>
+    <!-- ===== PANEL 1: PHÂN CÔNG ===== -->
+    <div class="panel" id="panel1">
+      <div class="panel-title">Quyết định Phân công Thẩm phán</div>
+      <div class="panel-desc">Tạo quyết định phân công thẩm phán xem xét đơn khởi kiện hoặc đơn yêu cầu giải quyết việc dân sự</div>
 
-  <div class="party-grid">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>Người khởi kiện [[THONG_TIN_KHOI_KIEN]]</div>
-      <div class="party-tabs">
-        <button class="party-tab active" onclick="switchParty('qd_nkk','ca_nhan',this)">Cá nhân</button>
-        <button class="party-tab" onclick="switchParty('qd_nkk','to_chuc',this)">Tổ chức</button>
-      </div>
-      <div id="qd_nkk_ca_nhan">
-        <div class="form-row">
-          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="qd_nkk_ten" placeholder="Nguyễn Văn A" oninput="livePreview('qd')"></div>
-          <div class="form-group"><label>Giới tính</label><select id="qd_nkk_gt" onchange="livePreview('qd')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
-          <div class="form-group"><label>Năm sinh / Ngày sinh</label><input id="qd_nkk_namsinh" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('qd')"></div>
-          <div class="form-group"><label>Số CCCD</label><input id="qd_nkk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="qd_nkk_thuongtru" placeholder="Địa chỉ..." oninput="livePreview('qd')"></div>
-          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="qd_nkk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('qd')"></div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Loại quyết định — Chọn mẫu văn bản</div>
+        <div class="type-selector">
+          <button class="type-btn active" onclick="setType('qd','DS',this)">⚖️ Phân công — Vụ án Dân sự <small style="opacity:.6">→ QD_Phancong_DS.docx</small></button>
+          <button class="type-btn" onclick="setType('qd','VDS',this)">📑 Phân công — Việc Dân sự <small style="opacity:.6">→ QD_Phancong_VDS.docx</small></button>
         </div>
       </div>
-      <div id="qd_nkk_to_chuc" style="display:none">
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Thẩm phán được phân công [[THAM_PHAN]]</div>
         <div class="form-row">
-          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="qd_nkk_tentochuc" placeholder="Công ty..." oninput="livePreview('qd')"></div>
-          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="qd_nkk_diachi" placeholder="Địa chỉ..." oninput="livePreview('qd')"></div>
-          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="qd_nkk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
+          <div class="form-group">
+            <label>Chọn Thẩm phán <span class="req">*</span></label>
+            <select id="qd_thamPhan" onchange="livePreview('qd')">
+              <option value="">-- Chọn Thẩm phán --</option>
+            </select>
+          </div>
+        
         </div>
       </div>
-      <div id="qd_nkk_extras"></div>
-      <button type="button" class="btn-add-party" onclick="addParty('qd','nkk')">＋ Thêm người khởi kiện</button>
-    </div>
 
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>Người bị kiện [[THONG_TIN_BI_KIEN]]</div>
-      <div class="party-tabs">
-        <button class="party-tab active" onclick="switchParty('qd_nbk','ca_nhan',this)">Cá nhân</button>
-        <button class="party-tab" onclick="switchParty('qd_nbk','to_chuc',this)">Tổ chức</button>
-      </div>
-      <div id="qd_nbk_ca_nhan">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Thông tin thụ lý</div>
         <div class="form-row">
-          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="qd_nbk_ten" placeholder="Trần Thị B" oninput="livePreview('qd')"></div>
-          <div class="form-group"><label>Giới tính</label><select id="qd_nbk_gt" onchange="livePreview('qd')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
-          <div class="form-group"><label>Năm sinh / Ngày sinh</label><input id="qd_nbk_namsinh" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('qd')"></div>
-          <div class="form-group"><label>Số CCCD</label><input id="qd_nbk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="qd_nbk_thuongtru" placeholder="Địa chỉ..." oninput="livePreview('qd')"></div>
-          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="qd_nbk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('qd')"></div>
+          <div class="form-group"><label>Số nhận đơn [[SO]] <span class="req">*</span></label><input id="qd_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('qd')"></div>
+          <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="text" id="qd_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('qd')"></div>
+          <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="text" id="qd_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('qd')"></div>
+          <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="qd_quanhe" placeholder="VD: Tranh chấp thừa kế" oninput="livePreview('qd')"></div>
         </div>
       </div>
-      <div id="qd_nbk_to_chuc" style="display:none">
-        <div class="form-row">
-          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="qd_nbk_tentochuc" placeholder="Công ty..." oninput="livePreview('qd')"></div>
-          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="qd_nbk_diachi" placeholder="Địa chỉ..." oninput="livePreview('qd')"></div>
-          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="qd_nbk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
+
+      <div class="party-grid">
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Người khởi kiện [[THONG_TIN_KHOI_KIEN]]</div>
+          <div class="party-tabs">
+            <button class="party-tab active" onclick="switchParty('qd_nkk','ca_nhan',this)">Cá nhân</button>
+            <button class="party-tab" onclick="switchParty('qd_nkk','to_chuc',this)">Tổ chức</button>
+          </div>
+          <div id="qd_nkk_ca_nhan">
+            <div class="form-row">
+              <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="qd_nkk_ten" placeholder="Nguyễn Văn A" oninput="livePreview('qd')"></div>
+              <div class="form-group"><label>Giới tính</label><select id="qd_nkk_gt" onchange="livePreview('qd')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
+              <div class="form-group"><label>Năm sinh / Ngày sinh</label><input id="qd_nkk_namsinh" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('qd')"></div>
+              <div class="form-group"><label>Số CCCD</label><input id="qd_nkk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="qd_nkk_thuongtru" placeholder="Địa chỉ..." oninput="livePreview('qd')"></div>
+              <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="qd_nkk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('qd')"></div>
+            </div>
+          </div>
+          <div id="qd_nkk_to_chuc" style="display:none">
+            <div class="form-row">
+              <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="qd_nkk_tentochuc" placeholder="Công ty..." oninput="livePreview('qd')"></div>
+              <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="qd_nkk_diachi" placeholder="Địa chỉ..." oninput="livePreview('qd')"></div>
+              <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="qd_nkk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
+            </div>
+          </div>
+          <div id="qd_nkk_extras"></div>
+          <button type="button" class="btn-add-party" onclick="addParty('qd','nkk')">＋ Thêm người khởi kiện</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Người bị kiện [[THONG_TIN_BI_KIEN]]</div>
+          <div class="party-tabs">
+            <button class="party-tab active" onclick="switchParty('qd_nbk','ca_nhan',this)">Cá nhân</button>
+            <button class="party-tab" onclick="switchParty('qd_nbk','to_chuc',this)">Tổ chức</button>
+          </div>
+          <div id="qd_nbk_ca_nhan">
+            <div class="form-row">
+              <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="qd_nbk_ten" placeholder="Trần Thị B" oninput="livePreview('qd')"></div>
+              <div class="form-group"><label>Giới tính</label><select id="qd_nbk_gt" onchange="livePreview('qd')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
+              <div class="form-group"><label>Năm sinh / Ngày sinh</label><input id="qd_nbk_namsinh" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('qd')"></div>
+              <div class="form-group"><label>Số CCCD</label><input id="qd_nbk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="qd_nbk_thuongtru" placeholder="Địa chỉ..." oninput="livePreview('qd')"></div>
+              <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="qd_nbk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('qd')"></div>
+            </div>
+          </div>
+          <div id="qd_nbk_to_chuc" style="display:none">
+            <div class="form-row">
+              <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="qd_nbk_tentochuc" placeholder="Công ty..." oninput="livePreview('qd')"></div>
+              <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="qd_nbk_diachi" placeholder="Địa chỉ..." oninput="livePreview('qd')"></div>
+              <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="qd_nbk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('qd')"></div>
+            </div>
+          </div>
+          <div id="qd_nbk_extras"></div>
+          <button type="button" class="btn-add-party" onclick="addParty('qd','nbk')">＋ Thêm người bị kiện</button>
         </div>
       </div>
-      <div id="qd_nbk_extras"></div>
-      <button type="button" class="btn-add-party" onclick="addParty('qd','nbk')">＋ Thêm người bị kiện</button>
-    </div>
-  </div>
 
-  <div class="preview-box" id="qd_preview">
-    <div class="preview-title">🔖 Placeholders sẽ điền vào file Word</div>
-    <div id="qd_preview_content"></div>
-  </div>
-
-  <div class="actions">
-    <button class="btn btn-outline" onclick="togglePreview('qd')">👁 Xem Placeholders</button>
-    <button class="btn btn-outline" onclick="resetPanel('qd')">🔄 Làm mới</button>
-    <button class="btn btn-primary" id="qd_exportBtn" onclick="exportWord('qd')">📥 Xuất Quyết định Word</button>
-  </div>
-</div>
-
-<!-- ===== PANEL 2: GIẤY XÁC NHẬN ===== -->
-<div class="panel" id="panel2">
-  <div class="panel-title">Giấy Xác nhận Đơn Khởi kiện</div>
-  <div class="panel-desc">Tạo giấy xác nhận đã nhận đơn khởi kiện hoặc đơn yêu cầu giải quyết việc dân sự</div>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Loại giấy xác nhận — Chọn mẫu văn bản</div>
-    <div class="type-selector">
-      <button class="type-btn active" onclick="setType('gxn','DS',this)">📋 Xác nhận Đơn Khởi kiện — Vụ án <small style="opacity:.6">→ GXN_DS.docx</small></button>
-      <button class="type-btn" onclick="setType('gxn','VDS',this)">📋 Xác nhận Đơn Yêu cầu — Việc Dân sự <small style="opacity:.6">→ GXN_VDS.docx</small></button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Thông tin xác nhận</div>
-    <div class="form-row">
-      <div class="form-group"><label>Số nhận đơn [[SO]] <span class="req">*</span></label><input id="gxn_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('gxn')"></div>
-      <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="text" id="gxn_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('gxn')"></div>
-      <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="text" id="gxn_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('gxn')"></div>
-      <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="gxn_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="livePreview('gxn')"></div>
-    </div>
-  </div>
-
-  <div class="party-grid">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>Người khởi kiện [[THONG_TIN_KHOI_KIEN]]</div>
-      <div class="party-tabs">
-        <button class="party-tab active" onclick="switchParty('gxn_nkk','ca_nhan',this)">Cá nhân</button>
-        <button class="party-tab" onclick="switchParty('gxn_nkk','to_chuc',this)">Tổ chức</button>
+      <div class="preview-box" id="qd_preview">
+        <div class="preview-title">🔖 Placeholders sẽ điền vào file Word</div>
+        <div id="qd_preview_content"></div>
       </div>
-      <div id="gxn_nkk_ca_nhan">
-        <div class="form-row">
-          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="gxn_nkk_ten" placeholder="Nguyễn Văn A" oninput="livePreview('gxn')"></div>
-          <div class="form-group"><label>Giới tính</label><select id="gxn_nkk_gt" onchange="livePreview('gxn')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
-          <div class="form-group"><label>Năm sinh / Ngày sinh</label><input id="gxn_nkk_namsinh" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('gxn')"></div>
-          <div class="form-group"><label>Số CCCD</label><input id="gxn_nkk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="gxn_nkk_thuongtru" placeholder="Địa chỉ..." oninput="livePreview('gxn')"></div>
-          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="gxn_nkk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('gxn')"></div>
-        </div>
+
+      <div class="actions">
+        <button class="btn btn-outline" onclick="togglePreview('qd')">👁 Xem Placeholders</button>
+        <button class="btn btn-outline" onclick="resetPanel('qd')">🔄 Làm mới</button>
+        <button class="btn btn-primary" id="qd_exportBtn" onclick="exportWord('qd')">📥 Xuất Quyết định Word</button>
       </div>
-      <div id="gxn_nkk_to_chuc" style="display:none">
-        <div class="form-row">
-          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="gxn_nkk_tentochuc" placeholder="Công ty..." oninput="livePreview('gxn')"></div>
-          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="gxn_nkk_diachi" placeholder="Địa chỉ..." oninput="livePreview('gxn')"></div>
-          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="gxn_nkk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
-        </div>
-      </div>
-      <div id="gxn_nkk_extras"></div>
-      <button type="button" class="btn-add-party" onclick="addParty('gxn','nkk')">＋ Thêm người khởi kiện</button>
     </div>
 
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>Người bị kiện [[THONG_TIN_BI_KIEN]]</div>
-      <div class="party-tabs">
-        <button class="party-tab active" onclick="switchParty('gxn_nbk','ca_nhan',this)">Cá nhân</button>
-        <button class="party-tab" onclick="switchParty('gxn_nbk','to_chuc',this)">Tổ chức</button>
-      </div>
-      <div id="gxn_nbk_ca_nhan">
-        <div class="form-row">
-          <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="gxn_nbk_ten" placeholder="Trần Thị B" oninput="livePreview('gxn')"></div>
-          <div class="form-group"><label>Giới tính</label><select id="gxn_nbk_gt" onchange="livePreview('gxn')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
-          <div class="form-group"><label>Năm sinh / Ngày sinh</label><input id="gxn_nbk_namsinh" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('gxn')"></div>
-          <div class="form-group"><label>Số CCCD</label><input id="gxn_nbk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="gxn_nbk_thuongtru" placeholder="Địa chỉ..." oninput="livePreview('gxn')"></div>
-          <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="gxn_nbk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('gxn')"></div>
+    <!-- ===== PANEL 2: GIẤY XÁC NHẬN ===== -->
+    <div class="panel" id="panel2">
+      <div class="panel-title">Giấy Xác nhận Đơn Khởi kiện</div>
+      <div class="panel-desc">Tạo giấy xác nhận đã nhận đơn khởi kiện hoặc đơn yêu cầu giải quyết việc dân sự</div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Loại giấy xác nhận — Chọn mẫu văn bản</div>
+        <div class="type-selector">
+          <button class="type-btn active" onclick="setType('gxn','DS',this)">📋 Xác nhận Đơn Khởi kiện — Vụ án <small style="opacity:.6">→ GXN_DS.docx</small></button>
+          <button class="type-btn" onclick="setType('gxn','VDS',this)">📋 Xác nhận Đơn Yêu cầu — Việc Dân sự <small style="opacity:.6">→ GXN_VDS.docx</small></button>
         </div>
       </div>
-      <div id="gxn_nbk_to_chuc" style="display:none">
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Thông tin xác nhận</div>
         <div class="form-row">
-          <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="gxn_nbk_tentochuc" placeholder="Công ty..." oninput="livePreview('gxn')"></div>
-          <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="gxn_nbk_diachi" placeholder="Địa chỉ..." oninput="livePreview('gxn')"></div>
-          <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="gxn_nbk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
+          <div class="form-group"><label>Số nhận đơn [[SO]] <span class="req">*</span></label><input id="gxn_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('gxn')"></div>
+          <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="text" id="gxn_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('gxn')"></div>
+          <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="text" id="gxn_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('gxn')"></div>
+          <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="gxn_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="livePreview('gxn')"></div>
         </div>
       </div>
-      <div id="gxn_nbk_extras"></div>
-      <button type="button" class="btn-add-party" onclick="addParty('gxn','nbk')">＋ Thêm người bị kiện</button>
+
+      <div class="party-grid">
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Người khởi kiện [[THONG_TIN_KHOI_KIEN]]</div>
+          <div class="party-tabs">
+            <button class="party-tab active" onclick="switchParty('gxn_nkk','ca_nhan',this)">Cá nhân</button>
+            <button class="party-tab" onclick="switchParty('gxn_nkk','to_chuc',this)">Tổ chức</button>
+          </div>
+          <div id="gxn_nkk_ca_nhan">
+            <div class="form-row">
+              <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="gxn_nkk_ten" placeholder="Nguyễn Văn A" oninput="livePreview('gxn')"></div>
+              <div class="form-group"><label>Giới tính</label><select id="gxn_nkk_gt" onchange="livePreview('gxn')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
+              <div class="form-group"><label>Năm sinh / Ngày sinh</label><input id="gxn_nkk_namsinh" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('gxn')"></div>
+              <div class="form-group"><label>Số CCCD</label><input id="gxn_nkk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="gxn_nkk_thuongtru" placeholder="Địa chỉ..." oninput="livePreview('gxn')"></div>
+              <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="gxn_nkk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('gxn')"></div>
+            </div>
+          </div>
+          <div id="gxn_nkk_to_chuc" style="display:none">
+            <div class="form-row">
+              <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="gxn_nkk_tentochuc" placeholder="Công ty..." oninput="livePreview('gxn')"></div>
+              <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="gxn_nkk_diachi" placeholder="Địa chỉ..." oninput="livePreview('gxn')"></div>
+              <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="gxn_nkk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
+            </div>
+          </div>
+          <div id="gxn_nkk_extras"></div>
+          <button type="button" class="btn-add-party" onclick="addParty('gxn','nkk')">＋ Thêm người khởi kiện</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Người bị kiện [[THONG_TIN_BI_KIEN]]</div>
+          <div class="party-tabs">
+            <button class="party-tab active" onclick="switchParty('gxn_nbk','ca_nhan',this)">Cá nhân</button>
+            <button class="party-tab" onclick="switchParty('gxn_nbk','to_chuc',this)">Tổ chức</button>
+          </div>
+          <div id="gxn_nbk_ca_nhan">
+            <div class="form-row">
+              <div class="form-group full"><label>Họ và tên <span class="req">*</span></label><input id="gxn_nbk_ten" placeholder="Trần Thị B" oninput="livePreview('gxn')"></div>
+              <div class="form-group"><label>Giới tính</label><select id="gxn_nbk_gt" onchange="livePreview('gxn')"><option value="">-- Chọn --</option><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
+              <div class="form-group"><label>Năm sinh / Ngày sinh</label><input id="gxn_nbk_namsinh" placeholder="1990 hoặc 10/01/1990" oninput="livePreview('gxn')"></div>
+              <div class="form-group"><label>Số CCCD</label><input id="gxn_nbk_cccd" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group full"><label>Nơi đăng ký thường trú</label><input id="gxn_nbk_thuongtru" placeholder="Địa chỉ..." oninput="livePreview('gxn')"></div>
+              <div class="form-group full"><label>Nơi cư trú hiện tại</label><input id="gxn_nbk_cutru" placeholder="Để trống nếu giống thường trú" oninput="livePreview('gxn')"></div>
+            </div>
+          </div>
+          <div id="gxn_nbk_to_chuc" style="display:none">
+            <div class="form-row">
+              <div class="form-group full"><label>Tên tổ chức <span class="req">*</span></label><input id="gxn_nbk_tentochuc" placeholder="Công ty..." oninput="livePreview('gxn')"></div>
+              <div class="form-group full"><label>Địa chỉ trụ sở <span class="req">*</span></label><input id="gxn_nbk_diachi" placeholder="Địa chỉ..." oninput="livePreview('gxn')"></div>
+              <div class="form-group full"><label>Người đại diện theo pháp luật</label><input id="gxn_nbk_daidien" placeholder="Để trống nếu không có" oninput="livePreview('gxn')"></div>
+            </div>
+          </div>
+          <div id="gxn_nbk_extras"></div>
+          <button type="button" class="btn-add-party" onclick="addParty('gxn','nbk')">＋ Thêm người bị kiện</button>
+        </div>
+      </div>
+
+      <div class="preview-box" id="gxn_preview">
+        <div class="preview-title">🔖 Placeholders sẽ điền vào file Word</div>
+        <div id="gxn_preview_content"></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-outline" onclick="togglePreview('gxn')">👁 Xem Placeholders</button>
+        <button class="btn btn-outline" onclick="resetPanel('gxn')">🔄 Làm mới</button>
+        <button class="btn btn-primary" id="gxn_exportBtn" onclick="exportWord('gxn')">📥 Xuất Giấy xác nhận Word</button>
+      </div>
     </div>
-  </div>
+  </div> <!-- đóng main -->
+</div> <!-- đóng main-wrapper -->
 
-  <div class="preview-box" id="gxn_preview">
-    <div class="preview-title">🔖 Placeholders sẽ điền vào file Word</div>
-    <div id="gxn_preview_content"></div>
-  </div>
-
-  <div class="actions">
-    <button class="btn btn-outline" onclick="togglePreview('gxn')">👁 Xem Placeholders</button>
-    <button class="btn btn-outline" onclick="resetPanel('gxn')">🔄 Làm mới</button>
-    <button class="btn btn-primary" id="gxn_exportBtn" onclick="exportWord('gxn')">📥 Xuất Giấy xác nhận Word</button>
-  </div>
-</div>
-
-</div><!-- /main -->
 
 <div class="toast" id="toast"><span id="toastMsg"></span></div>
 
 <script>
 // ===================== STATE =====================
 const state = { ap:{type:'DS'}, qd:{type:'DS'}, gxn:{type:'DS'} };
-let judges = [];
+const JUDGE_LIST = [
+  "Nguyễn Minh Tuấn",
+  "Vũ Văn Trường",
+  "Tống Thị Kim Phượng",
+  "Phạm Thị Mai Anh",
+  "Phạm Thị Thu Định",
+  "Lương Thị Kim Huế",
+  "Mai Thị Thu Hiền",
+  "Trần Mạnh Hà",
+  "Lương Việt Bằng",
+  "Nguyễn Đức Nguyên",
+  "Nguyễn Văn Quang",
+  "Bùi Thị Nhung",
+  "Trần Thị Hải Ninh"
+];
+// =========== CÁC CÔNG TY YÊU THÍCH ========
+const ORG_LIST = [
+  {
+    name: "Ngân hàng TMCP Việt Nam Thịnh Vượng",
+    address: "Số 89 Láng Hạ, phường Láng Hạ, thành phố Hà Nội"
+  },
+  {
+    name: "CÔNG TY CỔ PHẦN XYZ",
+    address: "Số 88 Lê Lợi, TP Nam Định"
+  },
+  {
+    name: "NGÂN HÀNG TMCP DEF",
+    address: "Số 5 Nguyễn Du, TP Nam Định"
+  }
+];
+
+
+
 try { judges = JSON.parse(localStorage.getItem('toa_judges') || '[]'); } catch(e){}
 
 // ===================== TABS =====================
@@ -662,7 +733,57 @@ function setType(ns, type, btn){
   }
   livePreview(ns);
 }
+// ===================== BUILD THAM PHAN ==================
+function loadJudgesToDropdown(){
+  const sel = document.getElementById('qd_thamPhan');
+  if(!sel) return;
 
+  sel.innerHTML =
+    '<option value="">-- Chọn Thẩm phán --</option>' +
+    JUDGE_LIST.map(name =>
+      `<option value="${name}">${name}</option>`
+    ).join('');
+}
+// ====================render danh sách các công ty ======
+function loadOrgSidebar(){
+  const container = document.getElementById("orgList");
+  if(!container) return;
+
+  container.innerHTML = ORG_LIST.map((org,index)=>`
+    <div class="org-item" onclick="selectOrg(${index})">
+      <strong>${org.name}</strong><br>
+      <span style="font-size:11px;opacity:.7">${org.address}</span>
+    </div>
+  `).join('');
+}
+
+// Tự đổ dữ liệu khi click vào công ty
+function selectOrg(index){
+  const org = ORG_LIST[index];
+
+  const namespaces = ["ap","qd","gxn"];
+
+  namespaces.forEach(ns=>{
+
+    // 1️⃣ Chuyển sang tab "Tổ chức" trước
+    const orgTabBtn = document.querySelector(
+      `#${ns}_nkk_to_chuc`
+    )?.parentElement.querySelectorAll('.party-tab')[1];
+
+    if(orgTabBtn){
+      orgTabBtn.click();
+    }
+
+    // 2️⃣ Gán dữ liệu
+    const nameField = document.getElementById(ns+"_nkk_tentochuc");
+    const addrField = document.getElementById(ns+"_nkk_diachi");
+
+    if(nameField) nameField.value = org.name;
+    if(addrField) addrField.value = org.address;
+  });
+
+  showToast("✅ Đã chọn: "+org.name,"success");
+}
 // ===================== PARTY TOGGLE =====================
 function switchParty(prefix, type, btn){
   const card = document.getElementById(prefix+'_ca_nhan').closest('.card');
@@ -673,30 +794,6 @@ function switchParty(prefix, type, btn){
   livePreview(prefix.split('_')[0]);
 }
 
-// ===================== JUDGE MANAGER =====================
-function saveJudges(){ try{ localStorage.setItem('toa_judges', JSON.stringify(judges)); }catch(e){} }
-function renderJudges(){
-  const list = document.getElementById('judgeList');
-  const sel  = document.getElementById('qd_thamPhan');
-  if(!list||!sel) return;
-  list.innerHTML = judges.length
-    ? judges.map((j,i)=>`<div class="judge-tag">${j}<button onclick="removeJudge(${i})" title="Xóa">✕</button></div>`).join('')
-    : '<span style="color:#aaa;font-size:13px">Chưa có thẩm phán nào</span>';
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">-- Chọn Thẩm phán --</option>' +
-    judges.map(j=>`<option value="${j}"${cur===j?' selected':''}>${j}</option>`).join('');
-}
-function addJudge(){
-  const inp = document.getElementById('judgeInput');
-  const name = inp.value.trim(); if(!name) return;
-  if(!judges.includes(name)){ judges.push(name); saveJudges(); renderJudges(); showToast('✅ Đã thêm: '+name,'success'); }
-  else showToast('⚠️ Thẩm phán đã có trong danh sách','error');
-  inp.value='';
-}
-function removeJudge(i){
-  const name = judges[i]; judges.splice(i,1); saveJudges(); renderJudges();
-  showToast('🗑 Đã xóa: '+name,'success');
-}
 
 // ===================== XƯNG HÔ =====================
 function getXungHo(gt, sinhRaw){
@@ -795,7 +892,7 @@ let _ap = { tamung:0, moiphan:0, parts:1 };
 function calcAP(){
   const raw = document.getElementById('ap_sotien').value.replace(/\./g,'');
   const s = parseFloat(raw)||0;
-  const parts = Math.max(1, parseInt(document.getElementById('ap_sophần').value)||1);
+  const parts = Math.max(1, parseInt(document.getElementById('ap_sophan').value)||1);
   const anphi = calcAnPhi(s);
   const tamung  = s ? minAP(roundTo1000(anphi/2)) : 0;
   const moiphan = (s&&parts>1) ? minAP(roundTo1000(tamung/parts)) : 0;
@@ -1085,7 +1182,7 @@ function showToast(msg,type='success'){
 function resetPanel(ns){
   const idx=ns==='ap'?0:ns==='qd'?1:2;
   const panel=document.getElementById('panel'+idx);
-  panel.querySelectorAll('input:not([type=checkbox])').forEach(i=>{ if(i.id==='ap_sophần') i.value='1'; else i.value=''; });
+  panel.querySelectorAll('input:not([type=checkbox])').forEach(i=>{ if(i.id==='ap_sophan') i.value='1'; else i.value=''; });
   panel.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
   multiParty[ns].nkk=[]; multiParty[ns].nbk=[];
   renderParty(ns,'nkk'); renderParty(ns,'nbk');
@@ -1283,10 +1380,13 @@ async function saveBlobToFolder(tpl,blob,fileName){
 }
 
 // ===================== INIT =====================
-renderJudges();
 calcAP();
 restoreHandles();
-
+window.addEventListener('DOMContentLoaded', ()=>{
+  loadJudgesToDropdown();
+});
+loadOrgSidebar();
+//loadJudgesToDropdown();
 </script>
 </body>
 </html>
