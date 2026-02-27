@@ -10,6 +10,8 @@
 <script src="https://unpkg.com/pizzip@3.1.5/dist/pizzip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="https://unpkg.com/docxtemplater@3.47.4/build/docxtemplater.js"></script>
+<!-- SheetJS for Excel reading -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
 :root {
@@ -230,7 +232,54 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   background: #f5f5f5;
   border-top: 1px solid #ddd;
   margin-top: 30px;
-{
+}
+
+/* ══ IMPORT EXCEL STYLES ══ */
+.import-drop-zone{border:2.5px dashed var(--gold);border-radius:14px;padding:48px 32px;text-align:center;background:#fffdf5;cursor:pointer;transition:all 0.22s;position:relative;}
+.import-drop-zone:hover,.import-drop-zone.drag-over{border-color:var(--navy);background:#f0f4ff;transform:scale(1.01);}
+.import-drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.import-drop-icon{font-size:48px;margin-bottom:12px;}
+.import-drop-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.import-drop-sub{font-size:13px;color:var(--text-light);}
+.import-file-loaded{display:flex;align-items:center;gap:14px;background:#edfaf4;border:1.5px solid #a8dfc0;border-radius:10px;padding:14px 18px;margin-top:16px;}
+.import-file-loaded .fi-icon{font-size:30px;flex-shrink:0;}
+.import-file-loaded .fi-name{font-weight:700;font-size:14px;color:var(--navy);}
+.import-file-loaded .fi-meta{font-size:12px;color:var(--text-light);margin-top:2px;}
+.import-file-loaded .fi-clear{margin-left:auto;border:none;background:#fff;border-radius:8px;padding:6px 12px;color:var(--red);font-weight:700;cursor:pointer;font-size:12px;border:1px solid #fcc;}
+
+.import-preview-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;}
+.import-preview-table th{background:var(--navy);color:white;padding:8px 12px;text-align:left;white-space:nowrap;}
+.import-preview-table td{padding:7px 12px;border-bottom:1px solid var(--cream-dark);vertical-align:top;}
+.import-preview-table tr:hover td{background:#f9f5ee;}
+.vu-an-badge{display:inline-flex;align-items:center;gap:4px;background:#1a3260;color:#e8c97a;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:700;font-family:monospace;}
+.exempt-badge{background:#1e7e5a;color:white;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;}
+.money-badge{background:#7a2020;color:white;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;}
+
+/* Import template selection modal */
+.import-modal-backdrop{position:fixed;inset:0;background:rgba(10,20,40,0.65);z-index:6000;display:none;align-items:center;justify-content:center;padding:20px;}
+.import-modal-backdrop.show{display:flex;}
+.import-modal{background:white;border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow:auto;box-shadow:0 24px 80px rgba(0,0,0,0.35);animation:slideModal 0.22s ease;}
+.import-modal-header{padding:22px 28px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.import-modal-body{padding:22px 28px;}
+.import-modal-footer{padding:16px 28px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;background:var(--cream);border-radius:0 0 16px 16px;}
+
+.tpl-option{border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.tpl-option:hover{border-color:var(--navy);}
+.tpl-option.selected{border-color:var(--navy);background:#f0f4ff;}
+.tpl-option input[type=checkbox]{width:18px;height:18px;accent-color:var(--navy);flex-shrink:0;}
+.tpl-option-info{flex:1;}
+.tpl-option-name{font-weight:700;font-size:14px;color:var(--navy);}
+.tpl-option-sub{font-size:11px;color:var(--text-light);margin-top:2px;}
+
+.progress-bar-wrap{background:#e8eef5;border-radius:8px;height:8px;overflow:hidden;margin-top:8px;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--navy),var(--gold));border-radius:8px;transition:width 0.3s ease;}
+.import-result-list{max-height:260px;overflow-y:auto;margin-top:14px;}
+.import-result-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;margin-bottom:6px;font-size:13px;}
+.import-result-item.ok{background:#edfaf4;border:1px solid #a8dfc0;}
+.import-result-item.err{background:#fff5f0;border:1px solid #f0b8a0;}
+.ir-icon{font-size:16px;flex-shrink:0;}
+.ir-name{flex:1;font-weight:600;}
+.ir-detail{font-size:11px;color:var(--text-light);}
 </style>
 </head>
 <body>
@@ -357,6 +406,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   <button class="tab-btn active" onclick="switchTab(0)">💰 Thông báo Án phí</button>
   <button class="tab-btn" onclick="switchTab(1)">👨‍⚖️ Phân công Thẩm phán</button>
   <button class="tab-btn" onclick="switchTab(2)">📋 Giấy Xác nhận Đơn</button>
+  <button class="tab-btn" onclick="switchTab(3)">📊 Import Excel — Xuất hàng loạt</button>
 </div>
 
 <div class="main-wrapper">
@@ -680,9 +730,112 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         <button class="btn btn-primary" id="gxn_exportBtn" onclick="exportWord('gxn')">📥 Xuất Giấy xác nhận Word</button>
       </div>
     </div>
+
+    <!-- ===== PANEL 3: IMPORT EXCEL ===== -->
+    <div class="panel" id="panel3">
+      <div class="panel-title">📊 Import Excel — Xuất văn bản hàng loạt</div>
+      <div class="panel-desc">Import file <strong>Import_Excel.xlsm</strong> để tự động tạo Thông báo án phí, Giấy xác nhận và Quyết định phân công cho nhiều vụ án cùng lúc</div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>1. Chọn file Excel để Import</div>
+        <div class="import-drop-zone" id="importDropZone" onclick="document.getElementById('importFileInput').click()">
+          <input type="file" id="importFileInput" accept=".xlsx,.xlsm,.xls" style="display:none" onchange="handleImportFile(this.files[0])">
+          <div class="import-drop-icon">📊</div>
+          <div class="import-drop-title">Kéo thả hoặc click để chọn file</div>
+          <div class="import-drop-sub">Hỗ trợ định dạng: .xlsm, .xlsx, .xls — Tên file: <strong>Import_Excel.xlsm</strong></div>
+        </div>
+        <div id="importFileInfo" style="display:none" class="import-file-loaded">
+          <div class="fi-icon">📊</div>
+          <div>
+            <div class="fi-name" id="importFileName">—</div>
+            <div class="fi-meta" id="importFileMeta">—</div>
+          </div>
+          <button class="fi-clear" onclick="clearImportFile()">✕ Xóa</button>
+        </div>
+      </div>
+
+      <div class="card" id="importPreviewCard" style="display:none">
+        <div class="card-title"><span class="dot"></span>2. Xem trước dữ liệu đọc được</div>
+        <div style="overflow-x:auto">
+          <table class="import-preview-table" id="importPreviewTable">
+            <thead><tr>
+              <th>Mã vụ</th><th>Số nhận đơn</th><th>QHPL</th>
+              <th>Ngày làm đơn</th><th>Ngày nhận đơn</th>
+              <th>Án phí</th><th>Thẩm phán</th>
+              <th>NKK</th><th>NBK</th>
+            </tr></thead>
+            <tbody id="importPreviewBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" id="importActionCard" style="display:none">
+        <div class="card-title"><span class="dot"></span>3. Chọn loại văn bản cần xuất</div>
+        <div style="font-size:13px;color:var(--text-light);margin-bottom:16px;">Chọn một hoặc nhiều loại văn bản. Phần mềm sẽ tự động chọn mẫu phù hợp (TB_MAP cho vụ miễn án phí, TB_AP_DS cho vụ có số tiền).</div>
+
+        <div id="importTplOptions">
+          <div class="tpl-option" onclick="toggleTplOption(this,'TB_AP')" id="opt_TB_AP">
+            <input type="checkbox" id="chk_TB_AP" onclick="event.stopPropagation()">
+            <div class="tpl-option-info">
+              <div class="tpl-option-name">💰 Thông báo Án phí / Miễn Án phí</div>
+              <div class="tpl-option-sub">TB_AP_DS.docx (có giá trị) · TB_MAP.docx (miễn án phí)</div>
+            </div>
+          </div>
+          <div class="tpl-option" onclick="toggleTplOption(this,'GXN_DS')" id="opt_GXN_DS">
+            <input type="checkbox" id="chk_GXN_DS" onclick="event.stopPropagation()">
+            <div class="tpl-option-info">
+              <div class="tpl-option-name">📋 Giấy Xác nhận Đơn Khởi kiện</div>
+              <div class="tpl-option-sub">GXN_DS.docx — Xác nhận đã nhận đơn khởi kiện vụ án dân sự</div>
+            </div>
+          </div>
+          <div class="tpl-option" onclick="toggleTplOption(this,'QD_Phancong_DS')" id="opt_QD_Phancong_DS">
+            <input type="checkbox" id="chk_QD_Phancong_DS" onclick="event.stopPropagation()">
+            <div class="tpl-option-info">
+              <div class="tpl-option-name">⚖️ Quyết định Phân công Thẩm phán</div>
+              <div class="tpl-option-sub">QD_Phancong_DS.docx — Phân công thẩm phán xem xét đơn khởi kiện</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top:16px;">
+          <button class="btn btn-outline" onclick="clearImportFile()">🔄 Chọn file khác</button>
+          <button class="btn btn-primary" id="importExportBtn" onclick="startBatchExport()">📥 Xuất tất cả văn bản</button>
+        </div>
+      </div>
+
+      <div class="card" id="importProgressCard" style="display:none">
+        <div class="card-title"><span class="dot"></span>Đang xuất văn bản...</div>
+        <div style="font-size:13px;color:var(--text-light);margin-bottom:8px;" id="importProgressText">Đang xử lý...</div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="importProgressBar" style="width:0%"></div></div>
+        <div class="import-result-list" id="importResultList"></div>
+      </div>
+
+    </div><!-- /panel3 -->
+
   </div><!-- đóng main -->
   <footer class="footer"> © Copyright Trần Văn Kiên - TAND KV7 - Ninh Binh </footer>
 </div> <!-- đóng main-wrapper -->
+
+<!-- ══ IMPORT TEMPLATE MODAL (không dùng nữa - giữ lại phòng sau) ══ -->
+<div class="import-modal-backdrop" id="importTplModal">
+  <div class="import-modal">
+    <div class="import-modal-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;background:var(--navy);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">📊</div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--navy);">Chọn mẫu văn bản cần xuất</div>
+          <div style="font-size:12px;color:var(--text-light);">Tick chọn loại văn bản muốn tạo cho tất cả vụ án trong file</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeImportModal()">✕</button>
+    </div>
+    <div class="import-modal-body" id="importModalBody"></div>
+    <div class="import-modal-footer">
+      <button class="btn btn-outline" onclick="closeImportModal()">Hủy</button>
+      <button class="btn btn-primary" onclick="confirmImportExport()">📥 Bắt đầu xuất</button>
+    </div>
+  </div>
+</div>
 
 
 <div class="toast" id="toast"><span id="toastMsg"></span></div>
@@ -1556,9 +1709,378 @@ calcAP();
 restoreHandles();
 window.addEventListener('DOMContentLoaded', ()=>{
   loadJudgesToDropdown();
+  initImportDropZone();
 });
 loadOrgSidebar();
 //loadJudgesToDropdown();
+
+// ══════════════════════════════════════════════
+// IMPORT EXCEL — BATCH EXPORT
+// ══════════════════════════════════════════════
+
+let importedVuAns = []; // parsed data from Excel
+let importFileBuffer = null;
+
+function initImportDropZone(){
+  const zone = document.getElementById('importDropZone');
+  if(!zone) return;
+  zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', ()=>zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e=>{
+    e.preventDefault(); zone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if(f) handleImportFile(f);
+  });
+}
+
+function handleImportFile(file){
+  if(!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if(!['xlsx','xlsm','xls'].includes(ext)){
+    showToast('❌ Chỉ chấp nhận file .xlsx, .xlsm, .xls','error'); return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      importFileBuffer = e.target.result;
+      const data = parseExcelBuffer(importFileBuffer);
+      importedVuAns = data;
+      renderImportPreview(data);
+      document.getElementById('importFileInfo').style.display='flex';
+      document.getElementById('importFileName').textContent = file.name;
+      document.getElementById('importFileMeta').textContent = data.length + ' vụ án · ' + file.size.toLocaleString('vi-VN') + ' bytes';
+      document.getElementById('importPreviewCard').style.display='block';
+      document.getElementById('importActionCard').style.display='block';
+      document.getElementById('importProgressCard').style.display='none';
+      showToast('✅ Đã đọc '+data.length+' vụ án từ file Excel','success');
+    }catch(err){
+      showToast('❌ Lỗi đọc file: '+err.message,'error');
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function clearImportFile(){
+  importedVuAns=[];
+  importFileBuffer=null;
+  document.getElementById('importFileInput').value='';
+  document.getElementById('importFileInfo').style.display='none';
+  document.getElementById('importPreviewCard').style.display='none';
+  document.getElementById('importActionCard').style.display='none';
+  document.getElementById('importProgressCard').style.display='none';
+  document.getElementById('importResultList').innerHTML='';
+}
+
+function parseExcelBuffer(buf){
+  const wb = XLSX.read(buf, {type:'arraybuffer', cellDates:true});
+
+  // ── Parse VU_AN sheet ──
+  const wsVuAn = wb.Sheets['VU_AN'];
+  if(!wsVuAn) throw new Error('Không tìm thấy sheet VU_AN');
+  const rowsVuAn = XLSX.utils.sheet_to_json(wsVuAn, {header:1, defval:null});
+  // Header row: [ma_vu, so_nhan_don, qhpl_ds, ngay_lam, ngay_nhan, (TổngNĐBĐ), gia_tri_ts, tham_phan]
+  // Col index:   0       1             2         3         4           5              6            7
+
+  // ── Parse DUONG_SU sheet ──
+  const wsDuongSu = wb.Sheets['DUONG_SU'];
+  if(!wsDuongSu) throw new Error('Không tìm thấy sheet DUONG_SU');
+  const rowsDuongSu = XLSX.utils.sheet_to_json(wsDuongSu, {header:1, defval:null});
+  // Header: [ma_vu, vai_tro, loai, ten, ngay_sinh, cccd, thuong_tru, cu_tru, gioi_tinh, dia_chi, dai_dien]
+  //          0       1        2     3    4           5     6            7       8           9        10
+
+  // Build duong su map: maVu -> {khoi_kien:[], bi_kien:[]}
+  const dsMap = {};
+  for(let i=1; i<rowsDuongSu.length; i++){
+    const r = rowsDuongSu[i];
+    if(!r || !r[0]) continue;
+    const maVu = String(r[0]).trim();
+    if(!dsMap[maVu]) dsMap[maVu] = {khoi_kien:[], bi_kien:[]};
+    const vaiTro = (r[1]||'').trim().toLowerCase();
+    const loai = (r[2]||'').trim().toLowerCase();
+    const person = {
+      loai,
+      ten: (r[3]||'').trim(),
+      ngay_sinh: r[4],
+      cccd: r[5] ? String(r[5]).trim() : '',
+      thuong_tru: (r[6]||'').trim(),
+      cu_tru: (r[7]||'').trim(),
+      gioi_tinh: (r[8]||'').trim(),
+      dia_chi: (r[9]||'').trim(),
+      dai_dien: (r[10]||'').trim(),
+    };
+    if(vaiTro==='khoi_kien') dsMap[maVu].khoi_kien.push(person);
+    else if(vaiTro==='bi_kien') dsMap[maVu].bi_kien.push(person);
+  }
+
+  // Build vu an list
+  const result = [];
+  for(let i=1; i<rowsVuAn.length; i++){
+    const r = rowsVuAn[i];
+    if(!r || (!r[0] && !r[1])) continue;
+    // Evaluate ma_vu — if it's a formula result or raw string
+    let maVu = r[0];
+    if(!maVu) continue;
+    maVu = String(maVu).trim();
+    if(!maVu) continue;
+
+    const soNhanDon = r[1] ? String(r[1]).trim() : '';
+    const qhpl = (r[2]||'').trim();
+    const ngayLam = r[3]; // Date or string
+    const ngayNhan = r[4];
+    const giaTriTs = r[6];
+    const thamPhan = (r[7]||'').trim();
+
+    result.push({
+      maVu, soNhanDon, qhpl,
+      ngayLam: formatExcelDate(ngayLam),
+      ngayNhan: formatExcelDate(ngayNhan),
+      giaTriTs,
+      thamPhan,
+      duongSu: dsMap[maVu] || {khoi_kien:[], bi_kien:[]},
+    });
+  }
+  return result;
+}
+
+function formatExcelDate(val){
+  if(!val) return '';
+  if(val instanceof Date){
+    const d = val.getDate().toString().padStart(2,'0');
+    const m = (val.getMonth()+1).toString().padStart(2,'0');
+    const y = val.getFullYear();
+    return `${d}/${m}/${y}`;
+  }
+  // Try as string
+  return String(val).trim();
+}
+
+function formatExcelDateLong(val){
+  const s = formatExcelDate(val);
+  return fmtDateLong(s);
+}
+
+function renderImportPreview(data){
+  const tbody = document.getElementById('importPreviewBody');
+  tbody.innerHTML = data.map(v=>{
+    const nkk = v.duongSu.khoi_kien.map(p=>p.ten).filter(Boolean).join(', ') || '—';
+    const nbk = v.duongSu.bi_kien.map(p=>p.ten).filter(Boolean).join(', ') || '—';
+    const apBadge = (typeof v.giaTriTs === 'string' && v.giaTriTs.toLowerCase().includes('mien'))
+      ? '<span class="exempt-badge">Miễn AP</span>'
+      : (v.giaTriTs ? '<span class="money-badge">'+Number(v.giaTriTs).toLocaleString('vi-VN')+'đ</span>' : '—');
+    return `<tr>
+      <td><span class="vu-an-badge">${v.maVu}</span></td>
+      <td>${v.soNhanDon||'—'}</td>
+      <td style="max-width:160px;white-space:normal">${v.qhpl||'—'}</td>
+      <td>${v.ngayLam||'—'}</td>
+      <td>${v.ngayNhan||'—'}</td>
+      <td>${apBadge}</td>
+      <td>${v.thamPhan||'—'}</td>
+      <td style="max-width:140px;white-space:normal">${nkk}</td>
+      <td style="max-width:140px;white-space:normal">${nbk}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleTplOption(el, key){
+  el.classList.toggle('selected');
+  const chk = document.getElementById('chk_'+key);
+  if(chk) chk.checked = el.classList.contains('selected');
+}
+
+function getSelectedTpls(){
+  const result=[];
+  if(document.getElementById('opt_TB_AP')?.classList.contains('selected')) result.push('TB_AP');
+  if(document.getElementById('opt_GXN_DS')?.classList.contains('selected')) result.push('GXN_DS');
+  if(document.getElementById('opt_QD_Phancong_DS')?.classList.contains('selected')) result.push('QD_Phancong_DS');
+  return result;
+}
+
+function closeImportModal(){ document.getElementById('importTplModal').classList.remove('show'); }
+
+// ── Build placeholders for a VuAn from Excel data ──
+function buildPHFromVuAn(vuAn, tplType){
+  // Build party strings
+  function buildPersonStr(p){
+    if(p.loai==='to_chuc'){
+      let s = p.ten;
+      if(p.dia_chi) s+='; địa chỉ trụ sở: '+p.dia_chi;
+      if(p.dai_dien) s+='; người đại diện theo pháp luật: '+p.dai_dien;
+      return s+'.';
+    } else {
+      // ca nhan
+      const gt = (p.gioi_tinh||'').toLowerCase();
+      let sinhRaw = '';
+      if(p.ngay_sinh){
+        if(p.ngay_sinh instanceof Date){
+          const d=p.ngay_sinh.getDate(), m=p.ngay_sinh.getMonth()+1, y=p.ngay_sinh.getFullYear();
+          sinhRaw = `${d}/${m}/${y}`;
+        } else sinhRaw = String(p.ngay_sinh);
+      }
+      const xh = getXungHo(gt==='nam'?'nam':gt==='nữ'||gt==='nu'?'nu':'', sinhRaw);
+      let s = xh+' '+p.ten;
+      const sinh = parseSinh(sinhRaw); if(sinh) s+='; '+sinh;
+      if(p.cccd) s+='; số căn cước công dân: '+p.cccd;
+      if(p.thuong_tru) s+='; nơi đăng ký thường trú: '+p.thuong_tru;
+      const ct = p.cu_tru||p.thuong_tru;
+      if(ct) s+='; nơi cư trú: '+ct;
+      return s+'.';
+    }
+  }
+
+  function buildNameShort(p){
+    if(p.loai==='to_chuc') return p.ten;
+    const gt=(p.gioi_tinh||'').toLowerCase();
+    let sinhRaw='';
+    if(p.ngay_sinh){
+      if(p.ngay_sinh instanceof Date){const d=p.ngay_sinh.getDate(),m=p.ngay_sinh.getMonth()+1,y=p.ngay_sinh.getFullYear();sinhRaw=`${d}/${m}/${y}`;}
+      else sinhRaw=String(p.ngay_sinh);
+    }
+    return getXungHo(gt==='nam'?'nam':gt==='nữ'||gt==='nu'?'nu':'', sinhRaw)+' '+p.ten;
+  }
+
+  const nkkList = vuAn.duongSu.khoi_kien.map(buildPersonStr).filter(Boolean);
+  const nbkList = vuAn.duongSu.bi_kien.map(buildPersonStr).filter(Boolean);
+  const nkkNames = vuAn.duongSu.khoi_kien.map(buildNameShort).filter(Boolean);
+  const nbkNames = vuAn.duongSu.bi_kien.map(buildNameShort).filter(Boolean);
+
+  function formatList(list){ if(list.length<=1) return list.join(''); return list.map((s,i)=>(i+1)+'. '+s).join('|||NP|||'); }
+
+  const ph = {
+    SO: vuAn.soNhanDon||'',
+    NGAY_LAM_DON: fmtDate(vuAn.ngayLam),
+    NGAY_NHAN_DON: fmtDate(vuAn.ngayNhan),
+    NGAY_NHAN_DON_QUY_DOI: fmtDateLong(vuAn.ngayNhan),
+    QHPL_DS: vuAn.qhpl||'',
+    THAM_PHAN: vuAn.thamPhan||'',
+    THONG_TIN_KHOI_KIEN: formatList(nkkList),
+    THONG_TIN_BI_KIEN: formatList(nbkList),
+    TEN_KHOI_KIEN: joinNames(nkkNames),
+    TEN_BI_KIEN: joinNames(nbkNames),
+  };
+
+  // Án phí calc
+  if(tplType==='TB_AP'){
+    const giaTriRaw = vuAn.giaTriTs;
+    const isExempt = typeof giaTriRaw==='string' && giaTriRaw.toLowerCase().includes('mien');
+    if(!isExempt && giaTriRaw){
+      const sotien = parseFloat(String(giaTriRaw).replace(/[^0-9.]/g,''))||0;
+      const anphi = calcAnPhi(sotien);
+      const tamung = sotien ? minAP(roundTo1000(anphi/2)) : 0;
+      ph.TIEN_AP = tamung ? fmtVND(tamung) : '';
+      ph.QUY_DOI_TIEN_AP = tamung ? soThanhChu(tamung) : '';
+    }
+  }
+  return ph;
+}
+
+// ── Get template name for a vuAn+tplType combo ──
+function getTplNameForVuAn(vuAn, tplType){
+  if(tplType==='TB_AP'){
+    const giaTriRaw = vuAn.giaTriTs;
+    const isExempt = typeof giaTriRaw==='string' && giaTriRaw.toLowerCase().includes('mien');
+    return isExempt ? 'TB_MAP' : 'TB_AP_DS';
+  }
+  if(tplType==='GXN_DS') return 'GXN_DS';
+  if(tplType==='QD_Phancong_DS') return 'QD_Phancong_DS';
+  return null;
+}
+
+// ── Build output filename from VuAn ──
+function buildImportFileName(vuAn, tplName){
+  const soClean = (vuAn.soNhanDon||vuAn.maVu||'vb').replace(/[\/\\:*?"<>|]/g,'-');
+  const nkkFirst = (vuAn.duongSu.khoi_kien[0]?.ten||'').replace(/[\/\\:*?"<>|]/g,'').trim();
+  const nbkFirst = (vuAn.duongSu.bi_kien[0]?.ten||'').replace(/[\/\\:*?"<>|]/g,'').trim();
+  let fn = tplName+'_'+soClean;
+  if(nkkFirst) fn+='_'+nkkFirst;
+  if(nbkFirst) fn+='_'+nbkFirst;
+  return fn+'.docx';
+}
+
+async function startBatchExport(){
+  const selectedTpls = getSelectedTpls();
+  if(selectedTpls.length===0){ showToast('⚠️ Vui lòng chọn ít nhất 1 loại văn bản','error'); return; }
+  if(importedVuAns.length===0){ showToast('⚠️ Chưa có dữ liệu — hãy import file Excel trước','error'); return; }
+
+  const btn = document.getElementById('importExportBtn');
+  btn.disabled=true;
+
+  document.getElementById('importProgressCard').style.display='block';
+  document.getElementById('importResultList').innerHTML='';
+  document.getElementById('importProgressBar').style.width='0%';
+
+  const tasks=[];
+  for(const vuAn of importedVuAns){
+    for(const tplType of selectedTpls){
+      tasks.push({vuAn, tplType});
+    }
+  }
+
+  let done=0, errors=0;
+  const resultEl = document.getElementById('importResultList');
+
+  for(const task of tasks){
+    const {vuAn, tplType} = task;
+    const tplName = getTplNameForVuAn(vuAn, tplType);
+    document.getElementById('importProgressText').textContent =
+      `Đang xuất: ${tplName} — ${vuAn.maVu} (${vuAn.soNhanDon||'—'})`;
+
+    try{
+      const ph = buildPHFromVuAn(vuAn, tplType);
+      const safePH={};
+      for(const [k,v] of Object.entries(ph)){
+        safePH[k] = typeof v==='string' ? v.replace(/\r/g,'').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g,'') : v;
+      }
+
+      const res = await fetch('templates/'+tplName+'.docx');
+      if(!res.ok) throw new Error('Không tìm thấy templates/'+tplName+'.docx');
+      const arrayBuf = await res.arrayBuffer();
+
+      const zip = new PizZip(arrayBuf);
+      const doc = new window.docxtemplater(zip, {
+        paragraphLoop:true, linebreaks:true,
+        delimiters:{start:'[[',end:']]'}, nullGetter(){return '';}
+      });
+      doc.setData(safePH);
+      doc.render();
+      postProcessDocx(doc.getZip());
+      const outBuf = doc.getZip().generate({
+        type:'arraybuffer',
+        mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        compression:'DEFLATE'
+      });
+      const blob = new Blob([outBuf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+      const fileName = buildImportFileName(vuAn, tplName);
+      await saveBlobToFolder(tplName, blob, fileName);
+
+      done++;
+      resultEl.insertAdjacentHTML('beforeend',`
+        <div class="import-result-item ok">
+          <span class="ir-icon">✅</span>
+          <span class="ir-name">${fileName}</span>
+          <span class="ir-detail">${vuAn.maVu}</span>
+        </div>`);
+    }catch(err){
+      errors++;
+      resultEl.insertAdjacentHTML('beforeend',`
+        <div class="import-result-item err">
+          <span class="ir-icon">❌</span>
+          <span class="ir-name">${tplName} — ${vuAn.maVu}</span>
+          <span class="ir-detail">${err.message}</span>
+        </div>`);
+      console.error(`[ImportExport] ${tplName} ${vuAn.maVu}:`, err);
+    }
+
+    done + errors;
+    const pct = Math.round(((done+errors)/tasks.length)*100);
+    document.getElementById('importProgressBar').style.width = pct+'%';
+  }
+
+  document.getElementById('importProgressText').textContent =
+    `Hoàn tất! ✅ ${done} thành công${errors?` · ❌ ${errors} lỗi`:''}`;
+  showToast(`✅ Xuất xong: ${done}/${tasks.length} văn bản`+(errors?` (${errors} lỗi)`:''),'success');
+  btn.disabled=false;
+}
 </script>
 </body>
 </html>
