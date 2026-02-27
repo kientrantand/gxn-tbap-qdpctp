@@ -447,7 +447,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         <div class="form-row">
           <div class="form-group"><label>Số nhận đơn <span class="req">*</span></label><input id="ap_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('ap')"></div>
           <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="text" id="ap_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('ap')"></div>
-          <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="text" id="ap_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('ap')"></div>
+          <div class="form-group"><label>Ngày ban hành thông báo [[NGAY_BAN_HANH_TB]] <span class="req">*</span></label><input type="text" id="ap_ngaybanhanh" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('ap')"></div>
           <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="ap_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="livePreview('ap')"></div>
         </div>
       </div>
@@ -567,8 +567,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         <div class="card-title"><span class="dot"></span>Thông tin thụ lý</div>
         <div class="form-row">
           <div class="form-group"><label>Số nhận đơn [[SO]] <span class="req">*</span></label><input id="qd_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('qd')"></div>
-          <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="text" id="qd_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('qd')"></div>
-          <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="text" id="qd_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('qd')"></div>
+          <div class="form-group"><label>Ngày ban hành QĐ phân công [[NGAY_BAN_HANH_QD]] <span class="req">*</span></label><input type="text" id="qd_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('qd')"></div>
           <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="qd_quanhe" placeholder="VD: Tranh chấp thừa kế" oninput="livePreview('qd')"></div>
         </div>
       </div>
@@ -769,7 +768,10 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
           <table class="import-preview-table" id="importPreviewTable">
             <thead><tr>
               <th>Mã vụ</th><th>Số nhận đơn</th><th>Loại vụ</th><th>QHPL</th>
-              <th>Ngày làm đơn</th><th>Ngày nhận đơn</th>
+              <th>Ngày làm đơn<br><small style="font-weight:400;opacity:.7">cột D — GXN</small></th>
+              <th>Ngày nhận đơn<br><small style="font-weight:400;opacity:.7">cột E — GXN</small></th>
+              <th>NH Thông báo<br><small style="font-weight:400;opacity:.7">cột I — TB_AP</small></th>
+              <th>NH QĐ Phân công<br><small style="font-weight:400;opacity:.7">cột J — QD_PC</small></th>
               <th>Án phí</th><th>Thẩm phán</th>
               <th>NKK</th><th>NBK</th>
             </tr></thead>
@@ -1203,9 +1205,16 @@ function buildPH(ns){
 
   const ph = {
     SO:                    g(p+'so')||'',
-    NGAY_LAM_DON:          fmtDate(g(p+'ngaylam')),
-    NGAY_NHAN_DON:         fmtDate(g(p+'ngaynhan')),
-    NGAY_NHAN_DON_QUY_DOI: fmtDateLong(g(p+'ngaynhan')),
+    NGAY_LAM_DON:          ns==='qd' ? '' : fmtDate(g(p+'ngaylam')),
+    // GXN: giữ nguyên NGAY_NHAN_DON (ngày nhận đơn)
+    NGAY_NHAN_DON:         ns==='gxn' ? fmtDate(g(p+'ngaynhan')) : '',
+    NGAY_NHAN_DON_QUY_DOI: ns==='gxn' ? fmtDateLong(g(p+'ngaynhan')) : '',
+    // AP: ngày ban hành thông báo
+    NGAY_BAN_HANH_TB:      ns==='ap' ? fmtDate(g('ap_ngaybanhanh')) : '',
+    QUY_DOI_BAN_HANH_TB:   ns==='ap' ? fmtDateLong(g('ap_ngaybanhanh')) : '',
+    // QD: ngày ban hành quyết định phân công
+    NGAY_BAN_HANH_QD:      ns==='qd' ? fmtDate(g('qd_ngaynhan')) : '',
+    QUY_DOI_BAN_HANH_QD:   ns==='qd' ? fmtDateLong(g('qd_ngaynhan')) : '',
     THONG_TIN_KHOI_KIEN:   formatList(nkkList),
     THONG_TIN_BI_KIEN:     formatList(nbkList),
     TEN_KHOI_KIEN:         joinNames(nkkNames),
@@ -1338,7 +1347,9 @@ async function exportWord(ns){
   const ph = buildPH(ns);
   const missing = [];
   if(!ph.SO) missing.push('Số nhận đơn');
-  if(!ph.NGAY_NHAN_DON) missing.push('Ngày nhận đơn');
+  if(ns==='ap'  && !ph.NGAY_BAN_HANH_TB) missing.push('Ngày ban hành thông báo');
+  if(ns==='qd'  && !ph.NGAY_BAN_HANH_QD) missing.push('Ngày ban hành QĐ phân công');
+  if(ns==='gxn' && !ph.NGAY_NHAN_DON)    missing.push('Ngày nhận đơn');
   if(!ph.THONG_TIN_KHOI_KIEN) missing.push('Thông tin người khởi kiện');
   if(missing.length){ showToast('⚠️ Vui lòng điền: '+missing.join(', '),'error'); return; }
 
@@ -1852,29 +1863,53 @@ function parseExcelBuffer(buf){
   }
 
   // Build vu an list
+  // ═══════════════════════════════════════════════════════════════════════
+  // CẤU TRÚC SHEET VU_AN — cập nhật khi bổ sung cột mới:
+  //   Cột A  (0): ma_vu             — Mã vụ (DS001, DS002...)
+  //   Cột B  (1): so_nhan_don       — Số nhận đơn → [[SO]]
+  //   Cột C  (2): qhpl_ds           — Quan hệ pháp luật → [[QHPL_DS]]
+  //   Cột D  (3): ngay_lam          — Ngày làm đơn → [[NGAY_LAM_DON]] (GXN)
+  //   Cột E  (4): ngay_nhan         — Ngày nhận đơn → [[NGAY_NHAN_DON]] (GXN)
+  //   Cột F  (5): tong_nd_bd        — Tổng số đương sự (nội bộ, không xuất)
+  //   Cột G  (6): gia_tri_ts        — Giá trị tài sản / "mien" → tính án phí (TB_AP)
+  //   Cột H  (7): tham_phan         — Thẩm phán → [[THAM_PHAN]] (QD)
+  //   Cột I  (8): ngay_ban_hanh_tb  — Ngày ban hành thông báo → [[NGAY_NHAN_DON]] (TB_AP, TB_MAP)
+  //   Cột J  (9): ngay_ban_hanh_qd  — Ngày ban hành QĐ phân công → [[NGAY_NHAN_DON]] (QD_Phancong)
+  //   Cột K (10): loai_vu           — Loại vụ: DS hoặc VDS (mặc định DS)
+  // ───────────────────────────────────────────────────────────────────────
+  // HƯỚNG DẪN KHI BỔ SUNG CỘT MỚI:
+  //   1. Thêm vào cuối (cột L, M...) để không làm lệch chỉ số cũ
+  //   2. Cập nhật comment bảng trên + khai báo const r[N] bên dưới
+  //   3. Thêm field vào object result.push({...})
+  //   4. Cập nhật buildPHFromVuAn() để map field → placeholder
+  // ═══════════════════════════════════════════════════════════════════════
   const result = [];
   for(let i=1; i<rowsVuAn.length; i++){
     const r = rowsVuAn[i];
     if(!r || (!r[0] && !r[1])) continue;
-    // Evaluate ma_vu — if it's a formula result or raw string
     let maVu = r[0];
     if(!maVu) continue;
     maVu = String(maVu).trim();
     if(!maVu) continue;
 
-    const soNhanDon = r[1] ? String(r[1]).trim() : '';
-    const qhpl = (r[2]||'').trim();
-    const ngayLam = r[3]; // Date or string
-    const ngayNhan = r[4];
-    const giaTriTs = r[6];
-    const thamPhan = (r[7]||'').trim();
-    // Cột I (index 8): loai_vu — DS (vụ án dân sự) hoặc VDS (việc dân sự). Mặc định DS.
-    const loaiVu = ((r[8]||'').toString().trim().toUpperCase()==='VDS') ? 'VDS' : 'DS';
+    const soNhanDon      = r[1] ? String(r[1]).trim() : '';  // Cột B
+    const qhpl           = (r[2]||'').trim();                // Cột C
+    const ngayLam        = r[3];                             // Cột D — ngày làm đơn (GXN)
+    const ngayNhan       = r[4];                             // Cột E — ngày nhận đơn (GXN)
+    // r[5] = tong_nd_bd — không dùng khi xuất
+    const giaTriTs       = r[6];                             // Cột G — giá trị TS / "mien"
+    const thamPhan       = (r[7]||'').trim();                // Cột H — thẩm phán
+    const ngayBanHanhTB  = r[8];                             // Cột I — ngày ban hành thông báo (TB_AP, TB_MAP)
+    const ngayBanHanhQD  = r[9];                             // Cột J — ngày ban hành QĐ phân công
+    // Cột K (index 10): loai_vu — DS hoặc VDS. Mặc định DS.
+    const loaiVu = ((r[10]||'').toString().trim().toUpperCase()==='VDS') ? 'VDS' : 'DS';
 
     result.push({
       maVu, soNhanDon, qhpl,
-      ngayLam: formatExcelDate(ngayLam),
-      ngayNhan: formatExcelDate(ngayNhan),
+      ngayLam:       formatExcelDate(ngayLam),
+      ngayNhan:      formatExcelDate(ngayNhan),
+      ngayBanHanhTB: formatExcelDate(ngayBanHanhTB),
+      ngayBanHanhQD: formatExcelDate(ngayBanHanhQD),
       giaTriTs,
       thamPhan,
       loaiVu,
@@ -1919,6 +1954,8 @@ function renderImportPreview(data){
       <td style="max-width:160px;white-space:normal">${v.qhpl||'—'}</td>
       <td>${v.ngayLam||'—'}</td>
       <td>${v.ngayNhan||'—'}</td>
+      <td>${v.ngayBanHanhTB||'<span style="color:#aaa;font-style:italic">trống</span>'}</td>
+      <td>${v.ngayBanHanhQD||'<span style="color:#aaa;font-style:italic">trống</span>'}</td>
       <td>${apBadge}</td>
       <td>${v.thamPhan||'—'}</td>
       <td style="max-width:140px;white-space:normal">${nkk}</td>
@@ -1991,11 +2028,25 @@ function buildPHFromVuAn(vuAn, tplType){
 
   function formatList(list){ if(list.length<=1) return list.join(''); return list.map((s,i)=>(i+1)+'. '+s).join('|||NP|||'); }
 
+  // Xác định ngày theo từng loại mẫu:
+  // - TB_AP (TB_AP_DS/VDS, TB_MAP_DS/VDS): ngayBanHanhTB (cột I) → NGAY_BAN_HANH_TB
+  // - QD_Phancong_DS:                      ngayBanHanhQD (cột J) → NGAY_BAN_HANH_QD
+  // - GXN_DS:                              ngayNhan (cột E)       → NGAY_NHAN_DON
+  const isQD = tplType === 'QD_Phancong_DS';
+  const isTB = tplType === 'TB_AP';
+
   const ph = {
     SO: vuAn.soNhanDon||'',
-    NGAY_LAM_DON: fmtDate(vuAn.ngayLam),
-    NGAY_NHAN_DON: fmtDate(vuAn.ngayNhan),
-    NGAY_NHAN_DON_QUY_DOI: fmtDateLong(vuAn.ngayNhan),
+    NGAY_LAM_DON: isQD ? '' : fmtDate(vuAn.ngayLam),
+    // GXN: giữ nguyên NGAY_NHAN_DON
+    NGAY_NHAN_DON:         (!isTB && !isQD) ? fmtDate(vuAn.ngayNhan) : '',
+    NGAY_NHAN_DON_QUY_DOI: (!isTB && !isQD) ? fmtDateLong(vuAn.ngayNhan) : '',
+    // TB_AP: ngày ban hành thông báo
+    NGAY_BAN_HANH_TB:    isTB ? fmtDate(vuAn.ngayBanHanhTB) : '',
+    QUY_DOI_BAN_HANH_TB: isTB ? fmtDateLong(vuAn.ngayBanHanhTB) : '',
+    // QD_Phancong: ngày ban hành quyết định
+    NGAY_BAN_HANH_QD:    isQD ? fmtDate(vuAn.ngayBanHanhQD) : '',
+    QUY_DOI_BAN_HANH_QD: isQD ? fmtDateLong(vuAn.ngayBanHanhQD) : '',
     QHPL_DS: vuAn.qhpl||'',
     THAM_PHAN: vuAn.thamPhan||'......',
     THONG_TIN_KHOI_KIEN: formatList(nkkList),
