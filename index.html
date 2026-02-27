@@ -1237,11 +1237,26 @@ function getTemplateName(ns){
 }
 
 // ── postProcessDocx: tách |||NP||| thành <w:p> mới giữ nguyên indent ──
+// Đồng thời convert w:firstLine → w:left để text dài wrap đều lề ──
 function postProcessDocx(zip){
   const SEP = '|||NP|||';
   const path = 'word/document.xml';
   let xml = zip.file(path).asText();
-  if(!xml.includes(SEP)) return;
+
+  // ── Pass 1: fix firstLine indent trên MỌI paragraph chứa placeholder ──
+  // (kể cả paragraph không có NP separator — 1 đương sự text dài cũng wrap đẹp)
+  xml = xml.replace(/<w:p([ >][\s\S]*?)<\/w:p>/g, (match) => {
+    // Chỉ xử lý paragraph chứa [[...]] placeholder
+    if(!/\[\[/.test(match)) return match;
+    // Đổi firstLine → left (giữ nguyên giá trị twips) để toàn đoạn thụt đều
+    return match.replace(/<w:ind\s+w:firstLine="(\d+)"(\s*\/>|>)/g,
+      '<w:ind w:left="$1"$2');
+  });
+
+  if(!xml.includes(SEP)){
+    zip.file(path, xml);
+    return;
+  }
 
   // Regex tìm toàn bộ <w:p> block (không lồng nhau trong OOXML thực tế)
   // Dùng cách đơn giản: split theo </w:p> rồi xử lý từng block
