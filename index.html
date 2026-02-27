@@ -328,12 +328,20 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
             <button class="sbtn sbtn-clear" id="src_TB_AP_VDS" onclick="clearFolder('TB_AP_VDS')" disabled>✕</button>
           </div>
         </div>
-        <div class="srow" id="sr_TB_MAP">
+        <div class="srow" id="sr_TB_MAP_DS">
           <div class="srow-icon ic-ap">✅</div>
-          <div class="srow-info"><div class="srow-name">TB_MAP — Miễn nộp Án phí</div><div class="srow-path" id="srp_TB_MAP">Chưa cài đặt — lưu bằng hộp thoại trình duyệt</div></div>
+          <div class="srow-info"><div class="srow-name">TB_MAP_DS — Miễn Án phí Dân sự</div><div class="srow-path" id="srp_TB_MAP_DS">Chưa cài đặt — lưu bằng hộp thoại trình duyệt</div></div>
           <div class="srow-acts">
-            <button class="sbtn sbtn-pick" onclick="pickFolder('TB_MAP')">📁 Chọn thư mục</button>
-            <button class="sbtn sbtn-clear" id="src_TB_MAP" onclick="clearFolder('TB_MAP')" disabled>✕</button>
+            <button class="sbtn sbtn-pick" onclick="pickFolder('TB_MAP_DS')">📁 Chọn thư mục</button>
+            <button class="sbtn sbtn-clear" id="src_TB_MAP_DS" onclick="clearFolder('TB_MAP_DS')" disabled>✕</button>
+          </div>
+        </div>
+        <div class="srow" id="sr_TB_MAP_VDS">
+          <div class="srow-icon ic-ap">✅</div>
+          <div class="srow-info"><div class="srow-name">TB_MAP_VDS — Miễn Lệ phí Việc Dân sự</div><div class="srow-path" id="srp_TB_MAP_VDS">Chưa cài đặt — lưu bằng hộp thoại trình duyệt</div></div>
+          <div class="srow-acts">
+            <button class="sbtn sbtn-pick" onclick="pickFolder('TB_MAP_VDS')">📁 Chọn thư mục</button>
+            <button class="sbtn sbtn-clear" id="src_TB_MAP_VDS" onclick="clearFolder('TB_MAP_VDS')" disabled>✕</button>
           </div>
         </div>
       </div>
@@ -428,9 +436,10 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         <div class="type-selector">
           <button class="type-btn active" onclick="setType('ap','DS',this)">📄 Án phí Dân sự Sơ thẩm <small style="opacity:.6">→ TB_AP_DS.docx</small></button>
           <button class="type-btn" onclick="setType('ap','VDS',this)">📄 Lệ phí Việc Dân sự <small style="opacity:.6">→ TB_AP_VDS.docx</small></button>
-          <button class="type-btn" onclick="setType('ap','MAP',this)">✅ Miễn Án phí <small style="opacity:.6">→ TB_MAP.docx</small></button>
+          <button class="type-btn" onclick="setType('ap','MAP_DS',this)">✅ Miễn Án phí Dân sự <small style="opacity:.6">→ TB_MAP_DS.docx</small></button>
+          <button class="type-btn" onclick="setType('ap','MAP_VDS',this)">✅ Miễn Lệ phí Việc Dân sự <small style="opacity:.6">→ TB_MAP_VDS.docx</small></button>
         </div>
-        <div class="exempt-info" id="ap_exemptInfo">✅ Sẽ sử dụng mẫu <strong>TB_MAP.docx</strong> — Thông báo miễn nộp tiền tạm ứng án phí</div>
+        <div class="exempt-info" id="ap_exemptInfo">✅ Sẽ sử dụng mẫu <strong id="ap_exemptTplName">TB_MAP_DS.docx</strong> — Thông báo miễn nộp tiền tạm ứng án phí</div>
       </div>
 
       <div class="card">
@@ -759,7 +768,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         <div style="overflow-x:auto">
           <table class="import-preview-table" id="importPreviewTable">
             <thead><tr>
-              <th>Mã vụ</th><th>Số nhận đơn</th><th>QHPL</th>
+              <th>Mã vụ</th><th>Số nhận đơn</th><th>Loại vụ</th><th>QHPL</th>
               <th>Ngày làm đơn</th><th>Ngày nhận đơn</th>
               <th>Án phí</th><th>Thẩm phán</th>
               <th>NKK</th><th>NBK</th>
@@ -771,14 +780,14 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
       <div class="card" id="importActionCard" style="display:none">
         <div class="card-title"><span class="dot"></span>3. Chọn loại văn bản cần xuất</div>
-        <div style="font-size:13px;color:var(--text-light);margin-bottom:16px;">Chọn một hoặc nhiều loại văn bản. Phần mềm sẽ tự động chọn mẫu phù hợp (TB_MAP cho vụ miễn án phí, TB_AP_DS cho vụ có số tiền).</div>
+        <div style="font-size:13px;color:var(--text-light);margin-bottom:16px;">Chọn một hoặc nhiều loại văn bản. Phần mềm sẽ tự động chọn mẫu phù hợp: <strong>TB_MAP_DS</strong> hoặc <strong>TB_MAP_VDS</strong> cho vụ miễn án phí, <strong>TB_AP_DS</strong> / <strong>TB_AP_VDS</strong> cho vụ có số tiền (dựa theo cột loại vụ trong Excel).</div>
 
         <div id="importTplOptions">
           <div class="tpl-option" onclick="toggleTplOption(this,'TB_AP')" id="opt_TB_AP">
             <input type="checkbox" id="chk_TB_AP" onclick="event.stopPropagation()">
             <div class="tpl-option-info">
               <div class="tpl-option-name">💰 Thông báo Án phí / Miễn Án phí</div>
-              <div class="tpl-option-sub">TB_AP_DS.docx (có giá trị) · TB_MAP.docx (miễn án phí)</div>
+              <div class="tpl-option-sub">TB_AP_DS / TB_AP_VDS (có giá trị) · TB_MAP_DS / TB_MAP_VDS (miễn án phí) — tự động chọn theo loại vụ</div>
             </div>
           </div>
           <div class="tpl-option" onclick="toggleTplOption(this,'GXN_DS')" id="opt_GXN_DS">
@@ -890,9 +899,13 @@ function setType(ns, type, btn){
   btn.closest('.type-selector').querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   if(ns==='ap'){
-    const isMAP = type==='MAP';
+    const isMAP = type==='MAP_DS' || type==='MAP_VDS';
     document.getElementById('ap_calcCard').style.display = isMAP?'none':'block';
     document.getElementById('ap_exemptInfo').className = 'exempt-info'+(isMAP?' show':'');
+    if(isMAP){
+      const tplLabel = type==='MAP_DS' ? 'TB_MAP_DS.docx' : 'TB_MAP_VDS.docx';
+      document.getElementById('ap_exemptTplName').textContent = tplLabel;
+    }
   }
   livePreview(ns);
 }
@@ -1189,7 +1202,7 @@ function buildPH(ns){
   };
   if(type==='VDS') ph.QHPL_VDS = g(p+'quanhe');
   else             ph.QHPL_DS  = g(p+'quanhe');
-  if(ns==='qd') ph.THAM_PHAN = g('qd_thamPhan');
+  if(ns==='qd') ph.THAM_PHAN = g('qd_thamPhan') || '......';
   if(ns==='ap'){
     const t = getTienAP();
     ph.TIEN_AP         = t ? fmtVND(t)     : '';
@@ -1218,7 +1231,7 @@ function renderPreview(ns){
 // ===================== TEMPLATE MAP =====================
 function getTemplateName(ns){
   const t = state[ns].type;
-  if(ns==='ap')  return t==='DS'?'TB_AP_DS':t==='VDS'?'TB_AP_VDS':'TB_MAP';
+  if(ns==='ap')  return t==='DS'?'TB_AP_DS':t==='VDS'?'TB_AP_VDS':t==='MAP_DS'?'TB_MAP_DS':'TB_MAP_VDS';
   if(ns==='qd')  return t==='DS'?'QD_Phancong_DS':'QD_Phancong_VDS';
   if(ns==='gxn') return t==='DS'?'GXN_DS':'GXN_VDS';
 }
@@ -1301,7 +1314,6 @@ async function exportWord(ns){
   if(!ph.SO) missing.push('Số nhận đơn');
   if(!ph.NGAY_NHAN_DON) missing.push('Ngày nhận đơn');
   if(!ph.THONG_TIN_KHOI_KIEN) missing.push('Thông tin người khởi kiện');
-  if(ns==='qd'&&!ph.THAM_PHAN) missing.push('Thẩm phán');
   if(missing.length){ showToast('⚠️ Vui lòng điền: '+missing.join(', '),'error'); return; }
 
   // Log toàn bộ ph để debug
@@ -1633,7 +1645,7 @@ function joinNames(names){
 // ══════════════════════════════════════════════
 // FOLDER SETTINGS — FSA + IndexedDB
 // ══════════════════════════════════════════════
-const ALL_TPLS = ['TB_AP_DS','TB_AP_VDS','TB_MAP','QD_Phancong_DS','QD_Phancong_VDS','GXN_DS','GXN_VDS'];
+const ALL_TPLS = ['TB_AP_DS','TB_AP_VDS','TB_MAP_DS','TB_MAP_VDS','QD_Phancong_DS','QD_Phancong_VDS','GXN_DS','GXN_VDS'];
 const fsaOK = ('showDirectoryPicker' in window);
 let folderNames = {};
 try{ folderNames=JSON.parse(localStorage.getItem('toa_folderNames')||'{}'); }catch(e){}
@@ -1830,6 +1842,8 @@ function parseExcelBuffer(buf){
     const ngayNhan = r[4];
     const giaTriTs = r[6];
     const thamPhan = (r[7]||'').trim();
+    // Cột I (index 8): loai_vu — DS (vụ án dân sự) hoặc VDS (việc dân sự). Mặc định DS.
+    const loaiVu = ((r[8]||'').toString().trim().toUpperCase()==='VDS') ? 'VDS' : 'DS';
 
     result.push({
       maVu, soNhanDon, qhpl,
@@ -1837,6 +1851,7 @@ function parseExcelBuffer(buf){
       ngayNhan: formatExcelDate(ngayNhan),
       giaTriTs,
       thamPhan,
+      loaiVu,
       duongSu: dsMap[maVu] || {khoi_kien:[], bi_kien:[]},
     });
   }
@@ -1868,9 +1883,13 @@ function renderImportPreview(data){
     const apBadge = (typeof v.giaTriTs === 'string' && v.giaTriTs.toLowerCase().includes('mien'))
       ? '<span class="exempt-badge">Miễn AP</span>'
       : (v.giaTriTs ? '<span class="money-badge">'+Number(v.giaTriTs).toLocaleString('vi-VN')+'đ</span>' : '—');
+    const loaiBadge = v.loaiVu==='VDS'
+      ? '<span style="background:#1a3260;color:#e8c97a;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">VDS</span>'
+      : '<span style="background:#4a6090;color:white;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">DS</span>';
     return `<tr>
       <td><span class="vu-an-badge">${v.maVu}</span></td>
       <td>${v.soNhanDon||'—'}</td>
+      <td>${loaiBadge}</td>
       <td style="max-width:160px;white-space:normal">${v.qhpl||'—'}</td>
       <td>${v.ngayLam||'—'}</td>
       <td>${v.ngayNhan||'—'}</td>
@@ -1952,7 +1971,7 @@ function buildPHFromVuAn(vuAn, tplType){
     NGAY_NHAN_DON: fmtDate(vuAn.ngayNhan),
     NGAY_NHAN_DON_QUY_DOI: fmtDateLong(vuAn.ngayNhan),
     QHPL_DS: vuAn.qhpl||'',
-    THAM_PHAN: vuAn.thamPhan||'',
+    THAM_PHAN: vuAn.thamPhan||'......',
     THONG_TIN_KHOI_KIEN: formatList(nkkList),
     THONG_TIN_BI_KIEN: formatList(nbkList),
     TEN_KHOI_KIEN: joinNames(nkkNames),
@@ -1979,7 +1998,9 @@ function getTplNameForVuAn(vuAn, tplType){
   if(tplType==='TB_AP'){
     const giaTriRaw = vuAn.giaTriTs;
     const isExempt = typeof giaTriRaw==='string' && giaTriRaw.toLowerCase().includes('mien');
-    return isExempt ? 'TB_MAP' : 'TB_AP_DS';
+    const isVDS = vuAn.loaiVu === 'VDS';
+    if(isExempt) return isVDS ? 'TB_MAP_VDS' : 'TB_MAP_DS';
+    return isVDS ? 'TB_AP_VDS' : 'TB_AP_DS';
   }
   if(tplType==='GXN_DS') return 'GXN_DS';
   if(tplType==='QD_Phancong_DS') return 'QD_Phancong_DS';
