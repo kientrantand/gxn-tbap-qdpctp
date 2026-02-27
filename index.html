@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hệ thống Quản lý Văn bản Tố tụng</title>
+<title>HỆ THỐNG TẠO - XUẤT VĂN BẢN TỐ TỤNG</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <!-- docxtemplater + dependencies -->
@@ -400,8 +400,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   <div class="header-left">
     <div class="logo-icon">⚖️</div>
     <div>
-      <div class="header-title">Hệ thống Quản lý Văn bản Tố tụng</div>
-      <div class="header-sub">Toà án nhân dân — Civil Court Document System</div>
+      <div class="header-title">HỆ THỐNG TẠO - XUẤT VĂN BẢN TỐ TỤNG</div>
+      <div class="header-sub">Toà án nhân dân khu vực 7 - Ninh Bình</div>
     </div>
   </div>
   <div class="header-right">
@@ -822,7 +822,6 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     </div><!-- /panel3 -->
 
   </div><!-- đóng main -->
-  <footer class="footer"> © Copyright Trần Văn Kiên - TAND KV7 - Ninh Binh </footer>
 </div> <!-- đóng main-wrapper -->
 
 <!-- ══ IMPORT TEMPLATE MODAL (không dùng nữa - giữ lại phòng sau) ══ -->
@@ -848,7 +847,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
 
 <div class="toast" id="toast"><span id="toastMsg"></span></div>
-
+<footer class="footer"> © Copyright Trần Văn Kiên - TAND KV7 - Ninh Binh </footer>
 <script>
 // ===================== STATE =====================
 const state = { ap:{type:'DS'}, qd:{type:'DS'}, gxn:{type:'DS'} };
@@ -870,16 +869,28 @@ const JUDGE_LIST = [
 // =========== CÁC CÔNG TY YÊU THÍCH ========
 const ORG_LIST = [
   {
-    name: "Ngân hàng TMCP Việt Nam Thịnh Vượng",
+    name: "Ngân hàng Thương mại cổ phần Việt Nam Thịnh Vượng",
     address: "Số 89 Láng Hạ, phường Láng Hạ, thành phố Hà Nội"
   },
   {
-    name: "CÔNG TY CỔ PHẦN XYZ",
-    address: "Số 88 Lê Lợi, TP Nam Định"
+    name: "Công ty cổ phần MARS",
+    address: "Tầng 12, Tòa nhà Việt Á, số 9 Duy Tân, Dịch Vọng Hậu, Cầu Giấy, Hà Nội"
   },
   {
-    name: "NGÂN HÀNG TMCP DEF",
-    address: "Số 5 Nguyễn Du, TP Nam Định"
+    name: "Công ty cổ phần MBN JUPITER",
+    address: "Tầng 15, Tòa nhà Central Point, số 219 phố Trung Kính, phường Yên Hòa, thành phố Hà Nội"
+  },
+  {
+    name: "Ngân hàng Thương mại cổ phần Sài gòn Thương Tín",
+    address: "Số 266 – 268 đường Nam Kỳ Khởi Nghĩa, phường Xuân Hoà, thành phố Hồ Chí Minh."
+  },
+  {
+    name: "Ngân hàng Thương mại cổ phần Đại chúng Việt Nam",
+    address: "Số 22 Ngô Quyền, phường Cửa Nam, thành phố Hà Nội"
+  },
+  {
+    name: "Ngân hàng TMCP Đầu tư và Phát triển Việt Nam (BIDV)",
+    address: "Tháp BIDV, Số 194 Trần Quang Khải, Phường Hoàn Kiếm, TP Hà Nội"
   }
 ];
 
