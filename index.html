@@ -2071,16 +2071,21 @@ function buildPHFromVuAn(vuAn, tplType){
 }
 
 // ── Get template name for a vuAn+tplType combo ──
+// Cột G = "mien" + cột K = VDS → TB_MAP_VDS
+// Cột G = "mien" + cột K = DS  → TB_MAP_DS
+// Cột G = số tiền + cột K = VDS → TB_AP_VDS
+// Cột G = số tiền + cột K = DS  → TB_AP_DS
+// Cột G = rỗng                   → QD_Phancong_DS (hoặc VDS theo cột K)
 function getTplNameForVuAn(vuAn, tplType){
   if(tplType==='TB_AP'){
-    const giaTriRaw = vuAn.giaTriTs;
-    const isExempt = typeof giaTriRaw==='string' && giaTriRaw.toLowerCase().includes('mien');
+    const gRaw = vuAn.giaTriTs;
+    const isExempt = typeof gRaw==='string' && gRaw.toLowerCase().includes('mien');
     const isVDS = vuAn.loaiVu === 'VDS';
     if(isExempt) return isVDS ? 'TB_MAP_VDS' : 'TB_MAP_DS';
     return isVDS ? 'TB_AP_VDS' : 'TB_AP_DS';
   }
-  if(tplType==='GXN_DS') return 'GXN_DS';
-  if(tplType==='QD_Phancong_DS') return 'QD_Phancong_DS';
+  if(tplType==='GXN_DS') return vuAn.loaiVu==='VDS' ? 'GXN_VDS' : 'GXN_DS';
+  if(tplType==='QD_Phancong_DS') return vuAn.loaiVu==='VDS' ? 'QD_Phancong_VDS' : 'QD_Phancong_DS';
   return null;
 }
 
@@ -2112,44 +2117,53 @@ async function startBatchExport(){
 
   // ══════════════════════════════════════════════════════════════
   // BƯỚC 1: VALIDATE TOÀN BỘ DỮ LIỆU TRƯỚC KHI XUẤT BẤT KỲ FILE NÀO
+  // Quy tắc nghiệp vụ:
+  //   - Cột I và J KHÔNG được đồng thời có dữ liệu
+  //   - Cột G = "mien" → cột I bắt buộc ngày hợp lệ → xuất TB_MAP_DS/VDS
+  //   - Cột G = số tiền → cột I bắt buộc ngày hợp lệ → xuất TB_AP_DS/VDS
+  //   - Cột G = rỗng → cột J bắt buộc ngày hợp lệ → xuất QD_Phancong
   // ══════════════════════════════════════════════════════════════
   const validationErrors = [];
 
   for(const vuAn of importedVuAns){
-    const id = `${vuAn.maVu} (${vuAn.soNhanDon||'—'})`;
-    const giaTriRaw = vuAn.giaTriTs;
-    const isExempt = typeof giaTriRaw==='string' && giaTriRaw.toLowerCase().includes('mien');
-    const hasSoTien = !isExempt && giaTriRaw && parseFloat(String(giaTriRaw).replace(/[^0-9.]/g,'')) > 0;
+    const id = `[${vuAn.maVu}] Số: ${vuAn.soNhanDon||'—'}`;
+    const gRaw = vuAn.giaTriTs;
+    const colI  = vuAn.ngayBanHanhTB;  // Cột I
+    const colJ  = vuAn.ngayBanHanhQD;  // Cột J
+    const hasI  = isValidDate(colI);
+    const hasJ  = isValidDate(colJ);
+    const isExempt  = typeof gRaw==='string' && gRaw.toLowerCase().includes('mien');
+    const hasSoTien = !isExempt && !!gRaw && parseFloat(String(gRaw).replace(/[^0-9.]/g,'')) > 0;
+    const isEmpty   = !gRaw || String(gRaw).trim() === '';
 
-    for(const tplType of selectedTpls){
+    // Lỗi 1: Cột I và J không được đồng thời có dữ liệu
+    if(hasI && hasJ){
+      validationErrors.push(`${id}: Cột I và J không được đồng thời có dữ liệu — mỗi vụ chỉ được điền 1 trong 2`);
+      continue; // Bỏ qua các kiểm tra khác cho vụ này
+    }
 
-      // ── Kiểm tra TB_AP ──
-      if(tplType==='TB_AP'){
-        // Lỗi: cột G vừa là "mien" vừa có ngày ban hành TB (cột I) — mâu thuẫn
-        if(isExempt && vuAn.ngayBanHanhTB){
-          validationErrors.push(`❌ ${id}: Cột G = "mien" nhưng cột I lại có ngày ban hành thông báo — mâu thuẫn, kiểm tra lại nhập liệu`);
-        }
-        // Lỗi: có số tiền nhưng cột I rỗng hoặc không hợp lệ
-        if(hasSoTien && !isValidDate(vuAn.ngayBanHanhTB)){
-          validationErrors.push(`❌ ${id}: Cột G có số tiền nhưng cột I (ngày ban hành TB) rỗng hoặc không hợp lệ`);
-        }
-        // Lỗi: miễn nhưng không có ngày — chấp nhận (TB_MAP không cần ngày ban hành bắt buộc... tùy nghiệp vụ)
-        // Không cần thêm rule ở đây
-      }
+    // Lỗi 2: Cột G = "mien" → cột I bắt buộc có ngày hợp lệ
+    if(isExempt && !hasI){
+      validationErrors.push(`${id}: Cột G = "mien" nhưng cột I (ngày ban hành TB) rỗng hoặc không hợp lệ — bắt buộc phải có`);
+    }
 
-      // ── Kiểm tra QD_Phancong_DS: cột J phải có ngày hợp lệ ──
-      if(tplType==='QD_Phancong_DS'){
-        if(!isValidDate(vuAn.ngayBanHanhQD)){
-          validationErrors.push(`❌ ${id}: Cột J (ngày ban hành QĐ phân công) rỗng hoặc không hợp lệ — bắt buộc phải có`);
-        }
-      }
+    // Lỗi 3: Cột G = số tiền → cột I bắt buộc có ngày hợp lệ
+    if(hasSoTien && !hasI){
+      validationErrors.push(`${id}: Cột G có số tiền nhưng cột I (ngày ban hành TB) rỗng hoặc không hợp lệ — bắt buộc phải có`);
+    }
 
-      // ── Kiểm tra GXN_DS: không có rule đặc biệt từ cột I/J ──
+    // Lỗi 4: Cột G = rỗng → cột J bắt buộc có ngày hợp lệ (đây là vụ QĐ phân công)
+    if(isEmpty && !hasJ){
+      validationErrors.push(`${id}: Cột G rỗng nhưng cột J (ngày ban hành QĐ phân công) cũng rỗng hoặc không hợp lệ — bắt buộc phải có`);
+    }
+
+    // Lỗi 5: Cột G = "mien" hoặc số tiền nhưng cột J lại có dữ liệu (thừa)
+    if((isExempt || hasSoTien) && hasJ){
+      validationErrors.push(`${id}: Cột G có dữ liệu án phí (${gRaw}) nhưng cột J cũng có ngày — chỉ cột I mới được điền cho vụ này`);
     }
   }
 
   if(validationErrors.length > 0){
-    // Hiển thị tất cả lỗi trong result list, không xuất file nào
     document.getElementById('importProgressCard').style.display='block';
     document.getElementById('importProgressBar').style.width='0%';
     document.getElementById('importProgressText').textContent = `⛔ Phát hiện ${validationErrors.length} lỗi dữ liệu — không xuất file nào`;
@@ -2164,29 +2178,31 @@ async function startBatchExport(){
   }
 
   // ══════════════════════════════════════════════════════════════
-  // BƯỚC 2: XÂY DỰNG DANH SÁCH TASK — CHỈ XUẤT KHI CÓ DỮ LIỆU NGÀY
+  // BƯỚC 2: XÂY DỰNG DANH SÁCH TASK DỰA THEO DỮ LIỆU CỘT G, I, J
+  // Mỗi vụ án chỉ rơi vào 1 trong 3 nhánh:
+  //   - Có cột I (G=mien hoặc G=số tiền) → task TB_AP (nếu được chọn)
+  //   - Có cột J (G=rỗng)               → task QD_Phancong (nếu được chọn)
+  //   - GXN luôn được xuất nếu được chọn
   // ══════════════════════════════════════════════════════════════
   const tasks = [];
-  const skipped = [];
 
   for(const vuAn of importedVuAns){
+    const gRaw    = vuAn.giaTriTs;
+    const hasI    = isValidDate(vuAn.ngayBanHanhTB);
+    const hasJ    = isValidDate(vuAn.ngayBanHanhQD);
+    const isEmpty = !gRaw || String(gRaw).trim() === '';
+
     for(const tplType of selectedTpls){
-
-      if(tplType==='TB_AP'){
-        const giaTriRaw = vuAn.giaTriTs;
-        const isExempt = typeof giaTriRaw==='string' && giaTriRaw.toLowerCase().includes('mien');
-        // Miễn: không cần ngày TB → xuất luôn (TB_MAP không dùng NGAY_BAN_HANH_TB)
-        // Có tiền: ngày TB đã được validate ở trên → xuất
-        tasks.push({vuAn, tplType});
+      if(tplType === 'TB_AP'){
+        // Chỉ xuất TB_AP nếu vụ án có cột I (G=mien hoặc G=số tiền)
+        if(hasI) tasks.push({vuAn, tplType});
+        // Nếu G rỗng (vụ QD) thì bỏ qua, không xuất TB_AP cho vụ này
       }
-
-      else if(tplType==='QD_Phancong_DS'){
-        // Chỉ xuất nếu cột J có ngày hợp lệ (đã validate ở trên → luôn đủ điều kiện)
-        tasks.push({vuAn, tplType});
+      else if(tplType === 'QD_Phancong_DS'){
+        // Chỉ xuất QD nếu vụ án có cột J (G rỗng)
+        if(hasJ) tasks.push({vuAn, tplType});
       }
-
-      else if(tplType==='GXN_DS'){
-        // GXN không phụ thuộc cột I/J → xuất bình thường
+      else if(tplType === 'GXN_DS'){
         tasks.push({vuAn, tplType});
       }
     }
