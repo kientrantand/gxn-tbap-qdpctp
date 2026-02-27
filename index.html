@@ -447,7 +447,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         <div class="form-row">
           <div class="form-group"><label>Số nhận đơn <span class="req">*</span></label><input id="ap_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('ap')"></div>
           <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="text" id="ap_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('ap')"></div>
-          <div class="form-group"><label>Ngày ban hành thông báo <span class="req">*</span></label><input type="text" id="ap_ngaybanhanh" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('ap')"></div>
+          <div class="form-group"><label>Ngày ban hành thông báo [[NGAY_BAN_HANH_TB]] <span class="req">*</span></label><input type="text" id="ap_ngaybanhanh" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('ap')"></div>
           <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="ap_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="livePreview('ap')"></div>
         </div>
       </div>
@@ -551,7 +551,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       </div>
 
       <div class="card">
-        <div class="card-title"><span class="dot"></span>Thẩm phán được phân công</div>
+        <div class="card-title"><span class="dot"></span>Thẩm phán được phân công [[THAM_PHAN]]</div>
         <div class="form-row">
           <div class="form-group">
             <label>Chọn Thẩm phán <span class="req">*</span></label>
@@ -566,15 +566,15 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <div class="card">
         <div class="card-title"><span class="dot"></span>Thông tin thụ lý</div>
         <div class="form-row">
-          <div class="form-group"><label>Số nhận đơn <span class="req">*</span></label><input id="qd_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('qd')"></div>
-          <div class="form-group"><label>Ngày ban hành QĐ phân công <span class="req">*</span></label><input type="text" id="qd_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('qd')"></div>
+          <div class="form-group"><label>Số nhận đơn [[SO]] <span class="req">*</span></label><input id="qd_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('qd')"></div>
+          <div class="form-group"><label>Ngày ban hành QĐ phân công [[NGAY_BAN_HANH_QD]] <span class="req">*</span></label><input type="text" id="qd_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('qd')"></div>
           <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="qd_quanhe" placeholder="VD: Tranh chấp thừa kế" oninput="livePreview('qd')"></div>
         </div>
       </div>
 
       <div class="party-grid">
         <div class="card">
-          <div class="card-title"><span class="dot"></span>Người khởi kiện </div>
+          <div class="card-title"><span class="dot"></span>Người khởi kiện [[THONG_TIN_KHOI_KIEN]]</div>
           <div class="party-tabs">
             <button class="party-tab active" onclick="switchParty('qd_nkk','ca_nhan',this)">Cá nhân</button>
             <button class="party-tab" onclick="switchParty('qd_nkk','to_chuc',this)">Tổ chức</button>
@@ -603,7 +603,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         </div>
 
         <div class="card">
-          <div class="card-title"><span class="dot"></span>Người bị kiện </div>
+          <div class="card-title"><span class="dot"></span>Người bị kiện [[THONG_TIN_BI_KIEN]]</div>
           <div class="party-tabs">
             <button class="party-tab active" onclick="switchParty('qd_nbk','ca_nhan',this)">Cá nhân</button>
             <button class="party-tab" onclick="switchParty('qd_nbk','to_chuc',this)">Tổ chức</button>
@@ -660,7 +660,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <div class="card">
         <div class="card-title"><span class="dot"></span>Thông tin xác nhận</div>
         <div class="form-row">
-          <div class="form-group"><label>Số nhận đơn <span class="req">*</span></label><input id="gxn_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('gxn')"></div>
+          <div class="form-group"><label>Số nhận đơn [[SO]] <span class="req">*</span></label><input id="gxn_so" placeholder="VD: 01/2025/TLDS" oninput="livePreview('gxn')"></div>
           <div class="form-group"><label>Ngày làm đơn <span class="req">*</span></label><input type="text" id="gxn_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('gxn')"></div>
           <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="text" id="gxn_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('gxn')"></div>
           <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="gxn_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="livePreview('gxn')"></div>
@@ -2095,24 +2095,116 @@ function buildImportFileName(vuAn, tplName){
   return fn+'.docx';
 }
 
+// ── Kiểm tra định dạng ngày dd/mm/yyyy ──
+function isValidDate(s){
+  if(!s || typeof s !== 'string') return false;
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(!m) return false;
+  const [,d,mo,y] = m.map(Number);
+  if(mo<1||mo>12||d<1||d>31||y<2000) return false;
+  return true;
+}
+
 async function startBatchExport(){
   const selectedTpls = getSelectedTpls();
   if(selectedTpls.length===0){ showToast('⚠️ Vui lòng chọn ít nhất 1 loại văn bản','error'); return; }
   if(importedVuAns.length===0){ showToast('⚠️ Chưa có dữ liệu — hãy import file Excel trước','error'); return; }
 
+  // ══════════════════════════════════════════════════════════════
+  // BƯỚC 1: VALIDATE TOÀN BỘ DỮ LIỆU TRƯỚC KHI XUẤT BẤT KỲ FILE NÀO
+  // ══════════════════════════════════════════════════════════════
+  const validationErrors = [];
+
+  for(const vuAn of importedVuAns){
+    const id = `${vuAn.maVu} (${vuAn.soNhanDon||'—'})`;
+    const giaTriRaw = vuAn.giaTriTs;
+    const isExempt = typeof giaTriRaw==='string' && giaTriRaw.toLowerCase().includes('mien');
+    const hasSoTien = !isExempt && giaTriRaw && parseFloat(String(giaTriRaw).replace(/[^0-9.]/g,'')) > 0;
+
+    for(const tplType of selectedTpls){
+
+      // ── Kiểm tra TB_AP ──
+      if(tplType==='TB_AP'){
+        // Lỗi: cột G vừa là "mien" vừa có ngày ban hành TB (cột I) — mâu thuẫn
+        if(isExempt && vuAn.ngayBanHanhTB){
+          validationErrors.push(`❌ ${id}: Cột G = "mien" nhưng cột I lại có ngày ban hành thông báo — mâu thuẫn, kiểm tra lại nhập liệu`);
+        }
+        // Lỗi: có số tiền nhưng cột I rỗng hoặc không hợp lệ
+        if(hasSoTien && !isValidDate(vuAn.ngayBanHanhTB)){
+          validationErrors.push(`❌ ${id}: Cột G có số tiền nhưng cột I (ngày ban hành TB) rỗng hoặc không hợp lệ`);
+        }
+        // Lỗi: miễn nhưng không có ngày — chấp nhận (TB_MAP không cần ngày ban hành bắt buộc... tùy nghiệp vụ)
+        // Không cần thêm rule ở đây
+      }
+
+      // ── Kiểm tra QD_Phancong_DS: cột J phải có ngày hợp lệ ──
+      if(tplType==='QD_Phancong_DS'){
+        if(!isValidDate(vuAn.ngayBanHanhQD)){
+          validationErrors.push(`❌ ${id}: Cột J (ngày ban hành QĐ phân công) rỗng hoặc không hợp lệ — bắt buộc phải có`);
+        }
+      }
+
+      // ── Kiểm tra GXN_DS: không có rule đặc biệt từ cột I/J ──
+    }
+  }
+
+  if(validationErrors.length > 0){
+    // Hiển thị tất cả lỗi trong result list, không xuất file nào
+    document.getElementById('importProgressCard').style.display='block';
+    document.getElementById('importProgressBar').style.width='0%';
+    document.getElementById('importProgressText').textContent = `⛔ Phát hiện ${validationErrors.length} lỗi dữ liệu — không xuất file nào`;
+    const resultEl = document.getElementById('importResultList');
+    resultEl.innerHTML = validationErrors.map(e=>`
+      <div class="import-result-item err">
+        <span class="ir-icon">⛔</span>
+        <span class="ir-name" style="white-space:normal">${e}</span>
+      </div>`).join('');
+    showToast(`⛔ ${validationErrors.length} lỗi dữ liệu — kiểm tra lại file Excel`,'error');
+    return;
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // BƯỚC 2: XÂY DỰNG DANH SÁCH TASK — CHỈ XUẤT KHI CÓ DỮ LIỆU NGÀY
+  // ══════════════════════════════════════════════════════════════
+  const tasks = [];
+  const skipped = [];
+
+  for(const vuAn of importedVuAns){
+    for(const tplType of selectedTpls){
+
+      if(tplType==='TB_AP'){
+        const giaTriRaw = vuAn.giaTriTs;
+        const isExempt = typeof giaTriRaw==='string' && giaTriRaw.toLowerCase().includes('mien');
+        // Miễn: không cần ngày TB → xuất luôn (TB_MAP không dùng NGAY_BAN_HANH_TB)
+        // Có tiền: ngày TB đã được validate ở trên → xuất
+        tasks.push({vuAn, tplType});
+      }
+
+      else if(tplType==='QD_Phancong_DS'){
+        // Chỉ xuất nếu cột J có ngày hợp lệ (đã validate ở trên → luôn đủ điều kiện)
+        tasks.push({vuAn, tplType});
+      }
+
+      else if(tplType==='GXN_DS'){
+        // GXN không phụ thuộc cột I/J → xuất bình thường
+        tasks.push({vuAn, tplType});
+      }
+    }
+  }
+
+  if(tasks.length===0){
+    showToast('⚠️ Không có vụ án nào đủ điều kiện xuất','error'); return;
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // BƯỚC 3: XUẤT FILE
+  // ══════════════════════════════════════════════════════════════
   const btn = document.getElementById('importExportBtn');
   btn.disabled=true;
 
   document.getElementById('importProgressCard').style.display='block';
   document.getElementById('importResultList').innerHTML='';
   document.getElementById('importProgressBar').style.width='0%';
-
-  const tasks=[];
-  for(const vuAn of importedVuAns){
-    for(const tplType of selectedTpls){
-      tasks.push({vuAn, tplType});
-    }
-  }
 
   let done=0, errors=0;
   const resultEl = document.getElementById('importResultList');
@@ -2169,13 +2261,13 @@ async function startBatchExport(){
       console.error(`[ImportExport] ${tplName} ${vuAn.maVu}:`, err);
     }
 
-    done + errors;
     const pct = Math.round(((done+errors)/tasks.length)*100);
     document.getElementById('importProgressBar').style.width = pct+'%';
   }
 
+  const skipNote = skipped.length ? ` · ⏭ ${skipped.length} bỏ qua` : '';
   document.getElementById('importProgressText').textContent =
-    `Hoàn tất! ✅ ${done} thành công${errors?` · ❌ ${errors} lỗi`:''}`;
+    `Hoàn tất! ✅ ${done} thành công${errors?` · ❌ ${errors} lỗi`:''}${skipNote}`;
   showToast(`✅ Xuất xong: ${done}/${tasks.length} văn bản`+(errors?` (${errors} lỗi)`:''),'success');
   btn.disabled=false;
 }
