@@ -1222,7 +1222,7 @@ function buildPH(ns){
   };
   if(type==='VDS') ph.QHPL_VDS = g(p+'quanhe');
   else             ph.QHPL_DS  = g(p+'quanhe');
-  if(ns==='qd') ph.THAM_PHAN = g('qd_thamPhan') || '......';
+  if(ns==='qd') ph.THAM_PHAN = g('qd_thamPhan') || '................................................';
   if(ns==='ap'){
     const t = getTienAP();
     ph.TIEN_AP         = t ? fmtVND(t)     : '';
