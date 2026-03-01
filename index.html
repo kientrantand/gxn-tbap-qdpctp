@@ -450,6 +450,19 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
           <div class="form-group"><label>Ngày ban hành thông báo [[NGAY_BAN_HANH_TB]] <span class="req">*</span></label><input type="text" id="ap_ngaybanhanh" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('ap')"></div>
           <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="ap_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="livePreview('ap')"></div>
         </div>
+        <div class="form-group" style="margin-top:4px;">
+          <label>Phương thức gửi đơn [[PHUONG_THUC]] <span class="req">*</span></label>
+          <div style="display:flex;gap:20px;margin-top:6px;">
+            <label style="display:flex;align-items:center;gap:7px;font-size:14px;text-transform:none;letter-spacing:0;font-weight:500;color:var(--text);cursor:pointer;">
+              <input type="radio" name="ap_phuongthuc" id="ap_pt_tructiep" value="truc_tiep" checked onchange="livePreview('ap')" style="width:16px;height:16px;accent-color:var(--navy);padding:0;">
+              Nộp trực tiếp
+            </label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:14px;text-transform:none;letter-spacing:0;font-weight:500;color:var(--text);cursor:pointer;">
+              <input type="radio" name="ap_phuongthuc" id="ap_pt_buudien" value="buu_dien" onchange="livePreview('ap')" style="width:16px;height:16px;accent-color:var(--navy);padding:0;">
+              Qua bưu điện
+            </label>
+          </div>
+        </div>
       </div>
 
       <div class="party-grid">
@@ -665,6 +678,19 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
           <div class="form-group"><label>Ngày nhận đơn <span class="req">*</span></label><input type="text" id="gxn_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this);livePreview('gxn')"></div>
           <div class="form-group"><label>Quan hệ tranh chấp <span class="req">*</span></label><input id="gxn_quanhe" placeholder="VD: Tranh chấp hợp đồng mua bán" oninput="livePreview('gxn')"></div>
         </div>
+        <div class="form-group" style="margin-top:4px;">
+          <label>Phương thức gửi đơn [[PHUONG_THUC]] <span class="req">*</span></label>
+          <div style="display:flex;gap:20px;margin-top:6px;">
+            <label style="display:flex;align-items:center;gap:7px;font-size:14px;text-transform:none;letter-spacing:0;font-weight:500;color:var(--text);cursor:pointer;">
+              <input type="radio" name="gxn_phuongthuc" id="gxn_pt_tructiep" value="truc_tiep" checked onchange="livePreview('gxn')" style="width:16px;height:16px;accent-color:var(--navy);padding:0;">
+              Nộp trực tiếp
+            </label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:14px;text-transform:none;letter-spacing:0;font-weight:500;color:var(--text);cursor:pointer;">
+              <input type="radio" name="gxn_phuongthuc" id="gxn_pt_buudien" value="buu_dien" onchange="livePreview('gxn')" style="width:16px;height:16px;accent-color:var(--navy);padding:0;">
+              Qua bưu điện
+            </label>
+          </div>
+        </div>
       </div>
 
       <div class="party-grid">
@@ -772,7 +798,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
               <th>Ngày nhận đơn<br><small style="font-weight:400;opacity:.7">cột E — GXN</small></th>
               <th>NH Thông báo<br><small style="font-weight:400;opacity:.7">cột I — TB_AP</small></th>
               <th>NH QĐ Phân công<br><small style="font-weight:400;opacity:.7">cột J — QD_PC</small></th>
-              <th>Án phí</th><th>Thẩm phán</th>
+              <th>Án phí</th><th>Thẩm phán</th><th>Phương thức</th>
               <th>NKK</th><th>NBK</th>
             </tr></thead>
             <tbody id="importPreviewBody"></tbody>
@@ -1215,6 +1241,14 @@ function buildPH(ns){
     // QD: ngày ban hành quyết định phân công
     NGAY_BAN_HANH_QD:      ns==='qd' ? fmtDate(g('qd_ngaynhan')) : '',
     QUY_DOI_BAN_HANH_QD:   ns==='qd' ? fmtDateLong(g('qd_ngaynhan')) : '',
+    // Phương thức gửi đơn (AP và GXN)
+    PHUONG_THUC: (()=>{
+      if(ns==='qd') return '';
+      const pt = document.querySelector(`input[name="${ns}_phuongthuc"]:checked`)?.value || 'truc_tiep';
+      return pt==='buu_dien'
+        ? 'nộp qua tổ chức dịch vụ bưu chính chuyển đến vào ngày'
+        : 'nộp trực tiếp ngày';
+    })(),
     THONG_TIN_KHOI_KIEN:   formatList(nkkList),
     THONG_TIN_BI_KIEN:     formatList(nbkList),
     TEN_KHOI_KIEN:         joinNames(nkkNames),
@@ -1222,7 +1256,7 @@ function buildPH(ns){
   };
   if(type==='VDS') ph.QHPL_VDS = g(p+'quanhe');
   else             ph.QHPL_DS  = g(p+'quanhe');
-  if(ns==='qd') ph.THAM_PHAN = g('qd_thamPhan') || '................................................';
+  if(ns==='qd') ph.THAM_PHAN = g('qd_thamPhan') || '......';
   if(ns==='ap'){
     const t = getTienAP();
     ph.TIEN_AP         = t ? fmtVND(t)     : '';
@@ -1873,9 +1907,10 @@ function parseExcelBuffer(buf){
   //   Cột F  (5): tong_nd_bd        — Tổng số đương sự (nội bộ, không xuất)
   //   Cột G  (6): gia_tri_ts        — Giá trị tài sản / "mien" → tính án phí (TB_AP)
   //   Cột H  (7): tham_phan         — Thẩm phán → [[THAM_PHAN]] (QD)
-  //   Cột I  (8): ngay_ban_hanh_tb  — Ngày ban hành thông báo → [[NGAY_NHAN_DON]] (TB_AP, TB_MAP)
-  //   Cột J  (9): ngay_ban_hanh_qd  — Ngày ban hành QĐ phân công → [[NGAY_NHAN_DON]] (QD_Phancong)
+  //   Cột I  (8): ngay_ban_hanh_tb  — Ngày ban hành thông báo → [[NGAY_BAN_HANH_TB]] (TB_AP, TB_MAP)
+  //   Cột J  (9): ngay_ban_hanh_qd  — Ngày ban hành QĐ phân công → [[NGAY_BAN_HANH_QD]] (QD_Phancong)
   //   Cột K (10): loai_vu           — Loại vụ: DS hoặc VDS (mặc định DS)
+  //   Cột L (11): phuong_thuc_gui   — Phương thức gửi đơn: "truc_tiep" hoặc "buu_dien" → [[PHUONG_THUC]]
   // ───────────────────────────────────────────────────────────────────────
   // HƯỚNG DẪN KHI BỔ SUNG CỘT MỚI:
   //   1. Thêm vào cuối (cột L, M...) để không làm lệch chỉ số cũ
@@ -1903,6 +1938,9 @@ function parseExcelBuffer(buf){
     const ngayBanHanhQD  = r[9];                             // Cột J — ngày ban hành QĐ phân công
     // Cột K (index 10): loai_vu — DS hoặc VDS. Mặc định DS.
     const loaiVu = ((r[10]||'').toString().trim().toUpperCase()==='VDS') ? 'VDS' : 'DS';
+    // Cột L (index 11): phuong_thuc_gui — "truc_tiep" hoặc "buu_dien". Mặc định truc_tiep.
+    const ptRaw = (r[11]||'').toString().trim().toLowerCase();
+    const phuongThucGui = ptRaw.includes('buu') || ptRaw.includes('bưu') ? 'buu_dien' : 'truc_tiep';
 
     result.push({
       maVu, soNhanDon, qhpl,
@@ -1913,6 +1951,7 @@ function parseExcelBuffer(buf){
       giaTriTs,
       thamPhan,
       loaiVu,
+      phuongThucGui,
       duongSu: dsMap[maVu] || {khoi_kien:[], bi_kien:[]},
     });
   }
@@ -1922,9 +1961,10 @@ function parseExcelBuffer(buf){
 function formatExcelDate(val){
   if(!val) return '';
   if(val instanceof Date){
-    const d = val.getDate().toString().padStart(2,'0');
-    const m = (val.getMonth()+1).toString().padStart(2,'0');
-    const y = val.getFullYear();
+    // Dùng UTC để tránh lệch ngày do múi giờ (SheetJS parse ngày Excel sang UTC)
+    const d = val.getUTCDate().toString().padStart(2,'0');
+    const m = (val.getUTCMonth()+1).toString().padStart(2,'0');
+    const y = val.getUTCFullYear();
     return `${d}/${m}/${y}`;
   }
   // Try as string
@@ -1958,6 +1998,9 @@ function renderImportPreview(data){
       <td>${v.ngayBanHanhQD||'<span style="color:#aaa;font-style:italic">trống</span>'}</td>
       <td>${apBadge}</td>
       <td>${v.thamPhan||'—'}</td>
+      <td>${v.phuongThucGui==='buu_dien'
+        ? '<span style="background:#5a3e8a;color:white;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">Bưu điện</span>'
+        : '<span style="background:#1e7e5a;color:white;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">Trực tiếp</span>'}</td>
       <td style="max-width:140px;white-space:normal">${nkk}</td>
       <td style="max-width:140px;white-space:normal">${nbk}</td>
     </tr>`;
@@ -2053,6 +2096,12 @@ function buildPHFromVuAn(vuAn, tplType){
     THONG_TIN_BI_KIEN: formatList(nbkList),
     TEN_KHOI_KIEN: joinNames(nkkNames),
     TEN_BI_KIEN: joinNames(nbkNames),
+    // Phương thức gửi đơn (AP và GXN, không áp dụng cho QD)
+    PHUONG_THUC: isQD ? '' : (
+      (vuAn.phuongThucGui === 'buu_dien')
+        ? 'nộp qua tổ chức dịch vụ bưu chính chuyển đến vào ngày'
+        : 'nộp trực tiếp ngày'
+    ),
   };
 
   // Án phí calc
