@@ -1856,7 +1856,10 @@ function clearImportFile(){
 }
 
 function parseExcelBuffer(buf){
-  const wb = XLSX.read(buf, {type:'arraybuffer', cellDates:true});
+  // Không dùng cellDates:true để tránh lệch ngày do múi giờ.
+  // SheetJS với cellDates:true tạo Date object theo local time, gây lệch ±1 ngày.
+  // Thay vào đó đọc raw (số serial hoặc string) rồi tự convert.
+  const wb = XLSX.read(buf, {type:'arraybuffer', cellDates:false});
 
   // ── Parse VU_AN sheet ──
   const wsVuAn = wb.Sheets['VU_AN'];
@@ -1958,17 +1961,44 @@ function parseExcelBuffer(buf){
   return result;
 }
 
+// Chuyển đổi giá trị ngày từ Excel sang chuỗi dd/mm/yyyy
+// SheetJS với cellDates:false trả về:
+//   - Số (Excel date serial): số ngày kể từ 1/1/1900
+//   - Chuỗi: dd/mm/yyyy hoặc yyyy-mm-dd hoặc mm/dd/yyyy...
 function formatExcelDate(val){
-  if(!val) return '';
+  if(!val && val !== 0) return '';
+
+  // Nếu là số → Excel date serial (không phụ thuộc timezone)
+  if(typeof val === 'number'){
+    // Excel sai lầm: coi 1900 là năm nhuận, nên serial >= 60 phải trừ 1
+    const serial = val >= 60 ? val - 1 : val;
+    // Ngày gốc: 1/1/1900 = serial 1
+    const msPerDay = 86400000;
+    const epoch = new Date(Date.UTC(1900, 0, 1)); // 1900-01-01 UTC
+    const date = new Date(epoch.getTime() + (serial - 1) * msPerDay);
+    const d = date.getUTCDate().toString().padStart(2,'0');
+    const m = (date.getUTCMonth()+1).toString().padStart(2,'0');
+    const y = date.getUTCFullYear();
+    return `${d}/${m}/${y}`;
+  }
+
+  // Nếu là Date object (phòng trường hợp)
   if(val instanceof Date){
-    // Dùng UTC để tránh lệch ngày do múi giờ (SheetJS parse ngày Excel sang UTC)
     const d = val.getUTCDate().toString().padStart(2,'0');
     const m = (val.getUTCMonth()+1).toString().padStart(2,'0');
     const y = val.getUTCFullYear();
     return `${d}/${m}/${y}`;
   }
-  // Try as string
-  return String(val).trim();
+
+  // Nếu là string — cố gắng chuẩn hóa về dd/mm/yyyy
+  const s = String(val).trim();
+  // Dạng yyyy-mm-dd (ISO)
+  const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(isoMatch) return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+  // Dạng đã đúng dd/mm/yyyy
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) return s;
+  // Trả về nguyên bản nếu không nhận dạng được
+  return s;
 }
 
 function formatExcelDateLong(val){
