@@ -616,6 +616,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <div class="party-grid">
         <div class="card">
           <div class="card-title"><span class="dot"></span>Người khởi kiện [[THONG_TIN_KHOI_KIEN]]</div>
+          <div class="party-tabs">
+            <button class="party-tab active" onclick="switchParty('qd_nkk','ca_nhan',this)">Cá nhân</button>
             <button class="party-tab" onclick="switchParty('qd_nkk','to_chuc',this)">Tổ chức</button>
           </div>
           <div id="qd_nkk_ca_nhan">
@@ -1110,7 +1112,7 @@ const JUDGE_LIST = [
 const ORG_LIST = [
   {
     name: "Ngân hàng Thương mại cổ phần Việt Nam Thịnh Vượng",
-    address: "Số 89 Láng Hạ, phường Láng Hạ, thành phố Hà Nội"
+    address: "Số 89 Láng Hạ, phường Đống Đa, thành phố Hà Nội"
   },
   {
     name: "Công ty cổ phần MARS",
