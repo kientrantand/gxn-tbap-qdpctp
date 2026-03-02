@@ -2121,7 +2121,7 @@ function buildPHFromVuAn(vuAn, tplType){
     NGAY_BAN_HANH_QD:    isQD ? fmtDate(vuAn.ngayBanHanhQD) : '',
     QUY_DOI_BAN_HANH_QD: isQD ? fmtDateLong(vuAn.ngayBanHanhQD) : '',
     QHPL_DS: vuAn.qhpl||'',
-    THAM_PHAN: vuAn.thamPhan||'......',
+    THAM_PHAN: vuAn.thamPhan||'..........................................',
     THONG_TIN_KHOI_KIEN: formatList(nkkList),
     THONG_TIN_BI_KIEN: formatList(nbkList),
     TEN_KHOI_KIEN: joinNames(nkkNames),
