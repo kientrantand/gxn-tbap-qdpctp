@@ -123,6 +123,18 @@ input:focus,select:focus,textarea:focus{border-color:var(--navy);background:whit
 input[type=number]{-moz-appearance:textfield;}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 
+/* ══ COPY-PASTE BAR ══ */
+.copy-paste-bar{display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,#eef3ff 0%,#f5f0ff 100%);border:1.5px solid #b8c8f0;border-radius:10px;padding:10px 16px;margin-bottom:16px;flex-wrap:wrap;}
+.copy-paste-bar-label{font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;}
+.copy-paste-bar .cpb-sep{width:1px;height:20px;background:var(--border);margin:0 4px;flex-shrink:0;}
+.btn-cp{padding:6px 13px;border-radius:7px;font-family:'Source Sans 3',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .17s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;}
+.btn-cp-copy{border-color:#3b6fca;color:#3b6fca;background:white;}
+.btn-cp-copy:hover{background:#3b6fca;color:white;}
+.btn-cp-paste{border-color:#7b3fc4;color:#7b3fc4;background:white;}
+.btn-cp-paste:hover{background:#7b3fc4;color:white;}
+.btn-cp-paste:disabled{opacity:.38;cursor:not-allowed;}
+.cp-clipboard-badge{font-size:11px;color:#7b3fc4;background:#f0e8ff;border:1px solid #d8c0f8;border-radius:6px;padding:3px 9px;font-weight:600;margin-left:auto;}
+
 /* ══ EXTRA PARTY BLOCK ══ */
 .extra-party-block{border:1.5px solid var(--border);border-radius:10px;padding:16px 18px;margin-top:14px;background:var(--cream);position:relative;}
 .extra-party-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
@@ -465,6 +477,14 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         </div>
       </div>
 
+      <div class="copy-paste-bar" id="cpbar_ap">
+        <span class="copy-paste-bar-label">📋 Sao chép thông tin các bên</span>
+        <div class="cpb-sep"></div>
+        <button class="btn-cp btn-cp-copy" onclick="cpCopy('ap')">📤 Sao chép NKK + NBK</button>
+        <button class="btn-cp btn-cp-paste" id="cpPaste_ap" onclick="cpPaste('ap')" disabled>📥 Dán vào tab này</button>
+        <span class="cp-clipboard-badge" id="cpBadge_ap" style="display:none"></span>
+      </div>
+
       <div class="party-grid">
         <div class="card">
           <div class="card-title"><span class="dot"></span>Người khởi kiện / Nguyên đơn</div>
@@ -585,11 +605,17 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         </div>
       </div>
 
+      <div class="copy-paste-bar" id="cpbar_qd">
+        <span class="copy-paste-bar-label">📋 Sao chép thông tin các bên</span>
+        <div class="cpb-sep"></div>
+        <button class="btn-cp btn-cp-copy" onclick="cpCopy('qd')">📤 Sao chép NKK + NBK</button>
+        <button class="btn-cp btn-cp-paste" id="cpPaste_qd" onclick="cpPaste('qd')" disabled>📥 Dán vào tab này</button>
+        <span class="cp-clipboard-badge" id="cpBadge_qd" style="display:none"></span>
+      </div>
+
       <div class="party-grid">
         <div class="card">
           <div class="card-title"><span class="dot"></span>Người khởi kiện [[THONG_TIN_KHOI_KIEN]]</div>
-          <div class="party-tabs">
-            <button class="party-tab active" onclick="switchParty('qd_nkk','ca_nhan',this)">Cá nhân</button>
             <button class="party-tab" onclick="switchParty('qd_nkk','to_chuc',this)">Tổ chức</button>
           </div>
           <div id="qd_nkk_ca_nhan">
@@ -691,6 +717,14 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
             </label>
           </div>
         </div>
+      </div>
+
+      <div class="copy-paste-bar" id="cpbar_gxn">
+        <span class="copy-paste-bar-label">📋 Sao chép thông tin các bên</span>
+        <div class="cpb-sep"></div>
+        <button class="btn-cp btn-cp-copy" onclick="cpCopy('gxn')">📤 Sao chép NKK + NBK</button>
+        <button class="btn-cp btn-cp-paste" id="cpPaste_gxn" onclick="cpPaste('gxn')" disabled>📥 Dán vào tab này</button>
+        <span class="cp-clipboard-badge" id="cpBadge_gxn" style="display:none"></span>
       </div>
 
       <div class="party-grid">
@@ -879,6 +913,184 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 <script>
 // ===================== STATE =====================
 const state = { ap:{type:'DS'}, qd:{type:'DS'}, gxn:{type:'DS'} };
+
+// ===================== COPY-PASTE PARTIES =====================
+let cpClipboard = null; // { nkk: {...}, nbk: {...} }
+
+/**
+ * Thu thập dữ liệu NKK hoặc NBK từ một prefix (vd: "ap_nkk")
+ * Trả về object chứa type (ca_nhan/to_chuc) + các field value
+ */
+function cpCollectParty(prefix) {
+  // Xác định loại đang hiện (ca_nhan hay to_chuc)
+  const isCaNhan = document.getElementById(prefix+'_ca_nhan') &&
+                   document.getElementById(prefix+'_ca_nhan').style.display !== 'none';
+  const type = isCaNhan ? 'ca_nhan' : 'to_chuc';
+  const data = { type };
+
+  if (type === 'ca_nhan') {
+    ['ten','gt','namsinh','cccd','thuongtru','cutru'].forEach(f => {
+      const el = document.getElementById(prefix+'_'+f);
+      if (el) data[f] = el.value;
+    });
+  } else {
+    ['tentochuc','diachi','daidien'].forEach(f => {
+      const el = document.getElementById(prefix+'_'+f);
+      if (el) data[f] = el.value;
+    });
+  }
+
+  // Thu thập các block extra (người thêm)
+  const extrasEl = document.getElementById(prefix+'_extras');
+  data.extras = [];
+  if (extrasEl) {
+    extrasEl.querySelectorAll('.extra-party-block').forEach(block => {
+      const blockData = { type: 'ca_nhan', fields: {} };
+      // Xác định type của block extra
+      const toChucDiv = block.querySelector('[id$="_to_chuc"]');
+      const caNhanDiv = block.querySelector('[id$="_ca_nhan"]');
+      if (toChucDiv && toChucDiv.style.display !== 'none') blockData.type = 'to_chuc';
+      block.querySelectorAll('input, select').forEach(el => {
+        if (el.id) blockData.fields[el.id] = el.value;
+      });
+      data.extras.push(blockData);
+    });
+  }
+
+  return data;
+}
+
+/**
+ * Điền dữ liệu party vào một prefix
+ */
+function cpApplyParty(prefix, data) {
+  if (!data) return;
+  // Xác định panel prefix (ap/qd/gxn)
+  const panelPrefix = prefix.split('_')[0];
+  const role = prefix.split('_')[1]; // nkk or nbk
+
+  // Switch loại
+  const tabBtnCaNhan = document.querySelector(`#panel${['ap','qd','gxn'].indexOf(panelPrefix)} .party-grid .card:${role==='nkk'?'first':'last'}-child .party-tab:first-child`);
+  // Dùng switchParty trực tiếp
+  const allTabBtns = document.querySelectorAll(`[onclick*="switchParty('${prefix}'"]`);
+  allTabBtns.forEach(btn => {
+    const match = btn.getAttribute('onclick').match(/switchParty\('.*?','(.*?)'/);
+    if (match && match[1] === data.type) btn.click();
+  });
+
+  if (data.type === 'ca_nhan') {
+    ['ten','gt','namsinh','cccd','thuongtru','cutru'].forEach(f => {
+      const el = document.getElementById(prefix+'_'+f);
+      if (el) {
+        el.value = data[f] || '';
+        el.dispatchEvent(new Event('input'));
+        el.dispatchEvent(new Event('change'));
+      }
+    });
+  } else {
+    ['tentochuc','diachi','daidien'].forEach(f => {
+      const el = document.getElementById(prefix+'_'+f);
+      if (el) {
+        el.value = data[f] || '';
+        el.dispatchEvent(new Event('input'));
+        el.dispatchEvent(new Event('change'));
+      }
+    });
+  }
+
+  // Xóa extras cũ rồi thêm lại nếu có
+  const extrasEl = document.getElementById(prefix+'_extras');
+  if (extrasEl && data.extras && data.extras.length > 0) {
+    extrasEl.innerHTML = '';
+    data.extras.forEach(() => {
+      // Gọi addParty để tạo block mới
+      const roleLabel = role === 'nkk' ? 'nkk' : 'nbk';
+      addParty(panelPrefix, roleLabel);
+    });
+    // Điền dữ liệu vào các block mới
+    const blocks = extrasEl.querySelectorAll('.extra-party-block');
+    data.extras.forEach((extraData, idx) => {
+      const block = blocks[idx];
+      if (!block) return;
+      Object.entries(extraData.fields).forEach(([origId, val]) => {
+        // Map id: thay prefix cũ bằng prefix mới
+        const parts = origId.split('_');
+        // id dạng: ap_nkk_extra_0_ten => qd_nkk_extra_0_ten
+        if (parts.length >= 2) {
+          // Thay 2 phần đầu
+          const newId = prefix + '_' + parts.slice(2).join('_');
+          const el = block.querySelector(`[id="${newId}"]`) || block.querySelector(`input:nth-of-type(${idx+1})`);
+          // Thử tìm theo id cuối
+          const shortId = parts[parts.length-1];
+          const candidates = block.querySelectorAll(`input[id*="${shortId}"], select[id*="${shortId}"]`);
+          if (candidates.length === 1) { candidates[0].value = val; }
+          else if (el) { el.value = val; }
+        }
+      });
+    });
+  }
+}
+
+/**
+ * Sao chép NKK + NBK + số đơn + quan hệ tranh chấp từ tab hiện tại
+ */
+function cpCopy(panel) {
+  const nkk = cpCollectParty(panel+'_nkk');
+  const nbk = cpCollectParty(panel+'_nbk');
+
+  // Thu thập số nhận đơn và quan hệ tranh chấp
+  const soEl    = document.getElementById(panel+'_so');
+  const quanheEl = document.getElementById(panel+'_quanhe');
+  const so     = soEl     ? soEl.value     : '';
+  const quanhe = quanheEl ? quanheEl.value : '';
+
+  cpClipboard = { nkk, nbk, so, quanhe, from: panel };
+
+  // Cập nhật tất cả các badge và nút dán
+  ['ap','qd','gxn'].forEach(p => {
+    const badge = document.getElementById('cpBadge_'+p);
+    const pasteBtn = document.getElementById('cpPaste_'+p);
+    if (badge) {
+      badge.style.display = 'inline';
+      const nkkName = nkk.type==='ca_nhan' ? (nkk.ten||'—') : (nkk.tentochuc||'—');
+      const nbkName = nbk.type==='ca_nhan' ? (nbk.ten||'—') : (nbk.tentochuc||'—');
+      badge.textContent = `📋 ${so||'—'} · NKK: ${nkkName.substring(0,14)}${nkkName.length>14?'…':''} · NBK: ${nbkName.substring(0,14)}${nbkName.length>14?'…':''}`;
+    }
+    if (pasteBtn) pasteBtn.disabled = false;
+  });
+
+  showToast(`✅ Đã sao chép: số đơn, quan hệ TC, NKK + NBK từ tab ${panel.toUpperCase()}`, 'success');
+}
+
+/**
+ * Dán NKK + NBK + số đơn + quan hệ tranh chấp vào tab đích
+ */
+function cpPaste(panel) {
+  if (!cpClipboard) { showToast('⚠️ Chưa có dữ liệu sao chép', 'error'); return; }
+
+  // Dán số nhận đơn
+  const soEl = document.getElementById(panel+'_so');
+  if (soEl && cpClipboard.so !== undefined) {
+    soEl.value = cpClipboard.so;
+    soEl.dispatchEvent(new Event('input'));
+  }
+
+  // Dán quan hệ tranh chấp
+  const quanheEl = document.getElementById(panel+'_quanhe');
+  if (quanheEl && cpClipboard.quanhe !== undefined) {
+    quanheEl.value = cpClipboard.quanhe;
+    quanheEl.dispatchEvent(new Event('input'));
+  }
+
+  cpApplyParty(panel+'_nkk', cpClipboard.nkk);
+  cpApplyParty(panel+'_nbk', cpClipboard.nbk);
+
+  // Trigger livePreview
+  if (typeof livePreview === 'function') livePreview(panel);
+
+  showToast(`✅ Đã dán: số đơn, quan hệ TC, NKK + NBK vào tab ${panel.toUpperCase()}`, 'success');
+}
+
 const JUDGE_LIST = [
   "Nguyễn Minh Tuấn",
   "Vũ Văn Trường",
