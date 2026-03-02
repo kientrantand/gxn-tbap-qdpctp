@@ -917,180 +917,172 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 const state = { ap:{type:'DS'}, qd:{type:'DS'}, gxn:{type:'DS'} };
 
 // ===================== COPY-PASTE PARTIES =====================
-let cpClipboard = null; // { nkk: {...}, nbk: {...} }
+let cpClipboard = null;
 
-/**
- * Thu thập dữ liệu NKK hoặc NBK từ một prefix (vd: "ap_nkk")
- * Trả về object chứa type (ca_nhan/to_chuc) + các field value
- */
-function cpCollectParty(prefix) {
-  // Xác định loại đang hiện (ca_nhan hay to_chuc)
-  const isCaNhan = document.getElementById(prefix+'_ca_nhan') &&
-                   document.getElementById(prefix+'_ca_nhan').style.display !== 'none';
-  const type = isCaNhan ? 'ca_nhan' : 'to_chuc';
-  const data = { type };
-
-  if (type === 'ca_nhan') {
+/** Thu thập dữ liệu party chính (người thứ 1) từ prefix như "ap_nkk" */
+function cpCollectMainParty(prefix) {
+  const caNhanDiv = document.getElementById(prefix + '_ca_nhan');
+  const ptype = (caNhanDiv && caNhanDiv.style.display !== 'none') ? 'ca_nhan' : 'to_chuc';
+  const d = { ptype };
+  if (ptype === 'ca_nhan') {
     ['ten','gt','namsinh','cccd','thuongtru','cutru'].forEach(f => {
-      const el = document.getElementById(prefix+'_'+f);
-      if (el) data[f] = el.value;
+      const el = document.getElementById(prefix + '_' + f);
+      d[f] = el ? el.value : '';
     });
   } else {
     ['tentochuc','diachi','daidien'].forEach(f => {
-      const el = document.getElementById(prefix+'_'+f);
-      if (el) data[f] = el.value;
+      const el = document.getElementById(prefix + '_' + f);
+      d[f] = el ? el.value : '';
     });
   }
-
-  // Thu thập các block extra (người thêm)
-  const extrasEl = document.getElementById(prefix+'_extras');
-  data.extras = [];
-  if (extrasEl) {
-    extrasEl.querySelectorAll('.extra-party-block').forEach(block => {
-      const blockData = { type: 'ca_nhan', fields: {} };
-      // Xác định type của block extra
-      const toChucDiv = block.querySelector('[id$="_to_chuc"]');
-      const caNhanDiv = block.querySelector('[id$="_ca_nhan"]');
-      if (toChucDiv && toChucDiv.style.display !== 'none') blockData.type = 'to_chuc';
-      block.querySelectorAll('input, select').forEach(el => {
-        if (el.id) blockData.fields[el.id] = el.value;
-      });
-      data.extras.push(blockData);
-    });
-  }
-
-  return data;
+  return d;
 }
 
-/**
- * Điền dữ liệu party vào một prefix
- */
-function cpApplyParty(prefix, data) {
-  if (!data) return;
-  // Xác định panel prefix (ap/qd/gxn)
-  const panelPrefix = prefix.split('_')[0];
-  const role = prefix.split('_')[1]; // nkk or nbk
-
-  // Switch loại
-  const tabBtnCaNhan = document.querySelector(`#panel${['ap','qd','gxn'].indexOf(panelPrefix)} .party-grid .card:${role==='nkk'?'first':'last'}-child .party-tab:first-child`);
-  // Dùng switchParty trực tiếp
-  const allTabBtns = document.querySelectorAll(`[onclick*="switchParty('${prefix}'"]`);
-  allTabBtns.forEach(btn => {
-    const match = btn.getAttribute('onclick').match(/switchParty\('.*?','(.*?)'/);
-    if (match && match[1] === data.type) btn.click();
+/** Thu thập toàn bộ extra parties từ multiParty state + DOM values */
+function cpCollectExtras(ns, type) {
+  if (!multiParty[ns] || !multiParty[ns][type]) return [];
+  return multiParty[ns][type].map(p => {
+    const g = id => (document.getElementById(id)?.value || '');
+    const snap = { ptype: p.ptype };
+    if (p.ptype === 'ca_nhan') {
+      snap.ten   = g('ep_'+p.id+'_ten');
+      snap.gt    = g('ep_'+p.id+'_gt');
+      snap.ns    = g('ep_'+p.id+'_ns');
+      snap.cccd  = g('ep_'+p.id+'_cccd');
+      snap.tt    = g('ep_'+p.id+'_tt');
+      snap.ct    = g('ep_'+p.id+'_ct');
+    } else {
+      snap.tc = g('ep_'+p.id+'_tc');
+      snap.dc = g('ep_'+p.id+'_dc');
+      snap.dd = g('ep_'+p.id+'_dd');
+    }
+    return snap;
   });
+}
 
-  if (data.type === 'ca_nhan') {
+/** Áp dụng dữ liệu party chính vào prefix đích */
+function cpApplyMainParty(prefix, data) {
+  if (!data) return;
+  // Switch tab Cá nhân / Tổ chức
+  const targetBtn = document.querySelector(`[onclick*="switchParty('${prefix}','${data.ptype}'"]`);
+  if (targetBtn) targetBtn.click();
+
+  // Điền fields
+  if (data.ptype === 'ca_nhan') {
     ['ten','gt','namsinh','cccd','thuongtru','cutru'].forEach(f => {
-      const el = document.getElementById(prefix+'_'+f);
-      if (el) {
-        el.value = data[f] || '';
-        el.dispatchEvent(new Event('input'));
-        el.dispatchEvent(new Event('change'));
-      }
+      const el = document.getElementById(prefix + '_' + f);
+      if (el) { el.value = data[f] || ''; el.dispatchEvent(new Event('input')); el.dispatchEvent(new Event('change')); }
     });
   } else {
     ['tentochuc','diachi','daidien'].forEach(f => {
-      const el = document.getElementById(prefix+'_'+f);
-      if (el) {
-        el.value = data[f] || '';
-        el.dispatchEvent(new Event('input'));
-        el.dispatchEvent(new Event('change'));
-      }
-    });
-  }
-
-  // Xóa extras cũ rồi thêm lại nếu có
-  const extrasEl = document.getElementById(prefix+'_extras');
-  if (extrasEl && data.extras && data.extras.length > 0) {
-    extrasEl.innerHTML = '';
-    data.extras.forEach(() => {
-      // Gọi addParty để tạo block mới
-      const roleLabel = role === 'nkk' ? 'nkk' : 'nbk';
-      addParty(panelPrefix, roleLabel);
-    });
-    // Điền dữ liệu vào các block mới
-    const blocks = extrasEl.querySelectorAll('.extra-party-block');
-    data.extras.forEach((extraData, idx) => {
-      const block = blocks[idx];
-      if (!block) return;
-      Object.entries(extraData.fields).forEach(([origId, val]) => {
-        // Map id: thay prefix cũ bằng prefix mới
-        const parts = origId.split('_');
-        // id dạng: ap_nkk_extra_0_ten => qd_nkk_extra_0_ten
-        if (parts.length >= 2) {
-          // Thay 2 phần đầu
-          const newId = prefix + '_' + parts.slice(2).join('_');
-          const el = block.querySelector(`[id="${newId}"]`) || block.querySelector(`input:nth-of-type(${idx+1})`);
-          // Thử tìm theo id cuối
-          const shortId = parts[parts.length-1];
-          const candidates = block.querySelectorAll(`input[id*="${shortId}"], select[id*="${shortId}"]`);
-          if (candidates.length === 1) { candidates[0].value = val; }
-          else if (el) { el.value = val; }
-        }
-      });
+      const el = document.getElementById(prefix + '_' + f);
+      if (el) { el.value = data[f] || ''; el.dispatchEvent(new Event('input')); el.dispatchEvent(new Event('change')); }
     });
   }
 }
 
-/**
- * Sao chép NKK + NBK + số đơn + quan hệ tranh chấp từ tab hiện tại
- */
+/** Áp dụng extra parties vào tab đích: xóa cũ, tạo mới theo snapshot */
+function cpApplyExtras(ns, type, snapshots) {
+  if (!snapshots || snapshots.length === 0) {
+    // Xóa hết extra cũ nếu có
+    if (multiParty[ns] && multiParty[ns][type]) {
+      const ids = multiParty[ns][type].map(p => p.id);
+      ids.forEach(id => removeParty(ns, type, id));
+    }
+    return;
+  }
+
+  // Xóa hết extra cũ
+  if (multiParty[ns] && multiParty[ns][type]) {
+    const ids = [...multiParty[ns][type].map(p => p.id)];
+    ids.forEach(id => removeParty(ns, type, id));
+  }
+
+  // Tạo lại từng extra theo snapshot
+  snapshots.forEach(snap => {
+    addParty(ns, type); // thêm block mới (mặc định ca_nhan)
+    const newParty = multiParty[ns][type][multiParty[ns][type].length - 1];
+    const newId = newParty.id;
+
+    // Nếu cần chuyển sang tổ chức
+    if (snap.ptype === 'to_chuc') {
+      const block = document.getElementById('ep_' + newId);
+      if (block) {
+        const toChucBtn = block.querySelector(`[onclick*="'to_chuc'"]`);
+        if (toChucBtn) toChucBtn.click();
+      }
+    }
+
+    // Điền dữ liệu
+    const s = id => { const el = document.getElementById(id); if (el) { el.value = snap[id.split('_').pop()] || ''; el.dispatchEvent(new Event('input')); el.dispatchEvent(new Event('change')); } };
+    if (snap.ptype === 'ca_nhan') {
+      document.getElementById('ep_'+newId+'_ten')  && (document.getElementById('ep_'+newId+'_ten').value  = snap.ten  || '');
+      document.getElementById('ep_'+newId+'_ns')   && (document.getElementById('ep_'+newId+'_ns').value   = snap.ns   || '');
+      document.getElementById('ep_'+newId+'_cccd') && (document.getElementById('ep_'+newId+'_cccd').value = snap.cccd || '');
+      document.getElementById('ep_'+newId+'_tt')   && (document.getElementById('ep_'+newId+'_tt').value   = snap.tt   || '');
+      document.getElementById('ep_'+newId+'_ct')   && (document.getElementById('ep_'+newId+'_ct').value   = snap.ct   || '');
+      const gtEl = document.getElementById('ep_'+newId+'_gt');
+      if (gtEl) { gtEl.value = snap.gt || ''; }
+    } else {
+      document.getElementById('ep_'+newId+'_tc') && (document.getElementById('ep_'+newId+'_tc').value = snap.tc || '');
+      document.getElementById('ep_'+newId+'_dc') && (document.getElementById('ep_'+newId+'_dc').value = snap.dc || '');
+      document.getElementById('ep_'+newId+'_dd') && (document.getElementById('ep_'+newId+'_dd').value = snap.dd || '');
+    }
+  });
+}
+
+/** Sao chép toàn bộ: số đơn, quan hệ TC, NKK, NBK (kể cả extra) */
 function cpCopy(panel) {
-  const nkk = cpCollectParty(panel+'_nkk');
-  const nbk = cpCollectParty(panel+'_nbk');
+  const nkk       = cpCollectMainParty(panel + '_nkk');
+  const nbk       = cpCollectMainParty(panel + '_nbk');
+  const nkkExtras = cpCollectExtras(panel, 'nkk');
+  const nbkExtras = cpCollectExtras(panel, 'nbk');
+  const so     = document.getElementById(panel+'_so')?.value     || '';
+  const quanhe = document.getElementById(panel+'_quanhe')?.value || '';
 
-  // Thu thập số nhận đơn và quan hệ tranh chấp
-  const soEl    = document.getElementById(panel+'_so');
-  const quanheEl = document.getElementById(panel+'_quanhe');
-  const so     = soEl     ? soEl.value     : '';
-  const quanhe = quanheEl ? quanheEl.value : '';
+  cpClipboard = { nkk, nbk, nkkExtras, nbkExtras, so, quanhe, from: panel };
 
-  cpClipboard = { nkk, nbk, so, quanhe, from: panel };
-
-  // Cập nhật tất cả các badge và nút dán
   ['ap','qd','gxn'].forEach(p => {
-    const badge = document.getElementById('cpBadge_'+p);
+    const badge    = document.getElementById('cpBadge_'+p);
     const pasteBtn = document.getElementById('cpPaste_'+p);
     if (badge) {
       badge.style.display = 'inline';
-      const nkkName = nkk.type==='ca_nhan' ? (nkk.ten||'—') : (nkk.tentochuc||'—');
-      const nbkName = nbk.type==='ca_nhan' ? (nbk.ten||'—') : (nbk.tentochuc||'—');
-      badge.textContent = `📋 ${so||'—'} · NKK: ${nkkName.substring(0,14)}${nkkName.length>14?'…':''} · NBK: ${nbkName.substring(0,14)}${nbkName.length>14?'…':''}`;
+      const nkkName = nkk.ptype==='ca_nhan' ? (nkk.ten||'—') : (nkk.tentochuc||'—');
+      const nbkName = nbk.ptype==='ca_nhan' ? (nbk.ten||'—') : (nbk.tentochuc||'—');
+      const extInfo = (nkkExtras.length||nbkExtras.length) ? ` (+${nkkExtras.length+nbkExtras.length} người)` : '';
+      badge.textContent = `📋 ${so||'—'} · NKK: ${nkkName.substring(0,12)}${nkkName.length>12?'…':''} · NBK: ${nbkName.substring(0,12)}${nbkName.length>12?'…':''}${extInfo}`;
     }
     if (pasteBtn) pasteBtn.disabled = false;
   });
 
-  showToast(`✅ Đã sao chép: số đơn, quan hệ TC, NKK + NBK từ tab ${panel.toUpperCase()}`, 'success');
+  const totalPeople = 2 + nkkExtras.length + nbkExtras.length;
+  showToast(`✅ Đã sao chép: ${totalPeople} người, số đơn, quan hệ TC từ tab ${panel.toUpperCase()}`, 'success');
 }
 
-/**
- * Dán NKK + NBK + số đơn + quan hệ tranh chấp vào tab đích
- */
+/** Dán toàn bộ vào tab đích */
 function cpPaste(panel) {
   if (!cpClipboard) { showToast('⚠️ Chưa có dữ liệu sao chép', 'error'); return; }
 
-  // Dán số nhận đơn
+  // Số nhận đơn
   const soEl = document.getElementById(panel+'_so');
-  if (soEl && cpClipboard.so !== undefined) {
-    soEl.value = cpClipboard.so;
-    soEl.dispatchEvent(new Event('input'));
-  }
+  if (soEl) { soEl.value = cpClipboard.so; soEl.dispatchEvent(new Event('input')); }
 
-  // Dán quan hệ tranh chấp
+  // Quan hệ tranh chấp
   const quanheEl = document.getElementById(panel+'_quanhe');
-  if (quanheEl && cpClipboard.quanhe !== undefined) {
-    quanheEl.value = cpClipboard.quanhe;
-    quanheEl.dispatchEvent(new Event('input'));
-  }
+  if (quanheEl) { quanheEl.value = cpClipboard.quanhe; quanheEl.dispatchEvent(new Event('input')); }
 
-  cpApplyParty(panel+'_nkk', cpClipboard.nkk);
-  cpApplyParty(panel+'_nbk', cpClipboard.nbk);
+  // Party chính NKK + NBK
+  cpApplyMainParty(panel+'_nkk', cpClipboard.nkk);
+  cpApplyMainParty(panel+'_nbk', cpClipboard.nbk);
 
-  // Trigger livePreview
+  // Extra parties
+  cpApplyExtras(panel, 'nkk', cpClipboard.nkkExtras);
+  cpApplyExtras(panel, 'nbk', cpClipboard.nbkExtras);
+
   if (typeof livePreview === 'function') livePreview(panel);
 
-  showToast(`✅ Đã dán: số đơn, quan hệ TC, NKK + NBK vào tab ${panel.toUpperCase()}`, 'success');
+  const totalPeople = 2 + (cpClipboard.nkkExtras?.length||0) + (cpClipboard.nbkExtras?.length||0);
+  showToast(`✅ Đã dán: ${totalPeople} người, số đơn, quan hệ TC vào tab ${panel.toUpperCase()}`, 'success');
 }
 
 const JUDGE_LIST = [
@@ -1133,6 +1125,14 @@ const ORG_LIST = [
   {
     name: "Ngân hàng TMCP Đầu tư và Phát triển Việt Nam (BIDV)",
     address: "Tháp BIDV, Số 194 Trần Quang Khải, Phường Hoàn Kiếm, TP Hà Nội"
+  },
+  {
+    name: "Ngân hàng TMCP Hàng Hải Việt Nam (MSB)",
+    address: "Số 54A Nguyễn Chí Thanh, phường Láng, thành phố Hà Nội"
+  },
+  {
+    name: "Ngân hàng TMCP Quốc Tế Việt Nam (VIB)",
+    address: "Tầng 1, 2 Tòa nhà Sailing Tower - 111A Pasteur, phường Bến Nghé, Quận 1, thành phố Hồ Chí Minh"
   }
 ];
 
