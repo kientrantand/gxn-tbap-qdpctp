@@ -2579,19 +2579,19 @@ async function mergeDocxBuffers(buffers){
   const baseZip = new PizZip(buffers[0]);
   let baseXml = baseZip.file('word/document.xml').asText();
 
-  // Tách phần body content (bỏ thẻ <w:body> và </w:body> wrapper)
+  // Tách phần body content, bỏ <w:sectPr> để tránh nhân bản lề/margin
   function extractBodyContent(xml){
-    // Lấy nội dung bên trong <w:body>...</w:body>, bỏ <w:sectPr> cuối
     const bodyMatch = xml.match(/<w:body>([\s\S]*)<\/w:body>/);
     if(!bodyMatch) return '';
     let content = bodyMatch[1];
-    // Bỏ <w:sectPr> cuối cùng (section properties) — sẽ giữ của file base
-    content = content.replace(/<w:sectPr[\s\S]*?<\/w:sectPr>\s*$/, '');
-    return content;
+    // Bỏ <w:sectPr> cuối (có thể nested — dùng greedy từ thẻ mở cuối cùng)
+    const sectPrStart = content.lastIndexOf('<w:sectPr');
+    if(sectPrStart !== -1) content = content.substring(0, sectPrStart);
+    return content.trimEnd();
   }
 
-  // Page break XML để chèn giữa các vụ
-  const pageBreak = `<w:p><w:r><w:br w:type="page"/></w:r></w:p>`;
+  // Page break với spacing=0, jc=left để reset hoàn toàn
+  const pageBreak = `<w:p><w:pPr><w:jc w:val="left"/><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr/><w:br w:type="page"/></w:r></w:p>`;
 
   const baseContent = extractBodyContent(baseXml);
   let mergedContent = baseContent;
