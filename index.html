@@ -123,18 +123,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--navy);background:whit
 input[type=number]{-moz-appearance:textfield;}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 
-/* ══ COPY-PASTE BAR ══ */
-.copy-paste-bar{display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,#eef3ff 0%,#f5f0ff 100%);border:1.5px solid #b8c8f0;border-radius:10px;padding:10px 16px;margin-bottom:16px;flex-wrap:wrap;}
-.copy-paste-bar-label{font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;}
-.copy-paste-bar .cpb-sep{width:1px;height:20px;background:var(--border);margin:0 4px;flex-shrink:0;}
-.btn-cp{padding:6px 13px;border-radius:7px;font-family:'Source Sans 3',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .17s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;}
-.btn-cp-copy{border-color:#3b6fca;color:#3b6fca;background:white;}
-.btn-cp-copy:hover{background:#3b6fca;color:white;}
-.btn-cp-paste{border-color:#7b3fc4;color:#7b3fc4;background:white;}
-.btn-cp-paste:hover{background:#7b3fc4;color:white;}
-.btn-cp-paste:disabled{opacity:.38;cursor:not-allowed;}
-.cp-clipboard-badge{font-size:11px;color:#7b3fc4;background:#f0e8ff;border:1px solid #d8c0f8;border-radius:6px;padding:3px 9px;font-weight:600;margin-left:auto;}
-
 /* ══ EXTRA PARTY BLOCK ══ */
 .extra-party-block{border:1.5px solid var(--border);border-radius:10px;padding:16px 18px;margin-top:14px;background:var(--cream);position:relative;}
 .extra-party-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
@@ -246,7 +234,52 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   margin-top: 30px;
 }
 
-/* ══ IMPORT EXCEL STYLES ══ */
+/* ══ BATCH INPUT PANEL ══ */
+.bi-layout{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start;}
+.bi-sidebar{background:white;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);position:sticky;top:100px;}
+.bi-sidebar-header{background:var(--navy);color:white;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+.bi-sidebar-title{font-size:13px;font-weight:700;letter-spacing:0.04em;}
+.bi-count{background:var(--gold);color:var(--navy);border-radius:20px;padding:2px 10px;font-size:12px;font-weight:800;}
+.bi-list{max-height:520px;overflow-y:auto;}
+.bi-item{padding:12px 16px;border-bottom:1px solid var(--cream-dark);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.bi-item:hover{background:var(--cream);}
+.bi-item.active{background:#eef2ff;border-left:3px solid var(--navy);}
+.bi-item-ma{font-family:monospace;font-size:11px;background:var(--navy);color:var(--gold-light);padding:2px 7px;border-radius:4px;flex-shrink:0;}
+.bi-item-info{flex:1;min-width:0;}
+.bi-item-so{font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bi-item-sub{font-size:11px;color:var(--text-light);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bi-item-del{border:none;background:none;cursor:pointer;color:var(--red);font-size:15px;padding:2px 4px;border-radius:4px;flex-shrink:0;opacity:0.6;}
+.bi-item-del:hover{opacity:1;background:#fff0ee;}
+.bi-empty{padding:32px 16px;text-align:center;color:var(--text-light);font-size:13px;}
+.bi-sidebar-footer{padding:12px 16px;border-top:1px solid var(--cream-dark);display:flex;gap:8px;}
+
+.bi-form{background:white;border:1.5px solid var(--border);border-radius:12px;padding:28px;box-shadow:var(--shadow);}
+.bi-form-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--cream-dark);}
+.bi-form-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--navy);}
+
+.ds-section{border:1.5px solid var(--border);border-radius:10px;padding:16px;margin-top:14px;background:var(--cream);}
+.ds-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.ds-section-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--navy);}
+.ds-person{background:white;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;position:relative;}
+.ds-person-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.ds-person-label{font-size:11px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.05em;}
+.ds-person-type{display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.ds-person-type button{padding:4px 10px;font-size:11px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .12s;}
+.ds-person-type button.active{background:var(--navy);color:white;}
+.ds-person-type button:not(.active){background:var(--cream);color:var(--text-light);}
+.ds-remove{border:none;background:none;cursor:pointer;color:var(--red);font-size:16px;padding:2px;border-radius:4px;}
+.ds-remove:hover{background:#fff0ee;}
+
+.bi-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center;}
+
+.export-tpl-checks{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;}
+.export-tpl-check{display:flex;align-items:center;gap:6px;padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;user-select:none;}
+.export-tpl-check:hover{border-color:var(--navy);color:var(--navy);}
+.export-tpl-check.selected{border-color:var(--navy);background:#eef2ff;color:var(--navy);}
+.export-tpl-check input{accent-color:var(--navy);}
+
+@media(max-width:900px){.bi-layout{grid-template-columns:1fr;}.bi-sidebar{position:static;}}
+
 .import-drop-zone{border:2.5px dashed var(--gold);border-radius:14px;padding:48px 32px;text-align:center;background:#fffdf5;cursor:pointer;transition:all 0.22s;position:relative;}
 .import-drop-zone:hover,.import-drop-zone.drag-over{border-color:var(--navy);background:#f0f4ff;transform:scale(1.01);}
 .import-drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
@@ -427,6 +460,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   <button class="tab-btn" onclick="switchTab(1)">👨‍⚖️ Phân công Thẩm phán</button>
   <button class="tab-btn" onclick="switchTab(2)">📋 Giấy Xác nhận Đơn</button>
   <button class="tab-btn" onclick="switchTab(3)">📊 Import Excel — Xuất hàng loạt</button>
+  <button class="tab-btn" onclick="switchTab(4)">📝 Nhập liệu hàng loạt</button>
 </div>
 
 <div class="main-wrapper">
@@ -475,14 +509,6 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
             </label>
           </div>
         </div>
-      </div>
-
-      <div class="copy-paste-bar" id="cpbar_ap">
-        <span class="copy-paste-bar-label">📋 Sao chép thông tin các bên</span>
-        <div class="cpb-sep"></div>
-        <button class="btn-cp btn-cp-copy" onclick="cpCopy('ap')">📤 Sao chép NKK + NBK</button>
-        <button class="btn-cp btn-cp-paste" id="cpPaste_ap" onclick="cpPaste('ap')" disabled>📥 Dán vào tab này</button>
-        <span class="cp-clipboard-badge" id="cpBadge_ap" style="display:none"></span>
       </div>
 
       <div class="party-grid">
@@ -605,14 +631,6 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         </div>
       </div>
 
-      <div class="copy-paste-bar" id="cpbar_qd">
-        <span class="copy-paste-bar-label">📋 Sao chép thông tin các bên</span>
-        <div class="cpb-sep"></div>
-        <button class="btn-cp btn-cp-copy" onclick="cpCopy('qd')">📤 Sao chép NKK + NBK</button>
-        <button class="btn-cp btn-cp-paste" id="cpPaste_qd" onclick="cpPaste('qd')" disabled>📥 Dán vào tab này</button>
-        <span class="cp-clipboard-badge" id="cpBadge_qd" style="display:none"></span>
-      </div>
-
       <div class="party-grid">
         <div class="card">
           <div class="card-title"><span class="dot"></span>Người khởi kiện [[THONG_TIN_KHOI_KIEN]]</div>
@@ -719,14 +737,6 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
             </label>
           </div>
         </div>
-      </div>
-
-      <div class="copy-paste-bar" id="cpbar_gxn">
-        <span class="copy-paste-bar-label">📋 Sao chép thông tin các bên</span>
-        <div class="cpb-sep"></div>
-        <button class="btn-cp btn-cp-copy" onclick="cpCopy('gxn')">📤 Sao chép NKK + NBK</button>
-        <button class="btn-cp btn-cp-paste" id="cpPaste_gxn" onclick="cpPaste('gxn')" disabled>📥 Dán vào tab này</button>
-        <span class="cp-clipboard-badge" id="cpBadge_gxn" style="display:none"></span>
       </div>
 
       <div class="party-grid">
@@ -885,6 +895,135 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
     </div><!-- /panel3 -->
 
+    <!-- ===== PANEL 4: NHẬP LIỆU HÀNG LOẠT ===== -->
+    <div class="panel" id="panel4">
+      <div class="panel-title">📝 Nhập liệu hàng loạt</div>
+      <div class="panel-desc">Nhập thông tin nhiều vụ án trực tiếp trên phần mềm — không cần Excel. Dữ liệu được lưu tự động.</div>
+
+      <div class="bi-layout">
+        <!-- ── Danh sách vụ án ── -->
+        <div class="bi-sidebar">
+          <div class="bi-sidebar-header">
+            <span class="bi-sidebar-title">Danh sách vụ án</span>
+            <span class="bi-count" id="biCount">0</span>
+          </div>
+          <div class="bi-list" id="biList">
+            <div class="bi-empty" id="biEmpty">Chưa có vụ án nào.<br>Nhấn "＋ Thêm vụ mới" để bắt đầu.</div>
+          </div>
+          <div class="bi-sidebar-footer">
+            <button class="btn btn-primary" style="flex:1;font-size:13px;padding:9px 12px;" onclick="biAddVu()">＋ Thêm vụ mới</button>
+            <button class="btn btn-outline" style="font-size:13px;padding:9px 12px;" onclick="biClearAll()" title="Xóa tất cả">🗑</button>
+          </div>
+        </div>
+
+        <!-- ── Form nhập chi tiết ── -->
+        <div class="bi-form" id="biFormWrap">
+          <div id="biFormEmpty" style="text-align:center;padding:60px 20px;color:var(--text-light);">
+            <div style="font-size:48px;margin-bottom:12px;">📋</div>
+            <div style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:6px;">Chọn vụ án để nhập thông tin</div>
+            <div style="font-size:13px;">hoặc nhấn <strong>＋ Thêm vụ mới</strong> bên trái</div>
+          </div>
+
+          <div id="biFormContent" style="display:none">
+            <div class="bi-form-header">
+              <div class="bi-form-title" id="biFormTitle">Vụ án mới</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn btn-outline" style="font-size:12px;padding:7px 14px;" onclick="biCopyFromPrev()" title="Copy đương sự từ vụ trước">📋 Copy DS từ vụ trước</button>
+                <button class="btn btn-primary" style="font-size:12px;padding:7px 14px;" onclick="biSaveCurrent()">💾 Lưu vụ này</button>
+              </div>
+            </div>
+
+            <!-- Thông tin vụ án -->
+            <div class="card-title" style="margin-bottom:14px;"><span class="dot"></span>Thông tin vụ án</div>
+            <div class="form-row">
+              <div class="form-group"><label>Mã vụ <span class="req">*</span></label><input id="bi_mavu" placeholder="DS001" oninput="biAutoTitle()"></div>
+              <div class="form-group"><label>Số nhận đơn [[SO]]</label><input id="bi_so" placeholder="VD: 01/2025/TLDS"></div>
+              <div class="form-group">
+                <label>Loại vụ</label>
+                <select id="bi_loaivu">
+                  <option value="DS">Vụ án Dân sự (DS)</option>
+                  <option value="VDS">Việc Dân sự (VDS)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Phương thức gửi [[PHUONG_THUC]]</label>
+                <select id="bi_phuongthuc">
+                  <option value="truc_tiep">Nộp trực tiếp</option>
+                  <option value="buu_dien">Qua bưu điện</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group full"><label>Quan hệ pháp luật [[QHPL_DS]]</label><input id="bi_qhpl" placeholder="VD: Tranh chấp hợp đồng tín dụng"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Ngày làm đơn [[NGAY_LAM_DON]]</label><input type="text" id="bi_ngaylam" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this)"></div>
+              <div class="form-group"><label>Ngày nhận đơn [[NGAY_NHAN_DON]] — GXN</label><input type="text" id="bi_ngaynhan" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this)"></div>
+              <div class="form-group"><label>NH Thông báo [[NGAY_BAN_HANH_TB]] — TB_AP</label><input type="text" id="bi_ngaybanhanh_tb" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this)"></div>
+              <div class="form-group"><label>NH QĐ Phân công [[NGAY_BAN_HANH_QD]] — QD</label><input type="text" id="bi_ngaybanhanh_qd" placeholder="dd/mm/yyyy" maxlength="10" oninput="fmtDateInput(this)"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Giá trị tài sản / Án phí</label>
+                <input id="bi_giatri" placeholder='Số tiền VD: 500000000 hoặc "mien"' oninput="formatMoneyInput(this)">
+              </div>
+              <div class="form-group">
+                <label>Thẩm phán [[THAM_PHAN]]</label>
+                <select id="bi_thamphan">
+                  <option value="">-- Chọn Thẩm phán --</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Người khởi kiện -->
+            <div class="ds-section">
+              <div class="ds-section-header">
+                <span class="ds-section-title">👤 Người khởi kiện (NKK)</span>
+                <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="biAddPerson('nkk')">＋ Thêm NKK</button>
+              </div>
+              <div id="bi_nkk_list"></div>
+            </div>
+
+            <!-- Người bị kiện -->
+            <div class="ds-section">
+              <div class="ds-section-header">
+                <span class="ds-section-title">👤 Người bị kiện (NBK)</span>
+                <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="biAddPerson('nbk')">＋ Thêm NBK</button>
+              </div>
+              <div id="bi_nbk_list"></div>
+            </div>
+
+            <!-- Xuất văn bản -->
+            <div style="margin-top:20px;padding:16px;background:var(--cream-dark);border-radius:10px;border:1px solid var(--border);">
+              <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);margin-bottom:10px;">📥 Xuất văn bản cho vụ này</div>
+              <div class="export-tpl-checks">
+                <label class="export-tpl-check" id="bi_opt_TB_AP" onclick="this.classList.toggle('selected');this.querySelector('input').checked=this.classList.contains('selected')">
+                  <input type="checkbox" onclick="event.stopPropagation()"> 💰 Thông báo Án phí
+                </label>
+                <label class="export-tpl-check" id="bi_opt_GXN" onclick="this.classList.toggle('selected');this.querySelector('input').checked=this.classList.contains('selected')">
+                  <input type="checkbox" onclick="event.stopPropagation()"> 📋 Giấy Xác nhận Đơn
+                </label>
+                <label class="export-tpl-check" id="bi_opt_QD" onclick="this.classList.toggle('selected');this.querySelector('input').checked=this.classList.contains('selected')">
+                  <input type="checkbox" onclick="event.stopPropagation()"> ⚖️ QĐ Phân công
+                </label>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="biExportCurrent()" style="font-size:13px;">📥 Xuất vụ này</button>
+                <button class="btn btn-outline" onclick="biExportAll()" style="font-size:13px;">📥 Xuất tất cả vụ án</button>
+              </div>
+            </div>
+
+            <!-- Progress -->
+            <div id="bi_progressCard" style="display:none;margin-top:16px;">
+              <div style="font-size:13px;color:var(--text-light);margin-bottom:8px;" id="bi_progressText">Đang xử lý...</div>
+              <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bi_progressBar" style="width:0%"></div></div>
+              <div class="import-result-list" id="bi_resultList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /panel4 -->
+
   </div><!-- đóng main -->
 </div> <!-- đóng main-wrapper -->
 
@@ -915,176 +1054,6 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 <script>
 // ===================== STATE =====================
 const state = { ap:{type:'DS'}, qd:{type:'DS'}, gxn:{type:'DS'} };
-
-// ===================== COPY-PASTE PARTIES =====================
-let cpClipboard = null;
-
-/** Thu thập dữ liệu party chính (người thứ 1) từ prefix như "ap_nkk" */
-function cpCollectMainParty(prefix) {
-  const caNhanDiv = document.getElementById(prefix + '_ca_nhan');
-  const ptype = (caNhanDiv && caNhanDiv.style.display !== 'none') ? 'ca_nhan' : 'to_chuc';
-  const d = { ptype };
-  if (ptype === 'ca_nhan') {
-    ['ten','gt','namsinh','cccd','thuongtru','cutru'].forEach(f => {
-      const el = document.getElementById(prefix + '_' + f);
-      d[f] = el ? el.value : '';
-    });
-  } else {
-    ['tentochuc','diachi','daidien'].forEach(f => {
-      const el = document.getElementById(prefix + '_' + f);
-      d[f] = el ? el.value : '';
-    });
-  }
-  return d;
-}
-
-/** Thu thập toàn bộ extra parties từ multiParty state + DOM values */
-function cpCollectExtras(ns, type) {
-  if (!multiParty[ns] || !multiParty[ns][type]) return [];
-  return multiParty[ns][type].map(p => {
-    const g = id => (document.getElementById(id)?.value || '');
-    const snap = { ptype: p.ptype };
-    if (p.ptype === 'ca_nhan') {
-      snap.ten   = g('ep_'+p.id+'_ten');
-      snap.gt    = g('ep_'+p.id+'_gt');
-      snap.ns    = g('ep_'+p.id+'_ns');
-      snap.cccd  = g('ep_'+p.id+'_cccd');
-      snap.tt    = g('ep_'+p.id+'_tt');
-      snap.ct    = g('ep_'+p.id+'_ct');
-    } else {
-      snap.tc = g('ep_'+p.id+'_tc');
-      snap.dc = g('ep_'+p.id+'_dc');
-      snap.dd = g('ep_'+p.id+'_dd');
-    }
-    return snap;
-  });
-}
-
-/** Áp dụng dữ liệu party chính vào prefix đích */
-function cpApplyMainParty(prefix, data) {
-  if (!data) return;
-  // Switch tab Cá nhân / Tổ chức
-  const targetBtn = document.querySelector(`[onclick*="switchParty('${prefix}','${data.ptype}'"]`);
-  if (targetBtn) targetBtn.click();
-
-  // Điền fields
-  if (data.ptype === 'ca_nhan') {
-    ['ten','gt','namsinh','cccd','thuongtru','cutru'].forEach(f => {
-      const el = document.getElementById(prefix + '_' + f);
-      if (el) { el.value = data[f] || ''; el.dispatchEvent(new Event('input')); el.dispatchEvent(new Event('change')); }
-    });
-  } else {
-    ['tentochuc','diachi','daidien'].forEach(f => {
-      const el = document.getElementById(prefix + '_' + f);
-      if (el) { el.value = data[f] || ''; el.dispatchEvent(new Event('input')); el.dispatchEvent(new Event('change')); }
-    });
-  }
-}
-
-/** Áp dụng extra parties vào tab đích: xóa cũ, tạo mới theo snapshot */
-function cpApplyExtras(ns, type, snapshots) {
-  if (!snapshots || snapshots.length === 0) {
-    // Xóa hết extra cũ nếu có
-    if (multiParty[ns] && multiParty[ns][type]) {
-      const ids = multiParty[ns][type].map(p => p.id);
-      ids.forEach(id => removeParty(ns, type, id));
-    }
-    return;
-  }
-
-  // Xóa hết extra cũ
-  if (multiParty[ns] && multiParty[ns][type]) {
-    const ids = [...multiParty[ns][type].map(p => p.id)];
-    ids.forEach(id => removeParty(ns, type, id));
-  }
-
-  // Tạo lại từng extra theo snapshot
-  snapshots.forEach(snap => {
-    addParty(ns, type); // thêm block mới (mặc định ca_nhan)
-    const newParty = multiParty[ns][type][multiParty[ns][type].length - 1];
-    const newId = newParty.id;
-
-    // Nếu cần chuyển sang tổ chức
-    if (snap.ptype === 'to_chuc') {
-      const block = document.getElementById('ep_' + newId);
-      if (block) {
-        const toChucBtn = block.querySelector(`[onclick*="'to_chuc'"]`);
-        if (toChucBtn) toChucBtn.click();
-      }
-    }
-
-    // Điền dữ liệu
-    const s = id => { const el = document.getElementById(id); if (el) { el.value = snap[id.split('_').pop()] || ''; el.dispatchEvent(new Event('input')); el.dispatchEvent(new Event('change')); } };
-    if (snap.ptype === 'ca_nhan') {
-      document.getElementById('ep_'+newId+'_ten')  && (document.getElementById('ep_'+newId+'_ten').value  = snap.ten  || '');
-      document.getElementById('ep_'+newId+'_ns')   && (document.getElementById('ep_'+newId+'_ns').value   = snap.ns   || '');
-      document.getElementById('ep_'+newId+'_cccd') && (document.getElementById('ep_'+newId+'_cccd').value = snap.cccd || '');
-      document.getElementById('ep_'+newId+'_tt')   && (document.getElementById('ep_'+newId+'_tt').value   = snap.tt   || '');
-      document.getElementById('ep_'+newId+'_ct')   && (document.getElementById('ep_'+newId+'_ct').value   = snap.ct   || '');
-      const gtEl = document.getElementById('ep_'+newId+'_gt');
-      if (gtEl) { gtEl.value = snap.gt || ''; }
-    } else {
-      document.getElementById('ep_'+newId+'_tc') && (document.getElementById('ep_'+newId+'_tc').value = snap.tc || '');
-      document.getElementById('ep_'+newId+'_dc') && (document.getElementById('ep_'+newId+'_dc').value = snap.dc || '');
-      document.getElementById('ep_'+newId+'_dd') && (document.getElementById('ep_'+newId+'_dd').value = snap.dd || '');
-    }
-  });
-}
-
-/** Sao chép toàn bộ: số đơn, quan hệ TC, NKK, NBK (kể cả extra) */
-function cpCopy(panel) {
-  const nkk       = cpCollectMainParty(panel + '_nkk');
-  const nbk       = cpCollectMainParty(panel + '_nbk');
-  const nkkExtras = cpCollectExtras(panel, 'nkk');
-  const nbkExtras = cpCollectExtras(panel, 'nbk');
-  const so     = document.getElementById(panel+'_so')?.value     || '';
-  const quanhe = document.getElementById(panel+'_quanhe')?.value || '';
-
-  cpClipboard = { nkk, nbk, nkkExtras, nbkExtras, so, quanhe, from: panel };
-
-  ['ap','qd','gxn'].forEach(p => {
-    const badge    = document.getElementById('cpBadge_'+p);
-    const pasteBtn = document.getElementById('cpPaste_'+p);
-    if (badge) {
-      badge.style.display = 'inline';
-      const nkkName = nkk.ptype==='ca_nhan' ? (nkk.ten||'—') : (nkk.tentochuc||'—');
-      const nbkName = nbk.ptype==='ca_nhan' ? (nbk.ten||'—') : (nbk.tentochuc||'—');
-      const extInfo = (nkkExtras.length||nbkExtras.length) ? ` (+${nkkExtras.length+nbkExtras.length} người)` : '';
-      badge.textContent = `📋 ${so||'—'} · NKK: ${nkkName.substring(0,12)}${nkkName.length>12?'…':''} · NBK: ${nbkName.substring(0,12)}${nbkName.length>12?'…':''}${extInfo}`;
-    }
-    if (pasteBtn) pasteBtn.disabled = false;
-  });
-
-  const totalPeople = 2 + nkkExtras.length + nbkExtras.length;
-  showToast(`✅ Đã sao chép: ${totalPeople} người, số đơn, quan hệ TC từ tab ${panel.toUpperCase()}`, 'success');
-}
-
-/** Dán toàn bộ vào tab đích */
-function cpPaste(panel) {
-  if (!cpClipboard) { showToast('⚠️ Chưa có dữ liệu sao chép', 'error'); return; }
-
-  // Số nhận đơn
-  const soEl = document.getElementById(panel+'_so');
-  if (soEl) { soEl.value = cpClipboard.so; soEl.dispatchEvent(new Event('input')); }
-
-  // Quan hệ tranh chấp
-  const quanheEl = document.getElementById(panel+'_quanhe');
-  if (quanheEl) { quanheEl.value = cpClipboard.quanhe; quanheEl.dispatchEvent(new Event('input')); }
-
-  // Party chính NKK + NBK
-  cpApplyMainParty(panel+'_nkk', cpClipboard.nkk);
-  cpApplyMainParty(panel+'_nbk', cpClipboard.nbk);
-
-  // Extra parties
-  cpApplyExtras(panel, 'nkk', cpClipboard.nkkExtras);
-  cpApplyExtras(panel, 'nbk', cpClipboard.nbkExtras);
-
-  if (typeof livePreview === 'function') livePreview(panel);
-
-  const totalPeople = 2 + (cpClipboard.nkkExtras?.length||0) + (cpClipboard.nbkExtras?.length||0);
-  showToast(`✅ Đã dán: ${totalPeople} người, số đơn, quan hệ TC vào tab ${panel.toUpperCase()}`, 'success');
-}
-
 const JUDGE_LIST = [
   "Nguyễn Minh Tuấn",
   "Vũ Văn Trường",
@@ -1104,7 +1073,7 @@ const JUDGE_LIST = [
 const ORG_LIST = [
   {
     name: "Ngân hàng Thương mại cổ phần Việt Nam Thịnh Vượng",
-    address: "Số 89 Láng Hạ, phường Đống Đa, thành phố Hà Nội"
+    address: "Số 89 Láng Hạ, phường Láng Hạ, thành phố Hà Nội"
   },
   {
     name: "Công ty cổ phần MARS",
@@ -1125,14 +1094,6 @@ const ORG_LIST = [
   {
     name: "Ngân hàng TMCP Đầu tư và Phát triển Việt Nam (BIDV)",
     address: "Tháp BIDV, Số 194 Trần Quang Khải, Phường Hoàn Kiếm, TP Hà Nội"
-  },
-  {
-    name: "Ngân hàng TMCP Hàng Hải Việt Nam (MSB)",
-    address: "Số 54A Nguyễn Chí Thanh, phường Láng, thành phố Hà Nội"
-  },
-  {
-    name: "Ngân hàng TMCP Quốc Tế Việt Nam (VIB)",
-    address: "Tầng 1, 2 Tòa nhà Sailing Tower - 111A Pasteur, phường Bến Nghé, Quận 1, thành phố Hồ Chí Minh"
   }
 ];
 
@@ -1470,7 +1431,7 @@ function buildPH(ns){
   };
   if(type==='VDS') ph.QHPL_VDS = g(p+'quanhe');
   else             ph.QHPL_DS  = g(p+'quanhe');
-  if(ns==='qd') ph.THAM_PHAN = g('qd_thamPhan') || '......................................................';
+  if(ns==='qd') ph.THAM_PHAN = g('qd_thamPhan') || '..................';
   if(ns==='ap'){
     const t = getTienAP();
     ph.TIEN_AP         = t ? fmtVND(t)     : '';
@@ -2101,7 +2062,7 @@ function parseExcelBuffer(buf){
     const person = {
       loai,
       ten: (r[3]||'').trim(),
-      ngay_sinh: r[4],
+      ngay_sinh: formatExcelDate(r[4]),  // parse serial/date → dd/mm/yyyy string
       cccd: r[5] ? String(r[5]).trim() : '',
       thuong_tru: (r[6]||'').trim(),
       cu_tru: (r[7]||'').trim(),
@@ -2279,13 +2240,7 @@ function buildPHFromVuAn(vuAn, tplType){
     } else {
       // ca nhan
       const gt = (p.gioi_tinh||'').toLowerCase();
-      let sinhRaw = '';
-      if(p.ngay_sinh){
-        if(p.ngay_sinh instanceof Date){
-          const d=p.ngay_sinh.getDate(), m=p.ngay_sinh.getMonth()+1, y=p.ngay_sinh.getFullYear();
-          sinhRaw = `${d}/${m}/${y}`;
-        } else sinhRaw = String(p.ngay_sinh);
-      }
+      const sinhRaw = String(p.ngay_sinh||'').trim();
       const xh = getXungHo(gt==='nam'?'nam':gt==='nữ'||gt==='nu'?'nu':'', sinhRaw);
       let s = xh+' '+p.ten;
       const sinh = parseSinh(sinhRaw); if(sinh) s+='; '+sinh;
@@ -2300,11 +2255,7 @@ function buildPHFromVuAn(vuAn, tplType){
   function buildNameShort(p){
     if(p.loai==='to_chuc') return p.ten;
     const gt=(p.gioi_tinh||'').toLowerCase();
-    let sinhRaw='';
-    if(p.ngay_sinh){
-      if(p.ngay_sinh instanceof Date){const d=p.ngay_sinh.getDate(),m=p.ngay_sinh.getMonth()+1,y=p.ngay_sinh.getFullYear();sinhRaw=`${d}/${m}/${y}`;}
-      else sinhRaw=String(p.ngay_sinh);
-    }
+    const sinhRaw=String(p.ngay_sinh||'').trim();
     return getXungHo(gt==='nam'?'nam':gt==='nữ'||gt==='nu'?'nu':'', sinhRaw)+' '+p.ten;
   }
 
@@ -2335,7 +2286,7 @@ function buildPHFromVuAn(vuAn, tplType){
     NGAY_BAN_HANH_QD:    isQD ? fmtDate(vuAn.ngayBanHanhQD) : '',
     QUY_DOI_BAN_HANH_QD: isQD ? fmtDateLong(vuAn.ngayBanHanhQD) : '',
     QHPL_DS: vuAn.qhpl||'',
-    THAM_PHAN: vuAn.thamPhan||'......................................................',
+    THAM_PHAN: vuAn.thamPhan||'..................',
     THONG_TIN_KHOI_KIEN: formatList(nkkList),
     THONG_TIN_BI_KIEN: formatList(nbkList),
     TEN_KHOI_KIEN: joinNames(nkkNames),
@@ -2506,7 +2457,7 @@ async function startBatchExport(){
   }
 
   // ══════════════════════════════════════════════════════════════
-  // BƯỚC 3: XUẤT FILE
+  // BƯỚC 3: RENDER TỪNG VĂN BẢN, GOM THEO tplName, GHÉP 1 FILE DUY NHẤT
   // ══════════════════════════════════════════════════════════════
   const btn = document.getElementById('importExportBtn');
   btn.disabled=true;
@@ -2515,71 +2466,601 @@ async function startBatchExport(){
   document.getElementById('importResultList').innerHTML='';
   document.getElementById('importProgressBar').style.width='0%';
 
-  let done=0, errors=0;
   const resultEl = document.getElementById('importResultList');
 
+  // Nhóm task theo tplName: { 'GXN_DS': [{vuAn,tplType},...], ... }
+  const grouped = {};
   for(const task of tasks){
-    const {vuAn, tplType} = task;
-    const tplName = getTplNameForVuAn(vuAn, tplType);
+    const tplName = getTplNameForVuAn(task.vuAn, task.tplType);
+    if(!grouped[tplName]) grouped[tplName]=[];
+    grouped[tplName].push(task);
+  }
+
+  const tplNames = Object.keys(grouped);
+  let doneGroups=0, errors=0;
+
+  for(const tplName of tplNames){
+    const groupTasks = grouped[tplName];
     document.getElementById('importProgressText').textContent =
-      `Đang xuất: ${tplName} — ${vuAn.maVu} (${vuAn.soNhanDon||'—'})`;
+      `Đang xử lý: ${tplName} (${groupTasks.length} vụ)...`;
 
     try{
-      const ph = buildPHFromVuAn(vuAn, tplType);
-      const safePH={};
-      for(const [k,v] of Object.entries(ph)){
-        safePH[k] = typeof v==='string' ? v.replace(/\r/g,'').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g,'') : v;
-      }
-
+      // Fetch template 1 lần
       const res = await fetch('templates/'+tplName+'.docx');
       if(!res.ok) throw new Error('Không tìm thấy templates/'+tplName+'.docx');
-      const arrayBuf = await res.arrayBuffer();
+      const tplBuf = await res.arrayBuffer();
 
-      const zip = new PizZip(arrayBuf);
-      const doc = new window.docxtemplater(zip, {
-        paragraphLoop:true, linebreaks:true,
-        delimiters:{start:'[[',end:']]'}, nullGetter(){return '';}
-      });
-      doc.setData(safePH);
-      doc.render();
-      postProcessDocx(doc.getZip());
-      const outBuf = doc.getZip().generate({
-        type:'arraybuffer',
-        mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        compression:'DEFLATE'
-      });
-      const blob = new Blob([outBuf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-      const fileName = buildImportFileName(vuAn, tplName);
-      await saveBlobToFolder(tplName, blob, fileName);
+      // Render từng vụ → thu thập mảng ArrayBuffer
+      const renderedBufs = [];
+      for(const {vuAn, tplType} of groupTasks){
+        try{
+          const ph = buildPHFromVuAn(vuAn, tplType);
+          const safePH={};
+          for(const [k,v] of Object.entries(ph))
+            safePH[k]=typeof v==='string'?v.replace(/\r/g,'').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g,''):v;
 
-      done++;
+          const zip = new PizZip(tplBuf.slice(0)); // slice để clone buffer
+          const doc = new window.docxtemplater(zip,{
+            paragraphLoop:true, linebreaks:true,
+            delimiters:{start:'[[',end:']]'}, nullGetter(){return '';}
+          });
+          doc.setData(safePH); doc.render();
+          postProcessDocx(doc.getZip());
+          renderedBufs.push(doc.getZip().generate({type:'arraybuffer',compression:'DEFLATE'}));
+        }catch(err){
+          errors++;
+          resultEl.insertAdjacentHTML('beforeend',`
+            <div class="import-result-item err">
+              <span class="ir-icon">❌</span>
+              <span class="ir-name">${tplName} — ${vuAn.maVu}</span>
+              <span class="ir-detail">${err.message}</span>
+            </div>`);
+        }
+      }
+
+      if(renderedBufs.length===0) continue;
+
+      // Ghép nhiều docx thành 1 bằng cách nối body XML
+      const mergedBuf = await mergeDocxBuffers(renderedBufs);
+      const blob = new Blob([mergedBuf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+      const mergedFileName = `${tplName}_${groupTasks.length}vu.docx`;
+      await saveBlobToFolder(tplName, blob, mergedFileName);
+
+      doneGroups++;
       resultEl.insertAdjacentHTML('beforeend',`
         <div class="import-result-item ok">
           <span class="ir-icon">✅</span>
-          <span class="ir-name">${fileName}</span>
-          <span class="ir-detail">${vuAn.maVu}</span>
+          <span class="ir-name">${mergedFileName}</span>
+          <span class="ir-detail">${groupTasks.length} vụ án đã gộp</span>
         </div>`);
     }catch(err){
       errors++;
       resultEl.insertAdjacentHTML('beforeend',`
         <div class="import-result-item err">
           <span class="ir-icon">❌</span>
-          <span class="ir-name">${tplName} — ${vuAn.maVu}</span>
+          <span class="ir-name">${tplName}</span>
           <span class="ir-detail">${err.message}</span>
         </div>`);
-      console.error(`[ImportExport] ${tplName} ${vuAn.maVu}:`, err);
     }
 
-    const pct = Math.round(((done+errors)/tasks.length)*100);
+    const pct = Math.round(((doneGroups+errors)/tplNames.length)*100);
     document.getElementById('importProgressBar').style.width = pct+'%';
   }
 
-  const skipNote = skipped.length ? ` · ⏭ ${skipped.length} bỏ qua` : '';
   document.getElementById('importProgressText').textContent =
-    `Hoàn tất! ✅ ${done} thành công${errors?` · ❌ ${errors} lỗi`:''}${skipNote}`;
-  showToast(`✅ Xuất xong: ${done}/${tasks.length} văn bản`+(errors?` (${errors} lỗi)`:''),'success');
+    `Hoàn tất! ✅ ${doneGroups} file đã xuất${errors?` · ❌ ${errors} lỗi`:''}`;
+  showToast(`✅ Xuất xong: ${doneGroups} file (mỗi loại gộp chung)`+(errors?` · ${errors} lỗi`:''),'success');
   btn.disabled=false;
 }
-</script>
+
+// ── Ghép nhiều ArrayBuffer docx thành 1 file docx duy nhất ──
+// Kỹ thuật: lấy body XML từng file, nối lại với page break ở giữa
+async function mergeDocxBuffers(buffers){
+  if(buffers.length===1) return buffers[0];
+
+  // Parse file đầu làm base
+  const baseZip = new PizZip(buffers[0]);
+  let baseXml = baseZip.file('word/document.xml').asText();
+
+  // Tách phần body content (bỏ thẻ <w:body> và </w:body> wrapper)
+  function extractBodyContent(xml){
+    // Lấy nội dung bên trong <w:body>...</w:body>, bỏ <w:sectPr> cuối
+    const bodyMatch = xml.match(/<w:body>([\s\S]*)<\/w:body>/);
+    if(!bodyMatch) return '';
+    let content = bodyMatch[1];
+    // Bỏ <w:sectPr> cuối cùng (section properties) — sẽ giữ của file base
+    content = content.replace(/<w:sectPr[\s\S]*?<\/w:sectPr>\s*$/, '');
+    return content;
+  }
+
+  // Page break XML để chèn giữa các vụ
+  const pageBreak = `<w:p><w:r><w:br w:type="page"/></w:r></w:p>`;
+
+  const baseContent = extractBodyContent(baseXml);
+  let mergedContent = baseContent;
+
+  // Gộp từ file thứ 2 trở đi
+  for(let i=1; i<buffers.length; i++){
+    const zip = new PizZip(buffers[i]);
+    const xml = zip.file('word/document.xml').asText();
+
+    // Copy relationships và media từ file phụ vào base (bỏ qua nếu trùng)
+    try{
+      const relXml = zip.file('word/_rels/document.xml.rels')?.asText()||'';
+      const baseRelXml = baseZip.file('word/_rels/document.xml.rels')?.asText()||'';
+      // Merge relationships nếu cần (chủ yếu cho images - bỏ qua nếu chỉ có text)
+    }catch(e){}
+
+    const content = extractBodyContent(xml);
+    if(content) mergedContent += pageBreak + content;
+  }
+
+  // Ghép lại vào baseXml
+  const mergedXml = baseXml.replace(
+    /<w:body>[\s\S]*<\/w:body>/,
+    `<w:body>${mergedContent}</w:body>`
+  );
+
+  baseZip.file('word/document.xml', mergedXml);
+  return baseZip.generate({
+    type:'arraybuffer',
+    mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    compression:'DEFLATE'
+  });
+}
+// ══════════════════════════════════════════════════════════════
+// BATCH INPUT — Tab 4: Nhập liệu hàng loạt
+// Lưu bền vững qua window.storage
+// Cấu trúc dữ liệu: biVuAns = [{id, maVu, soNhanDon, loaiVu, qhpl, phuongThuc,
+//   ngayLam, ngayNhan, ngayBanHanhTB, ngayBanHanhQD, giaTriTs, thamPhan,
+//   duongSu:{nkk:[{loai,ten,sinh,cccd,tt,ct,gt,dc,dd}...], nbk:[...]}}]
+// ══════════════════════════════════════════════════════════════
+
+let biVuAns = [];      // mảng vụ án
+let biCurrentId = null; // id vụ đang edit
+let biPersonCounters = {nkk:0, nbk:0};
+
+const BI_STORAGE_KEY = 'batch_input_vuan';
+
+// ── Load dữ liệu từ storage khi khởi động ──
+async function biLoadStorage(){
+  try{
+    const r = await window.storage.get(BI_STORAGE_KEY);
+    if(r && r.value){
+      biVuAns = JSON.parse(r.value);
+      biRenderList();
+    }
+  }catch(e){ biVuAns=[]; }
+}
+
+async function biSaveStorage(){
+  try{
+    await window.storage.set(BI_STORAGE_KEY, JSON.stringify(biVuAns));
+  }catch(e){ console.warn('Storage save failed',e); }
+}
+
+// ── Load thẩm phán vào select ──
+function biLoadJudges(){
+  const sel = document.getElementById('bi_thamphan');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">-- Chọn Thẩm phán --</option>' +
+    JUDGE_LIST.map(n=>`<option value="${n}">${n}</option>`).join('');
+}
+
+// ── Render danh sách bên trái ──
+function biRenderList(){
+  const list = document.getElementById('biList');
+  const empty = document.getElementById('biEmpty');
+  const count = document.getElementById('biCount');
+  count.textContent = biVuAns.length;
+
+  if(biVuAns.length === 0){
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  list.innerHTML = biVuAns.map(v=>{
+    const nkkNames = (v.duongSu?.nkk||[]).map(p=>p.ten||p.tentochuc).filter(Boolean).join(', ');
+    const isActive = v.id === biCurrentId;
+    return `<div class="bi-item${isActive?' active':''}" onclick="biSelectVu('${v.id}')">
+      <span class="bi-item-ma">${v.maVu||'—'}</span>
+      <div class="bi-item-info">
+        <div class="bi-item-so">${v.soNhanDon||'Chưa có số'}</div>
+        <div class="bi-item-sub">${nkkNames||'Chưa nhập đương sự'}</div>
+      </div>
+      <button class="bi-item-del" onclick="event.stopPropagation();biDeleteVu('${v.id}')" title="Xóa">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ── Thêm vụ mới ──
+function biAddVu(){
+  const id = 'vu_'+Date.now();
+  const newVu = {
+    id, maVu:'', soNhanDon:'', loaiVu:'DS', qhpl:'', phuongThuc:'truc_tiep',
+    ngayLam:'', ngayNhan:'', ngayBanHanhTB:'', ngayBanHanhQD:'',
+    giaTriTs:'', thamPhan:'',
+    duongSu:{ nkk:[{id:'p'+Date.now(),loai:'ca_nhan',ten:'',sinh:'',cccd:'',tt:'',ct:'',gt:'',dc:'',dd:'',tentochuc:''}],
+              nbk:[{id:'p'+(Date.now()+1),loai:'ca_nhan',ten:'',sinh:'',cccd:'',tt:'',ct:'',gt:'',dc:'',dd:'',tentochuc:''}] }
+  };
+  biVuAns.push(newVu);
+  biRenderList();
+  biSelectVu(id);
+}
+
+// ── Chọn vụ để edit ──
+function biSelectVu(id){
+  // Lưu vụ hiện tại trước khi chuyển
+  if(biCurrentId && biCurrentId !== id) biSaveCurrent(true);
+
+  biCurrentId = id;
+  const vu = biVuAns.find(v=>v.id===id);
+  if(!vu) return;
+
+  document.getElementById('biFormEmpty').style.display='none';
+  document.getElementById('biFormContent').style.display='block';
+
+  // Điền dữ liệu vào form
+  const g = (id,val)=>{ const el=document.getElementById(id); if(el) el.value=val||''; };
+  g('bi_mavu', vu.maVu);
+  g('bi_so', vu.soNhanDon);
+  g('bi_loaivu', vu.loaiVu);
+  g('bi_phuongthuc', vu.phuongThuc);
+  g('bi_qhpl', vu.qhpl);
+  g('bi_ngaylam', vu.ngayLam);
+  g('bi_ngaynhan', vu.ngayNhan);
+  g('bi_ngaybanhanh_tb', vu.ngayBanHanhTB);
+  g('bi_ngaybanhanh_qd', vu.ngayBanHanhQD);
+  g('bi_giatri', vu.giaTriTs);
+  g('bi_thamphan', vu.thamPhan);
+
+  biFormTitle();
+
+  // Render đương sự
+  biRenderPersons('nkk', vu.duongSu.nkk||[]);
+  biRenderPersons('nbk', vu.duongSu.nbk||[]);
+
+  biRenderList();
+}
+
+function biFormTitle(){
+  const ma = document.getElementById('bi_mavu')?.value || 'Vụ án mới';
+  const so = document.getElementById('bi_so')?.value;
+  document.getElementById('biFormTitle').textContent = so ? `${ma} — ${so}` : ma;
+}
+function biAutoTitle(){ biFormTitle(); }
+
+// ── Render danh sách người trong 1 vai trò ──
+function biRenderPersons(role, persons){
+  const container = document.getElementById(`bi_${role}_list`);
+  container.innerHTML = '';
+  persons.forEach(p => biAppendPersonEl(role, p));
+}
+
+function biAppendPersonEl(role, p){
+  const container = document.getElementById(`bi_${role}_list`);
+  const isCN = p.loai !== 'to_chuc';
+  const div = document.createElement('div');
+  div.className = 'ds-person';
+  div.dataset.pid = p.id;
+  div.innerHTML = `
+    <div class="ds-person-header">
+      <span class="ds-person-label">${role==='nkk'?'Người khởi kiện':'Người bị kiện'} #${container.children.length+1}</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div class="ds-person-type">
+          <button class="${isCN?'active':''}" onclick="biSwitchPersonType(this,'ca_nhan','${p.id}','${role}')">Cá nhân</button>
+          <button class="${!isCN?'active':''}" onclick="biSwitchPersonType(this,'to_chuc','${p.id}','${role}')">Tổ chức</button>
+        </div>
+        <button class="ds-remove" onclick="biRemovePerson('${role}','${p.id}')" title="Xóa">✕</button>
+      </div>
+    </div>
+    <div data-cn style="${isCN?'':'display:none'}">
+      <div class="form-row">
+        <div class="form-group full"><label>Họ và tên</label><input data-f="ten" placeholder="Nguyễn Văn A" value="${p.ten||''}"></div>
+        <div class="form-group"><label>Giới tính</label>
+          <select data-f="gt">
+            <option value="">-- Chọn --</option>
+            <option value="nam"${p.gt==='nam'?' selected':''}>Nam</option>
+            <option value="nu"${p.gt==='nu'?' selected':''}>Nữ</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Năm/Ngày sinh</label><input data-f="sinh" placeholder="1990 hoặc 10/01/1990" value="${p.sinh||''}"></div>
+        <div class="form-group"><label>Số CCCD</label><input data-f="cccd" placeholder="Để trống nếu không có" value="${p.cccd||''}"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full"><label>Nơi đăng ký thường trú</label><input data-f="tt" placeholder="Địa chỉ thường trú..." value="${p.tt||''}"></div>
+        <div class="form-group full"><label>Nơi cư trú hiện tại</label><input data-f="ct" placeholder="Để trống nếu giống thường trú" value="${p.ct||''}"></div>
+      </div>
+    </div>
+    <div data-tc style="${!isCN?'':'display:none'}">
+      <div class="form-row">
+        <div class="form-group full"><label>Tên tổ chức</label><input data-f="tentochuc" placeholder="Công ty TNHH..." value="${p.tentochuc||''}"></div>
+        <div class="form-group full"><label>Địa chỉ trụ sở</label><input data-f="dc" placeholder="Số nhà, đường, phường, tỉnh..." value="${p.dc||''}"></div>
+        <div class="form-group full"><label>Người đại diện pháp luật</label><input data-f="dd" placeholder="Để trống nếu không có" value="${p.dd||''}"></div>
+      </div>
+    </div>`;
+  container.appendChild(div);
+}
+
+function biSwitchPersonType(btn, type, pid, role){
+  const personDiv = btn.closest('.ds-person');
+  personDiv.querySelectorAll('.ds-person-type button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  personDiv.querySelector('[data-cn]').style.display = type==='ca_nhan'?'':'none';
+  personDiv.querySelector('[data-tc]').style.display = type==='to_chuc'?'':'none';
+  personDiv.dataset.loai = type;
+}
+
+function biAddPerson(role){
+  const p = {id:'p'+Date.now(),loai:'ca_nhan',ten:'',sinh:'',cccd:'',tt:'',ct:'',gt:'',dc:'',dd:'',tentochuc:''};
+  biAppendPersonEl(role, p);
+}
+
+function biRemovePerson(role, pid){
+  const container = document.getElementById(`bi_${role}_list`);
+  const el = container.querySelector(`[data-pid="${pid}"]`);
+  if(el) el.remove();
+  // Cập nhật số thứ tự
+  container.querySelectorAll('.ds-person').forEach((div,i)=>{
+    const label = div.querySelector('.ds-person-label');
+    if(label) label.textContent = `${role==='nkk'?'Người khởi kiện':'Người bị kiện'} #${i+1}`;
+  });
+}
+
+// ── Đọc dữ liệu người từ DOM ──
+function biReadPersons(role){
+  const container = document.getElementById(`bi_${role}_list`);
+  const persons = [];
+  container.querySelectorAll('.ds-person').forEach(div=>{
+    const pid = div.dataset.pid;
+    const typeBtn = div.querySelector('.ds-person-type button.active');
+    const loai = typeBtn?.textContent?.trim()==='Tổ chức' ? 'to_chuc' : 'ca_nhan';
+    const f = field => (div.querySelector(`[data-f="${field}"]`)?.value||'').trim();
+    persons.push({id:pid, loai,
+      ten: f('ten'), sinh: f('sinh'), cccd: f('cccd'),
+      tt: f('tt'), ct: f('ct'), gt: f('gt'),
+      tentochuc: f('tentochuc'), dc: f('dc'), dd: f('dd')
+    });
+  });
+  return persons;
+}
+
+// ── Lưu vụ hiện tại ──
+function biSaveCurrent(silent=false){
+  if(!biCurrentId) return;
+  const idx = biVuAns.findIndex(v=>v.id===biCurrentId);
+  if(idx===-1) return;
+
+  const g = id=>(document.getElementById(id)?.value||'').trim();
+  biVuAns[idx] = {
+    ...biVuAns[idx],
+    maVu:          g('bi_mavu'),
+    soNhanDon:     g('bi_so'),
+    loaiVu:        g('bi_loaivu'),
+    phuongThuc:    g('bi_phuongthuc'),
+    qhpl:          g('bi_qhpl'),
+    ngayLam:       g('bi_ngaylam'),
+    ngayNhan:      g('bi_ngaynhan'),
+    ngayBanHanhTB: g('bi_ngaybanhanh_tb'),
+    ngayBanHanhQD: g('bi_ngaybanhanh_qd'),
+    giaTriTs:      g('bi_giatri'),
+    thamPhan:      g('bi_thamphan'),
+    duongSu:{
+      nkk: biReadPersons('nkk'),
+      nbk: biReadPersons('nbk'),
+    }
+  };
+
+  biSaveStorage();
+  biRenderList();
+  if(!silent) showToast(`✅ Đã lưu vụ ${biVuAns[idx].maVu||biVuAns[idx].soNhanDon||'(chưa có mã)'}`, 'success');
+}
+
+// ── Xóa vụ ──
+function biDeleteVu(id){
+  if(!confirm('Xóa vụ án này?')) return;
+  biVuAns = biVuAns.filter(v=>v.id!==id);
+  if(biCurrentId===id){
+    biCurrentId=null;
+    document.getElementById('biFormEmpty').style.display='block';
+    document.getElementById('biFormContent').style.display='none';
+  }
+  biSaveStorage();
+  biRenderList();
+}
+
+function biClearAll(){
+  if(!confirm('Xóa toàn bộ danh sách vụ án?')) return;
+  biVuAns=[];
+  biCurrentId=null;
+  document.getElementById('biFormEmpty').style.display='block';
+  document.getElementById('biFormContent').style.display='none';
+  biSaveStorage();
+  biRenderList();
+}
+
+// ── Copy đương sự từ vụ trước ──
+function biCopyFromPrev(){
+  if(!biCurrentId) return;
+  const idx = biVuAns.findIndex(v=>v.id===biCurrentId);
+  if(idx<=0){ showToast('⚠️ Không có vụ trước để copy','error'); return; }
+  const prev = biVuAns[idx-1];
+  const vu = biVuAns[idx];
+  // Lưu vụ hiện tại trước
+  biSaveCurrent(true);
+  // Copy đương sự từ vụ trước, tạo id mới
+  biVuAns[idx].duongSu = {
+    nkk: prev.duongSu.nkk.map(p=>({...p,id:'p'+Date.now()+Math.random()})),
+    nbk: prev.duongSu.nbk.map(p=>({...p,id:'p'+Date.now()+Math.random()})),
+  };
+  biSaveStorage();
+  biRenderPersons('nkk', biVuAns[idx].duongSu.nkk);
+  biRenderPersons('nbk', biVuAns[idx].duongSu.nbk);
+  showToast('✅ Đã copy đương sự từ vụ trước','success');
+}
+
+// ── Convert biVuAn → định dạng importedVuAns (dùng chung buildPHFromVuAn) ──
+function biToVuAnModel(v){
+  function personToModel(p){
+    return {
+      loai: p.loai,
+      ten: p.loai==='to_chuc' ? p.tentochuc : p.ten,
+      ngay_sinh: p.sinh||'',
+      cccd: p.cccd||'',
+      thuong_tru: p.tt||'',
+      cu_tru: p.ct||'',
+      gioi_tinh: p.gt||'',
+      dia_chi: p.dc||'',
+      dai_dien: p.dd||'',
+    };
+  }
+  return {
+    maVu:          v.maVu||v.id,
+    soNhanDon:     v.soNhanDon,
+    qhpl:          v.qhpl,
+    ngayLam:       v.ngayLam,
+    ngayNhan:      v.ngayNhan,
+    ngayBanHanhTB: v.ngayBanHanhTB,
+    ngayBanHanhQD: v.ngayBanHanhQD,
+    giaTriTs:      v.giaTriTs,
+    thamPhan:      v.thamPhan,
+    loaiVu:        v.loaiVu,
+    phuongThucGui: v.phuongThuc,
+    duongSu:{
+      khoi_kien: (v.duongSu?.nkk||[]).map(personToModel).filter(p=>p.ten),
+      bi_kien:   (v.duongSu?.nbk||[]).map(personToModel).filter(p=>p.ten),
+    }
+  };
+}
+
+// ── Lấy danh sách tplType được chọn trong bi panel ──
+function biGetSelectedTpls(){
+  const r=[];
+  if(document.getElementById('bi_opt_TB_AP')?.classList.contains('selected')) r.push('TB_AP');
+  if(document.getElementById('bi_opt_GXN')?.classList.contains('selected')) r.push('GXN_DS');
+  if(document.getElementById('bi_opt_QD')?.classList.contains('selected')) r.push('QD_Phancong_DS');
+  return r;
+}
+
+// ── Xuất 1 hoặc nhiều vụ (dùng chung logic với startBatchExport) ──
+async function biRunExport(vuAnList, selectedTpls){
+  // Validate
+  const validationErrors=[];
+  for(const vm of vuAnList){
+    const id=`[${vm.maVu}] ${vm.soNhanDon||'—'}`;
+    const gRaw=vm.giaTriTs, colI=vm.ngayBanHanhTB, colJ=vm.ngayBanHanhQD;
+    const hasI=isValidDate(colI), hasJ=isValidDate(colJ);
+    const isExempt=typeof gRaw==='string'&&gRaw.toLowerCase().includes('mien');
+    const hasSoTien=!isExempt&&!!gRaw&&parseFloat(String(gRaw).replace(/[^0-9.]/g,''))>0;
+    const isEmpty=!gRaw||String(gRaw).trim()==='';
+    if(hasI&&hasJ) validationErrors.push(`${id}: Cột ngày TB và ngày QĐ không được cùng có dữ liệu`);
+    else{
+      if(isExempt&&!hasI) validationErrors.push(`${id}: Miễn án phí nhưng chưa có ngày ban hành TB`);
+      if(hasSoTien&&!hasI) validationErrors.push(`${id}: Có số tiền nhưng chưa có ngày ban hành TB`);
+      if(isEmpty&&selectedTpls.includes('QD_Phancong_DS')&&!hasJ) validationErrors.push(`${id}: Chưa có ngày ban hành QĐ phân công`);
+    }
+  }
+  if(validationErrors.length>0){
+    document.getElementById('bi_progressCard').style.display='block';
+    document.getElementById('bi_progressBar').style.width='0%';
+    document.getElementById('bi_progressText').textContent=`⛔ ${validationErrors.length} lỗi dữ liệu`;
+    document.getElementById('bi_resultList').innerHTML=validationErrors.map(e=>`<div class="import-result-item err"><span class="ir-icon">⛔</span><span class="ir-name" style="white-space:normal">${e}</span></div>`).join('');
+    showToast(`⛔ ${validationErrors.length} lỗi dữ liệu`,'error');
+    return;
+  }
+
+  // Build tasks
+  const tasks=[];
+  for(const vm of vuAnList){
+    const hasI=isValidDate(vm.ngayBanHanhTB), hasJ=isValidDate(vm.ngayBanHanhQD);
+    const isEmpty=!vm.giaTriTs||String(vm.giaTriTs).trim()==='';
+    for(const t of selectedTpls){
+      if(t==='TB_AP'&&hasI) tasks.push({vuAn:vm,tplType:t});
+      else if(t==='QD_Phancong_DS'&&hasJ) tasks.push({vuAn:vm,tplType:t});
+      else if(t==='GXN_DS') tasks.push({vuAn:vm,tplType:t});
+    }
+  }
+  if(tasks.length===0){ showToast('⚠️ Không có văn bản nào đủ điều kiện xuất','error'); return; }
+
+  document.getElementById('bi_progressCard').style.display='block';
+  document.getElementById('bi_resultList').innerHTML='';
+  document.getElementById('bi_progressBar').style.width='0%';
+
+  // Nhóm task theo tplName
+  const grouped={};
+  for(const t of tasks){
+    const tn=getTplNameForVuAn(t.vuAn,t.tplType);
+    if(!grouped[tn]) grouped[tn]=[];
+    grouped[tn].push(t);
+  }
+  const tplNames=Object.keys(grouped);
+  let doneGroups=0,errors=0;
+  const resultEl=document.getElementById('bi_resultList');
+
+  for(const tplName of tplNames){
+    const groupTasks=grouped[tplName];
+    document.getElementById('bi_progressText').textContent=`Đang xử lý: ${tplName} (${groupTasks.length} vụ)...`;
+    try{
+      const res=await fetch('templates/'+tplName+'.docx');
+      if(!res.ok) throw new Error('Không tìm thấy templates/'+tplName+'.docx');
+      const tplBuf=await res.arrayBuffer();
+      const renderedBufs=[];
+      for(const {vuAn,tplType} of groupTasks){
+        try{
+          const ph=buildPHFromVuAn(vuAn,tplType);
+          const safePH={};
+          for(const[k,v]of Object.entries(ph)) safePH[k]=typeof v==='string'?v.replace(/\r/g,'').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g,''):v;
+          const zip=new PizZip(tplBuf.slice(0));
+          const doc=new window.docxtemplater(zip,{paragraphLoop:true,linebreaks:true,delimiters:{start:'[[',end:']]'},nullGetter(){return '';}});
+          doc.setData(safePH); doc.render();
+          postProcessDocx(doc.getZip());
+          renderedBufs.push(doc.getZip().generate({type:'arraybuffer',compression:'DEFLATE'}));
+        }catch(err){
+          errors++;
+          resultEl.insertAdjacentHTML('beforeend',`<div class="import-result-item err"><span class="ir-icon">❌</span><span class="ir-name">${tplName} — ${vuAn.maVu}</span><span class="ir-detail">${err.message}</span></div>`);
+        }
+      }
+      if(renderedBufs.length===0) continue;
+      const mergedBuf=await mergeDocxBuffers(renderedBufs);
+      const blob=new Blob([mergedBuf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+      const mergedFileName=`${tplName}_${groupTasks.length}vu.docx`;
+      await saveBlobToFolder(tplName,blob,mergedFileName);
+      doneGroups++;
+      resultEl.insertAdjacentHTML('beforeend',`<div class="import-result-item ok"><span class="ir-icon">✅</span><span class="ir-name">${mergedFileName}</span><span class="ir-detail">${groupTasks.length} vụ án đã gộp</span></div>`);
+    }catch(err){
+      errors++;
+      resultEl.insertAdjacentHTML('beforeend',`<div class="import-result-item err"><span class="ir-icon">❌</span><span class="ir-name">${tplName}</span><span class="ir-detail">${err.message}</span></div>`);
+    }
+    document.getElementById('bi_progressBar').style.width=Math.round(((doneGroups+errors)/tplNames.length)*100)+'%';
+  }
+  document.getElementById('bi_progressText').textContent=`Hoàn tất! ✅ ${doneGroups} file đã xuất${errors?` · ❌ ${errors} lỗi`:''}`;
+  showToast(`✅ Xuất xong: ${doneGroups} file`+(errors?` · ${errors} lỗi`:''),'success');
+}
+
+async function biExportCurrent(){
+  biSaveCurrent(true);
+  const selectedTpls=biGetSelectedTpls();
+  if(selectedTpls.length===0){showToast('⚠️ Chọn ít nhất 1 loại văn bản','error');return;}
+  const vu=biVuAns.find(v=>v.id===biCurrentId);
+  if(!vu){showToast('⚠️ Chưa chọn vụ án','error');return;}
+  await biRunExport([biToVuAnModel(vu)], selectedTpls);
+}
+
+async function biExportAll(){
+  biSaveCurrent(true);
+  const selectedTpls=biGetSelectedTpls();
+  if(selectedTpls.length===0){showToast('⚠️ Chọn ít nhất 1 loại văn bản','error');return;}
+  if(biVuAns.length===0){showToast('⚠️ Chưa có vụ án nào','error');return;}
+  await biRunExport(biVuAns.map(biToVuAnModel), selectedTpls);
+}
+
+// Khởi động batch input
+window.addEventListener('DOMContentLoaded', ()=>{
+  biLoadStorage();
+  biLoadJudges();
+});
+
 </body>
 </html>
