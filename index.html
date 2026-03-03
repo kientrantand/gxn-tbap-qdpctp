@@ -2584,9 +2584,11 @@ async function mergeDocxBuffers(buffers){
     const bodyMatch = xml.match(/<w:body>([\s\S]*)<\/w:body>/);
     if(!bodyMatch) return '';
     let content = bodyMatch[1];
-    // Bỏ <w:sectPr> cuối (có thể nested — dùng greedy từ thẻ mở cuối cùng)
+    // Bỏ <w:sectPr> cuối (dùng lastIndexOf cho chắc)
     const sectPrStart = content.lastIndexOf('<w:sectPr');
     if(sectPrStart !== -1) content = content.substring(0, sectPrStart);
+    // Bỏ các paragraph trống cuối cùng (không có <w:t>) để tránh khoảng trắng thừa đầu trang kế
+    content = content.replace(/(<w:p\b[^>]*>(?:<w:pPr>[\s\S]*?<\/w:pPr>)?<\/w:p>\s*)+$/, '');
     return content.trimEnd();
   }
 
