@@ -2062,7 +2062,7 @@ function parseExcelBuffer(buf){
     const person = {
       loai,
       ten: (r[3]||'').trim(),
-      ngay_sinh: formatExcelDate(r[4]),  // parse serial/date → dd/mm/yyyy string
+      ngay_sinh: formatExcelNgaySinh(r[4]),  // năm (1974) hoặc ngày đầy đủ (09/06/1997)
       cccd: r[5] ? String(r[5]).trim() : '',
       thuong_tru: (r[6]||'').trim(),
       cu_tru: (r[7]||'').trim(),
@@ -2174,6 +2174,23 @@ function formatExcelDate(val){
   if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) return s;
   // Trả về nguyên bản nếu không nhận dạng được
   return s;
+}
+
+// Riêng cho cột ngay_sinh trong DUONG_SU:
+// - Số 1900–2100: là năm sinh → trả về "1974" (string năm)
+// - Số khác (serial Excel lớn): là ngày đầy đủ → dùng formatExcelDate
+// - String "1974": giữ nguyên
+// - String "09/06/1997": giữ nguyên
+function formatExcelNgaySinh(val){
+  if(!val && val !== 0) return '';
+  if(typeof val === 'number'){
+    // Năm sinh nằm trong khoảng 1900–2100 → đây là năm, không phải serial
+    if(Number.isInteger(val) && val >= 1900 && val <= 2100) return String(val);
+    // Còn lại là serial ngày đầy đủ
+    return formatExcelDate(val);
+  }
+  // String hoặc Date — dùng formatExcelDate bình thường
+  return formatExcelDate(val);
 }
 
 function formatExcelDateLong(val){
