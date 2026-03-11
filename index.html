@@ -592,6 +592,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <div class="actions">
         <button class="btn btn-outline" onclick="togglePreview('ap')">👁 Xem Placeholders</button>
         <button class="btn btn-outline" onclick="resetPanel('ap')">🔄 Làm mới</button>
+        <button class="btn btn-outline" onclick="copyTabInfo('ap')">📋 Sao chép sang tab khác</button>
         <button class="btn btn-primary" id="ap_exportBtn" onclick="exportWord('ap')">📥 Xuất văn bản Word</button>
       </div>
     </div>
@@ -699,6 +700,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <div class="actions">
         <button class="btn btn-outline" onclick="togglePreview('qd')">👁 Xem Placeholders</button>
         <button class="btn btn-outline" onclick="resetPanel('qd')">🔄 Làm mới</button>
+        <button class="btn btn-outline" onclick="copyTabInfo('qd')">📋 Sao chép sang tab khác</button>
         <button class="btn btn-primary" id="qd_exportBtn" onclick="exportWord('qd')">📥 Xuất Quyết định Word</button>
       </div>
     </div>
@@ -807,6 +809,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <div class="actions">
         <button class="btn btn-outline" onclick="togglePreview('gxn')">👁 Xem Placeholders</button>
         <button class="btn btn-outline" onclick="resetPanel('gxn')">🔄 Làm mới</button>
+        <button class="btn btn-outline" onclick="copyTabInfo('gxn')">📋 Sao chép sang tab khác</button>
         <button class="btn btn-primary" id="gxn_exportBtn" onclick="exportWord('gxn')">📥 Xuất Giấy xác nhận Word</button>
       </div>
     </div>
@@ -1049,6 +1052,55 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 </div>
 
 
+<!-- ===== MODAL SAO CHÉP THÔNG TIN ===== -->
+<div class="import-modal-backdrop" id="copyModal" onclick="if(event.target===this)closeCopyModal()">
+  <div class="import-modal" style="max-width:480px;">
+    <div class="import-modal-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;background:var(--navy);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">📋</div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--navy);">Sao chép thông tin</div>
+          <div style="font-size:12px;color:var(--text-light);" id="copyModalSub">Chọn tab đích và nội dung cần sao chép</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeCopyModal()">✕</button>
+    </div>
+    <div class="import-modal-body">
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Sao chép sang tab:</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="copyTargetBtns"></div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Nội dung sao chép:</div>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;margin-bottom:6px;font-size:14px;font-weight:500;">
+          <input type="checkbox" id="copyChk_so" checked style="width:16px;height:16px;accent-color:var(--navy);">
+          Số nhận đơn
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;margin-bottom:6px;font-size:14px;font-weight:500;">
+          <input type="checkbox" id="copyChk_quanhe" checked style="width:16px;height:16px;accent-color:var(--navy);">
+          Quan hệ tranh chấp
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;margin-bottom:6px;font-size:14px;font-weight:500;">
+          <input type="checkbox" id="copyChk_ngaylam" checked style="width:16px;height:16px;accent-color:var(--navy);">
+          Ngày làm đơn
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;margin-bottom:6px;font-size:14px;font-weight:500;">
+          <input type="checkbox" id="copyChk_nkk" checked style="width:16px;height:16px;accent-color:var(--navy);">
+          Người khởi kiện (NKK + các đương sự thêm)
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;">
+          <input type="checkbox" id="copyChk_nbk" checked style="width:16px;height:16px;accent-color:var(--navy);">
+          Người bị kiện (NBK + các đương sự thêm)
+        </label>
+      </div>
+    </div>
+    <div class="import-modal-footer">
+      <button class="btn btn-outline" onclick="closeCopyModal()">Hủy</button>
+      <button class="btn btn-primary" onclick="confirmCopy()">📋 Sao chép</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"><span id="toastMsg"></span></div>
 <footer class="footer"> © Copyright Trần Văn Kiên - TAND KV7 - Ninh Binh </footer>
 <script>
@@ -1236,7 +1288,14 @@ document.addEventListener('focusin', function(e){
 function switchParty(prefix, type, btn){
   const card = document.getElementById(prefix+'_ca_nhan').closest('.card');
   card.querySelectorAll('.party-tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
+  else {
+    // Tìm và active đúng tab button khi gọi từ code (không có btn)
+    card.querySelectorAll('.party-tab').forEach(t=>{
+      if((type==='ca_nhan'&&t.textContent.includes('Cá nhân'))||(type==='to_chuc'&&t.textContent.includes('Tổ chức')))
+        t.classList.add('active');
+    });
+  }
   document.getElementById(prefix+'_ca_nhan').style.display = type==='ca_nhan'?'block':'none';
   document.getElementById(prefix+'_to_chuc').style.display = type==='to_chuc'?'block':'none';
   livePreview(prefix.split('_')[0]);
@@ -1341,22 +1400,25 @@ function calcAP(){
   const raw = document.getElementById('ap_sotien').value.replace(/\./g,'');
   const s = parseFloat(raw)||0;
   const parts = Math.max(1, parseInt(document.getElementById('ap_sophan').value)||1);
-  const anphi = calcAnPhi(s);
-  const tamung  = s ? minAP(roundTo1000(anphi/2)) : 0;
-  const moiphan = (s&&parts>1) ? minAP(roundTo1000(tamung/parts)) : 0;
-  _ap = { tamung, moiphan, parts };
-  document.getElementById('apFull').textContent    = s ? fmtVND(anphi)  : '—';
-  document.getElementById('apTamung').textContent  = s ? fmtVND(tamung) : '—';
+  // Thuật toán đúng: chia phần TRƯỚC, tính án phí trên từng phần
+  const sotienMoiPhan = parts > 1 ? s / parts : s;
+  const anphiMoiPhan = calcAnPhi(sotienMoiPhan);
+  const anphiTong = anphiMoiPhan * parts;
+  const tamungMoiPhan = sotienMoiPhan ? minAP(roundTo1000(anphiMoiPhan / 2)) : 0;
+  const tamungTong = tamungMoiPhan * parts;
+  _ap = { tamung: tamungMoiPhan, moiphan: tamungMoiPhan, parts };
+  document.getElementById('apFull').textContent   = s ? fmtVND(anphiTong)    : '—';
+  document.getElementById('apTamung').textContent = s ? fmtVND(tamungTong)   : '—';
   if(parts>1&&s){
-    document.getElementById('apPart').textContent    = fmtVND(moiphan);
-    document.getElementById('apPartSub').textContent = 'Tạm ứng ÷ '+parts+' phần';
+    document.getElementById('apPart').textContent    = fmtVND(tamungMoiPhan);
+    document.getElementById('apPartSub').textContent = 'Tạm ứng mỗi phần (' + parts + ' phần)';
   } else {
     document.getElementById('apPart').textContent    = '—';
     document.getElementById('apPartSub').textContent = 'Nhập số phần để tính';
   }
   livePreview('ap');
 }
-function getTienAP(){ if(!_ap.tamung) return 0; return _ap.parts>1 ? _ap.moiphan : _ap.tamung; }
+function getTienAP(){ if(!_ap.tamung) return 0; return _ap.tamung; }
 
 function soThanhChu(n){
   if(!n||n<=0) return ''; n = Math.round(n);
@@ -1677,6 +1739,137 @@ function resetPanel(ns){
   document.getElementById(ns+'_preview').classList.remove('show');
   if(ns==='ap') calcAP();
   showToast('🔄 Đã làm mới biểu mẫu','success');
+}
+
+// ===================== SAO CHÉP THÔNG TIN GIỮA CÁC TAB =====================
+let _copySource = '';
+const TAB_LABELS = { ap: 'Án phí', qd: 'Phân công', gxn: 'Giấy xác nhận' };
+
+function copyTabInfo(src){
+  _copySource = src;
+  document.getElementById('copyModalSub').textContent = 'Từ tab: ' + TAB_LABELS[src];
+  // Render nút tab đích (bỏ tab nguồn)
+  const targets = Object.keys(TAB_LABELS).filter(t => t !== src);
+  document.getElementById('copyTargetBtns').innerHTML = targets.map(t => `
+    <button class="copy-target-btn active" id="copyTarget_${t}" onclick="toggleCopyTarget(this,'${t}')"
+      style="padding:8px 18px;border-radius:8px;border:2px solid var(--navy);background:var(--navy);color:white;font-size:13px;font-weight:700;cursor:pointer;">
+      ${TAB_LABELS[t]}
+    </button>`).join('');
+  document.getElementById('copyModal').classList.add('show');
+}
+
+function toggleCopyTarget(btn, t){
+  btn.classList.toggle('active');
+  if(btn.classList.contains('active')){
+    btn.style.background='var(--navy)'; btn.style.color='white';
+  } else {
+    btn.style.background='white'; btn.style.color='var(--navy)';
+  }
+}
+
+function closeCopyModal(){ document.getElementById('copyModal').classList.remove('show'); }
+
+function confirmCopy(){
+  const src = _copySource;
+  const targets = ['ap','qd','gxn'].filter(t => {
+    const btn = document.getElementById('copyTarget_'+t);
+    return btn && btn.classList.contains('active');
+  });
+  if(!targets.length){ showToast('⚠️ Chưa chọn tab đích','error'); return; }
+
+  const g = id => (document.getElementById(id)?.value||'');
+  const s = (id,v) => { const el=document.getElementById(id); if(el) el.value=v; };
+
+  const doSo      = document.getElementById('copyChk_so').checked;
+  const doQuanhe  = document.getElementById('copyChk_quanhe').checked;
+  const doNgaylam = document.getElementById('copyChk_ngaylam').checked;
+  const doNkk     = document.getElementById('copyChk_nkk').checked;
+  const doNbk     = document.getElementById('copyChk_nbk').checked;
+
+  // Đọc dữ liệu từ tab nguồn
+  const srcSo      = g(src+'_so');
+  const srcQuanhe  = g(src+'_quanhe');
+  // Ngày làm đơn: ap và gxn có, qd không có
+  const srcNgaylam = src !== 'qd' ? g(src+'_ngaylam') : '';
+
+  // Đọc extra parties nguồn (lưu values trước)
+  ['nkk','nbk'].forEach(role => multiParty[src][role].forEach(p => saveEPValues(p)));
+
+  for(const dst of targets){
+    if(doSo && document.getElementById(dst+'_so'))
+      s(dst+'_so', srcSo);
+
+    if(doQuanhe && document.getElementById(dst+'_quanhe'))
+      s(dst+'_quanhe', srcQuanhe);
+
+    if(doNgaylam && dst !== 'qd' && srcNgaylam)
+      s(dst+'_ngaylam', srcNgaylam);
+
+    // Copy NKK
+    if(doNkk){
+      // Copy đương sự chính
+      const srcNkkType = document.getElementById(src+'_nkk_ca_nhan')?.style.display!=='none' ? 'ca_nhan' : 'to_chuc';
+      // Set loại
+      const dstCNbtn = document.querySelector(`#panel${dst==='ap'?0:dst==='qd'?1:2} .party-tab`);
+      if(srcNkkType==='ca_nhan'){
+        s(dst+'_nkk_ten',       g(src+'_nkk_ten'));
+        s(dst+'_nkk_namsinh',   g(src+'_nkk_namsinh'));
+        s(dst+'_nkk_cccd',      g(src+'_nkk_cccd'));
+        s(dst+'_nkk_thuongtru', g(src+'_nkk_thuongtru'));
+        s(dst+'_nkk_cutru',     g(src+'_nkk_cutru'));
+        const gtEl = document.getElementById(dst+'_nkk_gt');
+        if(gtEl) gtEl.value = document.getElementById(src+'_nkk_gt')?.value||'';
+        // Đảm bảo hiển thị cá nhân
+        switchParty(dst+'_nkk','ca_nhan', null);
+      } else {
+        s(dst+'_nkk_tentochuc', g(src+'_nkk_tentochuc'));
+        s(dst+'_nkk_diachi',    g(src+'_nkk_diachi'));
+        s(dst+'_nkk_daidien',   g(src+'_nkk_daidien'));
+        switchParty(dst+'_nkk','to_chuc', null);
+      }
+      // Copy extra NKK
+      multiParty[dst].nkk = [];
+      multiParty[src].nkk.forEach(p => {
+        const newId = ++epCounter;
+        multiParty[dst].nkk.push({id:newId, ptype:p.ptype, _vals:{...p._vals}});
+      });
+      renderParty(dst,'nkk');
+      multiParty[dst].nkk.forEach(p => restoreEPValues(p));
+    }
+
+    // Copy NBK
+    if(doNbk){
+      const srcNbkType = document.getElementById(src+'_nbk_ca_nhan')?.style.display!=='none' ? 'ca_nhan' : 'to_chuc';
+      if(srcNbkType==='ca_nhan'){
+        s(dst+'_nbk_ten',       g(src+'_nbk_ten'));
+        s(dst+'_nbk_namsinh',   g(src+'_nbk_namsinh'));
+        s(dst+'_nbk_cccd',      g(src+'_nbk_cccd'));
+        s(dst+'_nbk_thuongtru', g(src+'_nbk_thuongtru'));
+        s(dst+'_nbk_cutru',     g(src+'_nbk_cutru'));
+        const gtEl = document.getElementById(dst+'_nbk_gt');
+        if(gtEl) gtEl.value = document.getElementById(src+'_nbk_gt')?.value||'';
+        switchParty(dst+'_nbk','ca_nhan', null);
+      } else {
+        s(dst+'_nbk_tentochuc', g(src+'_nbk_tentochuc'));
+        s(dst+'_nbk_diachi',    g(src+'_nbk_diachi'));
+        s(dst+'_nbk_daidien',   g(src+'_nbk_daidien'));
+        switchParty(dst+'_nbk','to_chuc', null);
+      }
+      // Copy extra NBK
+      multiParty[dst].nbk = [];
+      multiParty[src].nbk.forEach(p => {
+        const newId = ++epCounter;
+        multiParty[dst].nbk.push({id:newId, ptype:p.ptype, _vals:{...p._vals}});
+      });
+      renderParty(dst,'nbk');
+      multiParty[dst].nbk.forEach(p => restoreEPValues(p));
+    }
+
+    livePreview(dst);
+  }
+
+  closeCopyModal();
+  showToast(`✅ Đã sao chép sang: ${targets.map(t=>TAB_LABELS[t]).join(', ')}`, 'success');
 }
 
 // ===================== MULTI PARTY =====================
